@@ -1,3 +1,80 @@
-<nav>
-    
-</nav>
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">
+      <i class="fa-solid fa-graduation-cap logo-icon"></i>
+      <div class="logo-text">
+        <h1>SIMS</h1>
+        <p>Student Information Management System</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li class="<%= currentPage === 'dashboard' ? 'active' : '' %>">
+          <a href="/student/dashboard">
+            <i class="fa-solid fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="<%= currentPage === 'profile' ? 'active' : '' %>">
+          <a href="/student/profile">
+            <i class="fa-solid fa-user"></i>
+            <span>My Profile</span>
+          </a>
+        </li>
+        <li class="<%= currentPage === 'forms' ? 'active' : '' %>">
+          <a href="/student/forms">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Forms</span>
+          </a>
+        </li>
+        <li class="<%= currentPage === 'documents' ? 'active' : '' %>">
+          <a href="/student/documents">
+            <i class="fa-solid fa-folder"></i>
+            <span>Documents</span>
+          </a>
+        </li>
+        <li class="<%= currentPage === 'notices' ? 'active' : '' %>">
+          <a href="/student/notices">
+            <i class="fa-solid fa-bullhorn"></i>
+            <span>Notices</span>
+          </a>
+        </li>
+        <li class="<%= currentPage === 'messages' ? 'active' : '' %>">
+          <a href="/student/messages">
+            <i class="fa-solid fa-envelope"></i>
+            <span>Messages</span>
+          </a>
+        </li>
+        <li class="<%= currentPage === 'settings' ? 'active' : '' %>">
+          <a href="/student/settings">
+            <i class="fa-solid fa-gear"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li class="<%= currentPage === 'help' ? 'active' : '' %>">
+          <a href="/student/help">
+            <i class="fa-regular fa-circle-question"></i>
+            <span>Help & Support</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="help-card">
+      <p class="help-title">Need Help?</p>
+      <p class="help-text">If you face any issues, please contact your department.</p>
+      <button class="contact-support-btn">
+        <i class="fa-regular fa-comment-dots"></i>
+        Contact Support
+      </button>
+    </div>
+
+    <a href="/logout" class="logout-link">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>Logout</span>
+    </a>
+  </div>
+</aside>

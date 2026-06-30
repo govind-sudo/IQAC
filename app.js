@@ -8,18 +8,16 @@ const ejsmate = require("ejs-mate")
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
 app.engine('ejs', ejsmate);
+app.use(express.static(path.join(__dirname, "public")));
 
 
+app.get("/students/dashboard", (req, res) => {
+  res.render("student/dashboard", { currentPage: "dashboard" });
+});
 
-app.get("/students/dashboard",(req,res)=>{
-    res.render("student/dashboard");
-})
-
-
-app.get("/students/profile",(req,res)=>{
-    res.render("student/profile");
-})
-
+app.get("/students/profile", (req, res) => {
+  res.render("student/profile", { currentPage: "profile" });
+});
 
 
 
