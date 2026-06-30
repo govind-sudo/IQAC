@@ -2,7 +2,7 @@
 .student-profile-page {
 	--palette-primary: #1f426f;
 	--palette-secondary: #2f60a0;
-	--palette-accent: #6FCF97;
+	--palette-accent: #818CF8;
 	--palette-surface: #EEEEEE;
 	--palette-ink: #17332E;
 	--palette-ink-soft: #5C716B;
@@ -43,7 +43,7 @@
 	text-decoration: none;
 	color: var(--palette-ink);
 	background: rgba(255, 255, 255, 0.92);
-	border: 1px solid rgba(31, 111, 95, 0.12);
+	border: 1px solid rgba(31, 66, 111, 0.12);
 	box-shadow: 0 10px 22px rgba(16, 33, 61, 0.06);
 }
 
@@ -54,7 +54,7 @@
 .profile-summary-card,
 .profile-panel {
 	background: rgba(255, 255, 255, 0.96);
-	border: 1px solid rgba(31, 111, 95, 0.08);
+	border: 1px solid rgba(31, 66, 111, 0.08);
 	border-radius: 24px;
 	box-shadow: 0 18px 36px rgba(16, 33, 61, 0.06);
 }
@@ -86,7 +86,7 @@
 	border-radius: 50%;
 	overflow: hidden;
 	background: linear-gradient(135deg, var(--palette-primary), var(--palette-secondary), var(--palette-accent));
-	box-shadow: 0 18px 30px rgba(31, 111, 95, 0.18);
+	box-shadow: 0 18px 30px rgba(31, 66, 111, 0.18);
 	display: grid;
 	place-items: center;
 }
@@ -118,9 +118,9 @@
 }
 
 .edit-photo-btn {
-	background: rgba(47, 160, 132, 0.1);
+	background: rgba(47, 96, 160, 0.1);
 	color: var(--palette-secondary);
-	border: 1px solid rgba(47, 160, 132, 0.18);
+	border: 1px solid rgba(47, 96, 160, 0.18);
 }
 
 .profile-core-info {
@@ -199,7 +199,7 @@
 }
 
 .profile-summary-right {
-	border-left: 1px solid rgba(31, 111, 95, 0.08);
+	border-left: 1px solid rgba(31, 66, 111, 0.08);
 	padding-left: 20px;
 	display: flex;
 	flex-direction: column;
@@ -213,7 +213,7 @@
 	align-self: flex-start;
 	padding: 8px 12px;
 	border-radius: 999px;
-	background: rgba(47, 160, 132, 0.12);
+	background: rgba(47, 96, 160, 0.12);
 	color: var(--palette-secondary);
 	font-size: 13px;
 	font-weight: 700;
@@ -289,7 +289,7 @@
 	gap: 8px;
 	flex-wrap: wrap;
 	padding-bottom: 2px;
-	border-bottom: 1px solid rgba(31, 111, 95, 0.08);
+	border-bottom: 1px solid rgba(31, 66, 111, 0.08);
 }
 
 .profile-tab {
@@ -305,7 +305,7 @@
 .profile-tab.active {
 	color: var(--palette-secondary);
 	border-bottom-color: var(--palette-secondary);
-	background: rgba(47, 160, 132, 0.08);
+	background: rgba(47, 96, 160, 0.08);
 }
 
 .profile-content-grid {
@@ -345,15 +345,15 @@
 	height: 36px;
 	border: 0;
 	border-radius: 12px;
-	background: rgba(47, 160, 132, 0.1);
+	background: rgba(47, 96, 160, 0.1);
 	color: var(--palette-secondary);
 	cursor: pointer;
 }
 
 .panel-link-btn {
-	background: rgba(47, 160, 132, 0.1);
+	background: rgba(47, 96, 160, 0.1);
 	color: var(--palette-secondary);
-	border: 1px solid rgba(47, 160, 132, 0.18);
+	border: 1px solid rgba(47, 96, 160, 0.18);
 }
 
 .info-table {
@@ -402,7 +402,7 @@
 }
 
 .profile-alert-panel {
-	background: linear-gradient(180deg, rgba(47, 160, 132, 0.08), rgba(111, 207, 151, 0.04));
+	background: linear-gradient(180deg, rgba(47, 96, 160, 0.08), rgba(99, 102, 241, 0.04));
 }
 
 .profile-alert {
@@ -443,7 +443,7 @@
 		border-left: 0;
 		padding-left: 0;
 		padding-top: 14px;
-		border-top: 1px solid rgba(31, 111, 95, 0.08);
+		border-top: 1px solid rgba(31, 66, 111, 0.08);
 	}
 }
 
