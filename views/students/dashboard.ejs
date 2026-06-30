@@ -1,2 +1,234 @@
 <% layout("layout/studentsBoilerPlate") %>
-<h1>Dashboard content goes here</h1>
+<%
+	const stats = typeof dashboardStats !== 'undefined' ? dashboardStats : {};
+	const profile = typeof profileCompletion !== 'undefined' ? profileCompletion : {};
+	const deadlines = typeof upcomingDeadlines !== 'undefined' ? upcomingDeadlines : [];
+	const quickActions = typeof quickActionsData !== 'undefined' ? quickActionsData : [];
+	const student = typeof studentData !== 'undefined' ? studentData : {};
+	const notificationItems = typeof notificationsData !== 'undefined' ? notificationsData : [
+		{ title: 'Scholarship registration is open', meta: '2 min ago', icon: 'fa-bell', tone: 'blue' },
+		{ title: 'Document verification pending', meta: 'Today', icon: 'fa-file-circle-exclamation', tone: 'orange' },
+		{ title: 'Message from faculty', meta: '1 hour ago', icon: 'fa-message', tone: 'green' }
+	];
+	const defaultStats = [
+		{ label: 'Profile Completion', value: stats.profileCompletion ?? 72, suffix: '%', tone: 'green', icon: 'fa-user-check', note: 'Keep going!' },
+		{ label: 'Forms Completed', value: stats.formsCompleted ?? '4/7', tone: 'blue', icon: 'fa-file-lines', note: 'View all forms' },
+		{ label: 'Pending Forms', value: stats.pendingForms ?? 3, tone: 'orange', icon: 'fa-file-circle-exclamation', note: 'Complete now' },
+		{ label: 'Messages', value: stats.messages ?? 5, tone: 'purple', icon: 'fa-envelope', note: 'New replies' }
+	];
+
+	const defaultProgress = [
+		{ label: 'Personal Info', value: 100 },
+		{ label: 'Academic Info', value: 80 },
+		{ label: 'Contact Info', value: 60 },
+		{ label: 'Additional Info', value: 40 },
+		{ label: 'Documents', value: 35 }
+	];
+
+	const defaultDeadlines = [
+		{ day: '25', month: 'JUL', title: 'Scholarship Application', description: 'Submission deadline', left: '5 days left', urgent: true },
+		{ day: '30', month: 'JUL', title: 'Internship Registration', description: 'Round 1 deadline', left: '10 days left', urgent: false },
+		{ day: '05', month: 'AUG', title: 'Document Verification', description: 'Submit required documents', left: '16 days left', urgent: false }
+	];
+
+	const defaultActions = [
+		{ href: '/students/profile', icon: 'fa-user-pen', title: 'Update Profile', text: 'Edit personal and academic details' },
+		{ href: '/students/documents', icon: 'fa-folder-open', title: 'View Documents', text: 'Check uploaded files and records' },
+		{ href: '/students/messages', icon: 'fa-message', title: 'Send Message', text: 'Contact faculty or admin' },
+		{ href: '/students/dashboard', icon: 'fa-calendar-check', title: 'Check Deadlines', text: 'Review the latest submission dates' }
+	];
+
+	const profilePercent = Number(profile.percent ?? stats.profileCompletion ?? 72) || 0;
+	const profileItems = profile.items || defaultProgress;
+	const deadlineItems = Array.isArray(deadlines) && deadlines.length ? deadlines : defaultDeadlines;
+	const actionItems = quickActions.length ? quickActions : defaultActions;
+	const normalizedProfileItems = profileItems.map((item) => ({
+		...item,
+		value: Number(item.value) || 0
+	}));
+	const studentName = student.name || 'Student';
+	const studentInitials = studentName
+		.split(' ')
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((part) => part.charAt(0))
+		.join('')
+		.toUpperCase() || 'S';
+%>
+
+<section class="student-dashboard">
+	<header class="dashboard-hero">
+		<div class="hero-copy">
+			<p class="eyebrow">Student Dashboard</p>
+			<h1>Welcome back, <span><%= studentName %></span>!</h1>
+			<p class="hero-subtitle">Here's a quick look at your profile status, pending work, and upcoming deadlines.</p>
+		</div>
+
+		<div class="hero-meta">
+			<div class="meta-card meta-card-profile">
+				<div class="student-avatar">
+					<% if (student.photoUrl || student.profilePhoto || student.avatar) { %>
+						<img src="<%= student.photoUrl || student.profilePhoto || student.avatar %>" alt="<%= studentName %> profile photo" />
+					<% } else { %>
+						<span><%= studentInitials %></span>
+					<% } %>
+				</div>
+				<div class="student-meta-text">
+					<span class="meta-label">Signed in as</span>
+					<strong><%= studentName %></strong>
+					<small><%= student.department || 'General' %></small>
+				</div>
+			</div>
+			<a class="meta-card meta-card-icon meta-card-message" href="/students/messages" aria-label="Open messages">
+				<i class="fa-solid fa-message"></i>
+				<span>Messages</span>
+			</a>
+			<div class="meta-card meta-card-icon meta-card-bell">
+				<button type="button" class="bell-toggle" aria-label="Show notifications" aria-expanded="false">
+					<i class="fa-regular fa-bell"></i>
+					<% if (notificationItems.length) { %>
+						<span class="bell-badge"><%= notificationItems.length %></span>
+					<% } %>
+				</button>
+				<div class="notification-popover" hidden>
+					<div class="notification-popover__head">
+						<strong>Notifications</strong>
+						<a href="/students/messages">View messages</a>
+					</div>
+					<div class="notification-popover__list">
+						<% notificationItems.forEach((notification) => { %>
+							<div class="notification-item notification-<%= notification.tone || 'blue' %>">
+								<span class="notification-item__icon"><i class="fa-solid <%= notification.icon %>"></i></span>
+								<div>
+									<p><%= notification.title %></p>
+									<small><%= notification.meta %></small>
+								</div>
+							</div>
+						<% }) %>
+					</div>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<section class="stats-grid" aria-label="Dashboard summary">
+		<% defaultStats.forEach((stat) => { %>
+			<article class="stat-card stat-<%= stat.tone %>">
+				<div class="stat-icon"><i class="fa-solid <%= stat.icon %>"></i></div>
+				<div class="stat-content">
+					<span><%= stat.label %></span>
+					<strong><%= stat.value %></strong>
+					<small><%= stat.note %></small>
+				</div>
+			</article>
+		<% }) %>
+	</section>
+
+	<section class="dashboard-grid">
+		<article class="card profile-card">
+			<div class="card-heading">
+				<div>
+					<p class="card-kicker">Profile Completion</p>
+					<h2><%= profile.title || 'Profile Completion' %></h2>
+				</div>
+				<a href="/students/profile">Update Profile</a>
+			</div>
+
+			<div class="profile-wrap">
+				<div class="progress-ring" style="<%= '--progress: ' + profilePercent + ';' %>">
+					<div class="progress-ring__inner">
+						<strong><%= profilePercent %>%</strong>
+						<span>Complete</span>
+					</div>
+				</div>
+
+				<div class="progress-list">
+					<p class="profile-note">You have completed <%= profile.completedFields || 24 %> of <%= profile.totalFields || 33 %> fields.</p>
+					<% normalizedProfileItems.forEach((item) => { %>
+						<div class="progress-item">
+							<div class="progress-item__top">
+								<span><%= item.label %></span>
+								<strong><%= item.value %>%</strong>
+							</div>
+							<div class="progress-bar"><span style="<%= 'width: ' + item.value + '%;' %>"></span></div>
+						</div>
+					<% }) %>
+				</div>
+			</div>
+		</article>
+
+		<article class="card deadline-card">
+			<div class="card-heading">
+				<div>
+					<p class="card-kicker">Upcoming Deadlines</p>
+					<h2>Keep track of what’s next</h2>
+				</div>
+				<a href="/students/notices">View All</a>
+			</div>
+
+			<div class="deadline-list">
+				<% deadlineItems.forEach((deadline) => { %>
+					<div class="deadline-item <%= deadline.urgent ? 'urgent' : '' %>">
+						<div class="deadline-date">
+							<strong><%= deadline.day %></strong>
+							<span><%= deadline.month %></span>
+						</div>
+						<div class="deadline-copy">
+							<h3><%= deadline.title %></h3>
+							<p><%= deadline.description %></p>
+						</div>
+						<div class="deadline-flag"><%= deadline.left %></div>
+					</div>
+				<% }) %>
+			</div>
+		</article>
+	</section>
+
+	<section class="card actions-card">
+		<div class="card-heading">
+			<div>
+				<p class="card-kicker">Quick Actions</p>
+				<h2>Shortcuts for common tasks</h2>
+			</div>
+		</div>
+
+		<div class="actions-grid">
+			<% actionItems.forEach((action) => { %>
+				<a class="action-card" href="<%= action.href %>">
+					<span class="action-icon"><i class="fa-solid <%= action.icon %>"></i></span>
+					<strong><%= action.title %></strong>
+					<p><%= action.text %></p>
+				</a>
+			<% }) %>
+		</div>
+	</section>
+
+	<script>
+		(function () {
+			const bellCard = document.querySelector('.meta-card-bell');
+			if (!bellCard) return;
+
+			const button = bellCard.querySelector('.bell-toggle');
+			const popover = bellCard.querySelector('.notification-popover');
+
+			const closePopover = () => {
+				bellCard.classList.remove('is-open');
+				button.setAttribute('aria-expanded', 'false');
+				popover.hidden = true;
+			};
+
+			button.addEventListener('click', function (event) {
+				event.stopPropagation();
+				const isOpen = bellCard.classList.toggle('is-open');
+				button.setAttribute('aria-expanded', String(isOpen));
+				popover.hidden = !isOpen;
+			});
+
+			document.addEventListener('click', function (event) {
+				if (!bellCard.contains(event.target)) {
+					closePopover();
+				}
+			});
+		})();
+	</script>
+</section>
