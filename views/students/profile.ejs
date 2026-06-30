@@ -1,2 +1,277 @@
 <% layout("layout/studentsBoilerPlate") %>
-<h1>Profile content goes here</h1>
+<%
+	const student = typeof studentData !== 'undefined' ? studentData : {};
+	const profileStats = typeof profileStatsData !== 'undefined' ? profileStatsData : {};
+	const personalInfo = typeof personalInfoData !== 'undefined' ? personalInfoData : {};
+	const academicInfo = typeof academicInfoData !== 'undefined' ? academicInfoData : {};
+	const contactInfo = typeof contactInfoData !== 'undefined' ? contactInfoData : {};
+	const emergencyInfo = typeof emergencyInfoData !== 'undefined' ? emergencyInfoData : {};
+	const documentsInfo = typeof documentsInfoData !== 'undefined' ? documentsInfoData : {};
+	const preferencesInfo = typeof preferencesInfoData !== 'undefined' ? preferencesInfoData : {};
+	const profileName = student.name || 'Ankit Kumar';
+	const profileRole = student.course || student.program || 'B.Tech Computer Science Engineering';
+	const profileYear = student.batch || '2024 - 2028';
+	const profileSemester = student.semester || 'Semester 2';
+	const profilePhoto = student.photoUrl || student.profilePhoto || student.avatar || '';
+	const profileInitials = profileName
+		.split(' ')
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((word) => word.charAt(0))
+		.join('')
+		.toUpperCase() || 'S';
+	const profileTabs = [
+		{ id: 'personal-information', label: 'Personal Information', active: true },
+		{ id: 'academic-information', label: 'Academic Information' },
+		{ id: 'contact-information', label: 'Contact Information' },
+		{ id: 'emergency-contact', label: 'Emergency Contact' },
+		{ id: 'documents', label: 'Documents' },
+		{ id: 'preferences', label: 'Preferences' }
+	];
+	const personalRows = personalInfo.rows || [
+		{ label: 'Full Name', value: profileName },
+		{ label: 'Date of Birth', value: student.dob || '15 March 2004' },
+		{ label: 'Gender', value: student.gender || 'Male' },
+		{ label: 'Category', value: student.category || 'General' },
+		{ label: 'Blood Group', value: student.bloodGroup || 'B+' },
+		{ label: 'Nationality', value: student.nationality || 'Indian' },
+		{ label: 'Aadhaar Number', value: student.aadhaar || '1234 5678 9012' },
+		{ label: 'PAN Number', value: student.pan || 'ABCDE1234F' },
+		{ label: 'Languages Known', value: student.languages || 'English, Hindi' }
+	];
+	const academicRows = academicInfo.rows || [
+		{ label: 'Program', value: profileRole },
+		{ label: 'Admission Year', value: profileYear },
+		{ label: 'Current Semester', value: profileSemester },
+		{ label: 'Enrollment No.', value: student.enrollmentNo || 'SIMS2024001' },
+		{ label: 'Roll No.', value: student.rollNo || '24CS001' },
+		{ label: 'Department', value: student.department || 'Computer Science' },
+		{ label: 'Section', value: student.section || 'A' },
+		{ label: 'Attendance', value: student.attendance || '92%' }
+	];
+	const contactRows = contactInfo.rows || [
+		{ label: 'Email', value: student.email || 'ankit.kumar@sims.edu.in' },
+		{ label: 'Phone', value: student.phone || '+91 98765 43210' },
+		{ label: 'Alternate Phone', value: student.alternatePhone || '+91 90123 45678' },
+		{ label: 'Address', value: student.address || '123, Green Valley Road, Bengaluru' },
+		{ label: 'City', value: student.city || 'Bengaluru' },
+		{ label: 'State', value: student.state || 'Karnataka' },
+		{ label: 'Pincode', value: student.pincode || '560001' }
+	];
+	const emergencyRows = emergencyInfo.rows || [
+		{ label: 'Guardian Name', value: student.guardianName || 'Mr. Kumar' },
+		{ label: 'Relationship', value: student.guardianRelation || 'Father' },
+		{ label: 'Guardian Phone', value: student.guardianPhone || '+91 90000 11111' },
+		{ label: 'Guardian Email', value: student.guardianEmail || 'guardian@example.com' },
+		{ label: 'Emergency Address', value: student.guardianAddress || 'Same as permanent address' }
+	];
+	const documentRows = documentsInfo.rows || [
+		{ label: 'Student ID', value: 'Uploaded' },
+		{ label: 'Aadhaar Card', value: 'Verified' },
+		{ label: 'Transfer Certificate', value: 'Uploaded' },
+		{ label: 'Marksheet', value: 'Pending' },
+		{ label: 'Passport Photo', value: 'Uploaded' }
+	];
+	const preferenceRows = preferencesInfo.rows || [
+		{ label: 'Language', value: 'English' },
+		{ label: 'Theme', value: 'Green' },
+		{ label: 'Notifications', value: 'Enabled' },
+		{ label: 'Email Updates', value: 'Enabled' }
+	];
+	const completion = Number(profileStats.completion ?? student.profileCompletion ?? 72) || 72;
+	const memberSince = profileStats.memberSince || '15 Jan 2024';
+	const lastUpdated = profileStats.lastUpdated || '20 Jun 2026';
+	const accountState = profileStats.status || 'Active';
+%>
+
+<section class="student-profile-page">
+	<header class="profile-page-hero">
+		<div>
+			<p class="eyebrow">My Profile</p>
+			<h1><%= profileName %></h1>
+			<p class="hero-subtitle">Keep your academic, contact, and document details updated in one place.</p>
+		</div>
+		<div class="profile-quick-actions">
+			<a class="quick-action-link" href="/students/dashboard"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+			<a class="quick-action-link" href="/students/messages"><i class="fa-solid fa-message"></i> Messages</a>
+		</div>
+	</header>
+
+	<section class="profile-summary-card">
+		<div class="profile-summary-left">
+			<div class="profile-photo-wrap">
+				<div class="profile-photo">
+					<% if (profilePhoto) { %>
+						<img src="<%= profilePhoto %>" alt="<%= profileName %> profile photo" />
+					<% } else { %>
+						<span><%= profileInitials %></span>
+					<% } %>
+				</div>
+				<a class="edit-photo-btn" href="/students/profile#preferences">
+					<i class="fa-regular fa-image"></i>
+					Edit Photo
+				</a>
+			</div>
+			<div class="profile-core-info">
+				<div class="name-row">
+					<h2><%= profileName %></h2>
+					<span class="verified-badge"><i class="fa-solid fa-circle-check"></i></span>
+				</div>
+				<p class="profile-role"><%= profileRole %></p>
+				<p class="profile-meta-line"><%= profileYear %> <span>•</span> <%= profileSemester %></p>
+				<div class="profile-grid-mini">
+					<div>
+						<span>Enrollment No.</span>
+						<strong><%= academicRows[3].value %></strong>
+					</div>
+					<div>
+						<span>Roll No.</span>
+						<strong><%= academicRows[4].value %></strong>
+					</div>
+					<div>
+						<span>Email</span>
+						<strong><%= contactRows[0].value %></strong>
+					</div>
+					<div>
+						<span>Phone</span>
+						<strong><%= contactRows[1].value %></strong>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="profile-summary-right">
+			<div class="status-chip"><span></span><%= accountState %></div>
+			<div class="summary-progress">
+				<div class="progress-labels">
+					<span>Profile Completion</span>
+					<strong><%= completion %>%</strong>
+				</div>
+				<div class="summary-progress-bar">
+					<span style="width: <%= completion %>%;"></span>
+				</div>
+			</div>
+			<ul class="summary-list">
+				<li><i class="fa-regular fa-calendar"></i><span>Member Since</span><strong><%= memberSince %></strong></li>
+				<li><i class="fa-regular fa-clock"></i><span>Last Updated</span><strong><%= lastUpdated %></strong></li>
+			</ul>
+		</div>
+	</section>
+
+	<nav class="profile-tabs" aria-label="Profile sections">
+		<% profileTabs.forEach((tab) => { %>
+			<a href="#<%= tab.id %>" class="profile-tab <%= tab.active ? 'active' : '' %>"><%= tab.label %></a>
+		<% }) %>
+	</nav>
+
+	<section id="personal-information" class="profile-content-grid">
+		<article class="profile-panel profile-panel-wide">
+			<div class="panel-head">
+				<h3>Personal Information</h3>
+				<button type="button" class="panel-edit-btn"><i class="fa-regular fa-pen-to-square"></i></button>
+			</div>
+			<div class="info-table">
+				<% personalRows.forEach((row) => { %>
+					<div class="info-row">
+						<span class="info-label"><i class="fa-regular fa-circle-user"></i> <%= row.label %></span>
+						<strong class="info-value"><%= row.value %></strong>
+					</div>
+				<% }) %>
+			</div>
+		</article>
+
+		<aside class="profile-side-stack">
+			<article class="profile-panel">
+				<div class="panel-head">
+					<h3>About Me</h3>
+					<button type="button" class="panel-edit-btn"><i class="fa-regular fa-pen-to-square"></i></button>
+				</div>
+				<p class="about-copy"><%= student.about || 'Motivated and enthusiastic student focused on building practical skills, learning new technologies, and contributing to academic projects.' %></p>
+			</article>
+
+			<article class="profile-panel">
+				<div class="panel-head">
+					<h3>Account Security</h3>
+					<a href="/students/settings" class="panel-link-btn">Change Password</a>
+				</div>
+				<div class="compact-list">
+					<div class="compact-item"><span>Password</span><strong>Last changed 2 months ago</strong></div>
+					<div class="compact-item"><span>Two-Factor Authentication</span><strong>Enabled</strong></div>
+					<div class="compact-item"><span>Login Sessions</span><strong>3 active sessions</strong></div>
+				</div>
+			</article>
+		</aside>
+	</section>
+
+	<section id="academic-information" class="profile-content-grid profile-content-grid-two">
+		<article class="profile-panel">
+			<div class="panel-head">
+				<h3>Academic Information</h3>
+			</div>
+			<div class="info-table info-table-split">
+				<% academicRows.forEach((row) => { %>
+					<div class="info-row">
+						<span class="info-label"><i class="fa-regular fa-rectangle-list"></i> <%= row.label %></span>
+						<strong class="info-value"><%= row.value %></strong>
+					</div>
+				<% }) %>
+			</div>
+		</article>
+
+		<article class="profile-panel">
+			<div class="panel-head">
+				<h3>Contact Information</h3>
+			</div>
+			<div class="info-table info-table-split">
+				<% contactRows.forEach((row) => { %>
+					<div class="info-row">
+						<span class="info-label"><i class="fa-regular fa-address-book"></i> <%= row.label %></span>
+						<strong class="info-value"><%= row.value %></strong>
+					</div>
+				<% }) %>
+			</div>
+		</article>
+	</section>
+
+	<section id="emergency-contact" class="profile-content-grid profile-content-grid-two">
+		<article class="profile-panel">
+			<div class="panel-head"><h3>Emergency Contact</h3></div>
+			<div class="info-table info-table-split">
+				<% emergencyRows.forEach((row) => { %>
+					<div class="info-row">
+						<span class="info-label"><i class="fa-regular fa-life-ring"></i> <%= row.label %></span>
+						<strong class="info-value"><%= row.value %></strong>
+					</div>
+				<% }) %>
+			</div>
+		</article>
+
+		<article class="profile-panel">
+			<div class="panel-head"><h3>Documents</h3></div>
+			<div class="document-list">
+				<% documentRows.forEach((row) => { %>
+					<div class="document-item">
+						<span><%= row.label %></span>
+						<strong class="doc-state doc-<%= String(row.value).toLowerCase().replace(/\s+/g, '-') %>"><%= row.value %></strong>
+					</div>
+				<% }) %>
+			</div>
+		</article>
+	</section>
+
+	<section id="preferences" class="profile-content-grid profile-content-grid-two">
+		<article class="profile-panel">
+			<div class="panel-head"><h3>Preferences</h3></div>
+			<div class="compact-list">
+				<% preferenceRows.forEach((row) => { %>
+					<div class="compact-item"><span><%= row.label %></span><strong><%= row.value %></strong></div>
+				<% }) %>
+			</div>
+		</article>
+
+		<article class="profile-panel profile-alert-panel">
+			<div class="panel-head"><h3>Profile Reminder</h3></div>
+			<p class="profile-alert"><i class="fa-solid fa-shield-heart"></i> Keep your profile details updated for admission, notices, and document verification.</p>
+		</article>
+	</section>
+</section>
