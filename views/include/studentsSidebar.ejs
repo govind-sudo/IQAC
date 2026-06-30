@@ -52,12 +52,12 @@
             <span>Settings</span>
           </a>
         </li>
-        <li class="<%= currentPage === 'help' ? 'active' : '' %>">
+        <!-- <li class="<%= currentPage === 'help' ? 'active' : '' %>">
           <a href="/students/help">
             <i class="fa-regular fa-circle-question"></i>
             <span>Help & Support</span>
           </a>
-        </li>
+        </li> -->
       </ul>
     </nav>
   </div>
@@ -66,10 +66,10 @@
     <div class="help-card">
       <p class="help-title">Need Help?</p>
       <p class="help-text">If you face any issues, please contact your department.</p>
-      <button class="contact-support-btn">
+      <a href="/students/help"><button class="contact-support-btn">
         <i class="fa-regular fa-comment-dots"></i>
         Contact Support
-      </button>
+      </button></a>
     </div>
 
     <a href="/logout" class="logout-link">
