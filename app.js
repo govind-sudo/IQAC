@@ -12,11 +12,35 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 app.get("/students/dashboard", (req, res) => {
-  res.render("student/dashboard", { currentPage: "dashboard" });
+  res.render("students/dashboard", { currentPage: "dashboard" });
 });
 
 app.get("/students/profile", (req, res) => {
-  res.render("student/profile", { currentPage: "profile" });
+  res.render("students/profile", { currentPage: "profile" });
+});
+
+app.get("/students/forms", (req, res) => {
+  res.render("students/forms", { currentPage: "forms" });
+});
+
+app.get("/students/documents", (req, res) => {
+  res.render("students/documents", { currentPage: "documents" });
+});
+
+app.get("/students/notices", (req, res) => {
+  res.render("students/notices", { currentPage: "notices" });
+});
+
+app.get("/students/messages", (req, res) => {
+  res.render("students/messages", { currentPage: "messages" });
+});
+
+app.get("/students/settings", (req, res) => {
+  res.render("students/settings", { currentPage: "settings" });
+});
+
+app.get("/students/help", (req, res) => {
+  res.render("students/help", { currentPage: "help" });
 });
 
 
