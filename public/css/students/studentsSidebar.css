@@ -1,17 +1,18 @@
 :root {
-  --palette-primary: #1F6F5F;
-  --palette-secondary: #2FA084;
-  --palette-accent: #6FCF97;
-  --palette-surface: #EEEEEE;
-  --palette-ink: #17332E;
-  --palette-ink-soft: #5C716B;
+  --palette-primary: #4F46E5;
+  --palette-secondary: #6366F1;
+  --palette-accent: #818CF8;
+  --palette-surface: #F4F6FB;
+  --palette-ink: #1E2433;
+  --palette-ink-soft: #6B7280;
 }
 
 .sidebar {
   width: 260px;
   height: 100vh;
-  background: var(--palette-primary);
-  color: #eef7f4;
+  background: #FFFFFF;
+  color: var(--palette-ink-soft);
+  border-right: 1px solid #EEF0F6;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -42,7 +43,7 @@ body{
 }
 
 .logo-icon {
-  background: var(--palette-secondary);
+  background: var(--palette-primary);
   color: #fff;
   font-size: 18px;
   width: 38px;
@@ -56,13 +57,13 @@ body{
 
 .logo-text h1 {
   font-size: 18px;
-  color: #fff;
+  color: var(--palette-ink);
   margin: 0;
 }
 
 .logo-text p {
   font-size: 11px;
-  color: rgba(238, 247, 244, 0.76);
+  color: var(--palette-ink-soft);
   margin: 0;
 }
 
@@ -82,7 +83,7 @@ body{
   align-items: center;
   gap: 12px;
   padding: 11px 14px;
-  color: rgba(238, 247, 244, 0.8);
+  color: var(--palette-ink-soft);
   text-decoration: none;
   font-size: 14px;
   border-radius: 8px;
@@ -96,14 +97,14 @@ body{
 }
 
 .sidebar-nav li a:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: #F4F5FF;
+  color: var(--palette-primary);
 }
 
 .sidebar-nav li.active a {
-  background: var(--palette-secondary);
-  color: #fff;
-  font-weight: 500;
+  background: #EEF0FF;
+  color: var(--palette-primary);
+  font-weight: 600;
 }
 
 .sidebar-bottom {
@@ -111,21 +112,22 @@ body{
 }
 
 .help-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: #F8F9FC;
+  border: 1px solid #EEF0F6;
   border-radius: 10px;
   padding: 14px;
   margin-bottom: 14px;
 }
 
 .help-title {
-  color: #fff;
+  color: var(--palette-ink);
   font-size: 13px;
   font-weight: 600;
   margin: 0 0 6px;
 }
 
 .help-text {
-  color: rgba(238, 247, 244, 0.76);
+  color: var(--palette-ink-soft);
   font-size: 11.5px;
   line-height: 1.4;
   margin: 0 0 12px;
@@ -133,7 +135,7 @@ body{
 
 .contact-support-btn {
   width: 100%;
-  background: var(--palette-secondary);
+  background: var(--palette-primary);
   color: #fff;
   border: none;
   padding: 9px;
@@ -147,7 +149,7 @@ body{
 }
 
 .contact-support-btn:hover {
-  background: var(--palette-accent);
+  background: var(--palette-secondary);
 }
 
 .logout-link {
@@ -155,11 +157,11 @@ body{
   align-items: center;
   gap: 12px;
   padding: 10px 4px;
-  color: rgba(238, 247, 244, 0.8);
+  color: var(--palette-ink-soft);
   text-decoration: none;
   font-size: 14px;
 }
 
 .logout-link:hover {
-  color: #fff;
+  color: var(--palette-primary);
 }
