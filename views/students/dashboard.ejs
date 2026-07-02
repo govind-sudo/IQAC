@@ -1,52 +1,16 @@
 <% layout("layout/studentsBoilerPlate") %>
 <%
-	const stats = typeof dashboardStats !== 'undefined' ? dashboardStats : {};
-	const profile = typeof profileCompletion !== 'undefined' ? profileCompletion : {};
-	const deadlines = typeof upcomingDeadlines !== 'undefined' ? upcomingDeadlines : [];
-	const quickActions = typeof quickActionsData !== 'undefined' ? quickActionsData : [];
-	const student = typeof studentData !== 'undefined' ? studentData : {};
-	const notificationItems = typeof notificationsData !== 'undefined' ? notificationsData : [
-		{ title: 'Scholarship registration is open', meta: '2 min ago', icon: 'fa-bell', tone: 'blue' },
-		{ title: 'Document verification pending', meta: 'Today', icon: 'fa-file-circle-exclamation', tone: 'orange' },
-		{ title: 'Message from faculty', meta: '1 hour ago', icon: 'fa-message', tone: 'green' }
-	];
-	const defaultStats = [
-		{ label: 'Profile Completion', value: stats.profileCompletion ?? 72, suffix: '%', tone: 'green', icon: 'fa-user-check', note: 'Keep going!' },
-		{ label: 'Forms Completed', value: stats.formsCompleted ?? '4/7', tone: 'blue', icon: 'fa-file-lines', note: 'View all forms' },
-		{ label: 'Pending Forms', value: stats.pendingForms ?? 3, tone: 'orange', icon: 'fa-file-circle-exclamation', note: 'Complete now' },
-		{ label: 'Messages', value: stats.messages ?? 5, tone: 'purple', icon: 'fa-envelope', note: 'New replies' }
-	];
+	// `student` is the Mongoose Student document passed from the route
+	// (e.g. res.render("students/dashboard", { student, ... })).
+	// Guarded with a differently-named local so a missing `student` doesn't
+	// crash the page - but no fields are ever faked here, only left blank.
+	const studentInfo = (typeof student !== 'undefined' && student) ? student : {};
 
-	const defaultProgress = [
-		{ label: 'Personal Info', value: 100 },
-		{ label: 'Academic Info', value: 80 },
-		{ label: 'Contact Info', value: 60 },
-		{ label: 'Additional Info', value: 40 },
-		{ label: 'Documents', value: 35 }
-	];
+	// ---- Derived display values (all read straight from studentInfo) ----
+	const studentName = studentInfo.fullName
+		|| [studentInfo.firstName, studentInfo.lastName].filter(Boolean).join(' ')
+		|| 'Student';
 
-	const defaultDeadlines = [
-		{ day: '25', month: 'JUL', title: 'Scholarship Application', description: 'Submission deadline', left: '5 days left', urgent: true },
-		{ day: '30', month: 'JUL', title: 'Internship Registration', description: 'Round 1 deadline', left: '10 days left', urgent: false },
-		{ day: '05', month: 'AUG', title: 'Document Verification', description: 'Submit required documents', left: '16 days left', urgent: false }
-	];
-
-	const defaultActions = [
-		{ href: '/students/profile', icon: 'fa-user-pen', title: 'Update Profile', text: 'Edit personal and academic details' },
-		{ href: '/students/documents', icon: 'fa-folder-open', title: 'View Documents', text: 'Check uploaded files and records' },
-		{ href: '/students/messages', icon: 'fa-message', title: 'Send Message', text: 'Contact faculty or admin' },
-		{ href: '/students/dashboard', icon: 'fa-calendar-check', title: 'Check Deadlines', text: 'Review the latest submission dates' }
-	];
-
-	const profilePercent = Number(profile.percent ?? stats.profileCompletion ?? 72) || 0;
-	const profileItems = profile.items || defaultProgress;
-	const deadlineItems = Array.isArray(deadlines) && deadlines.length ? deadlines : defaultDeadlines;
-	const actionItems = quickActions.length ? quickActions : defaultActions;
-	const normalizedProfileItems = profileItems.map((item) => ({
-		...item,
-		value: Number(item.value) || 0
-	}));
-	const studentName = student.name || 'Student';
 	const studentInitials = studentName
 		.split(' ')
 		.filter(Boolean)
@@ -54,6 +18,91 @@
 		.map((part) => part.charAt(0))
 		.join('')
 		.toUpperCase() || 'S';
+
+	// No photo field exists on the Student schema yet - this stays ready
+	// for whenever one is added (e.g. studentInfo.profilePhoto).
+	const studentPhoto = studentInfo.profilePhoto || studentInfo.photoUrl || null;
+
+	const studentDepartment = studentInfo.department || studentInfo.program || studentInfo.course || 'Not set';
+
+	// ---- Profile completion, computed from actual schema fields ----
+	// Grouped to match the section labels shown in the progress list below.
+	// profileStatus-based "Documents" score is a placeholder proxy until a
+	// real Documents collection exists.
+	function sectionPercent(fields) {
+		if (!fields.length) return 0;
+		const filled = fields.filter((v) => v !== undefined && v !== null && v !== '').length;
+		return Math.round((filled / fields.length) * 100);
+	}
+
+	const personalInfoPercent = sectionPercent([
+		studentInfo.title, studentInfo.firstName, studentInfo.lastName,
+		studentInfo.gender, studentInfo.dob, studentInfo.bloodGroup,
+		studentInfo.category, studentInfo.religion, studentInfo.caste,
+	]);
+
+	const academicInfoPercent = sectionPercent([
+		studentInfo.institute, studentInfo.course, studentInfo.program,
+		studentInfo.department, studentInfo.admissionYear,
+		studentInfo.admissionType, studentInfo.admissionQuota, studentInfo.enrollmentNo,
+	]);
+
+	const contactInfoPercent = sectionPercent([
+		studentInfo.phone, studentInfo.whatsapp, studentInfo.alternateEmail,
+		studentInfo.presentAddress && studentInfo.presentAddress.city,
+		studentInfo.permanentAddress && studentInfo.permanentAddress.city,
+	]);
+
+	const additionalInfoPercent = sectionPercent([
+		studentInfo.father && studentInfo.father.name,
+		studentInfo.mother && studentInfo.mother.name,
+		studentInfo.emergencyContact && studentInfo.emergencyContact.name,
+		studentInfo.emergencyContact && studentInfo.emergencyContact.phone,
+		studentInfo.aadhaarNumber,
+	]);
+
+	const documentsPercentMap = { verified: 100, pending: 50, rejected: 25, incomplete: 0 };
+	const documentsPercent = documentsPercentMap[studentInfo.profileStatus] ?? 0;
+
+	const normalizedProfileItems = [
+		{ label: 'Personal Info', value: personalInfoPercent },
+		{ label: 'Academic Info', value: academicInfoPercent },
+		{ label: 'Contact Info', value: contactInfoPercent },
+		{ label: 'Additional Info', value: additionalInfoPercent },
+		{ label: 'Documents', value: documentsPercent },
+	];
+
+	const profilePercent = Math.round(
+		normalizedProfileItems.reduce((sum, item) => sum + item.value, 0) / normalizedProfileItems.length
+	);
+
+	const totalFields = 30; // personal(9) + academic(8) + contact(5) + additional(5) + documents(1, via profileStatus... kept coarse on purpose
+	const completedFields = Math.round((profilePercent / 100) * totalFields);
+
+	// ---- Everything below this line is NOT part of the Student model yet ----
+	// (forms, deadlines, messages/notifications, quick actions). These need
+	// their own collections/routes; until then they come through as optional
+	// locals from the controller, and render an empty state if absent -
+	// nothing here is invented/faked.
+	const stats = typeof dashboardStats !== 'undefined' ? dashboardStats : {};
+	const deadlineItems = typeof upcomingDeadlines !== 'undefined' && Array.isArray(upcomingDeadlines) ? upcomingDeadlines : [];
+	const notificationItems = typeof notificationsData !== 'undefined' && Array.isArray(notificationsData) ? notificationsData : [];
+
+	// Quick Actions are static in-app navigation shortcuts, not student data,
+	// so these stay fixed rather than coming from an API.
+	const actionItems = [
+		{ href: '/students/profile', icon: 'fa-user-pen', title: 'Update Profile', text: 'Edit personal and academic details' },
+		{ href: '/students/documents', icon: 'fa-folder-open', title: 'View Documents', text: 'Check uploaded files and records' },
+		{ href: '/students/messages', icon: 'fa-message', title: 'Send Message', text: 'Contact faculty or admin' },
+		{ href: '/students/notices', icon: 'fa-calendar-check', title: 'Check Deadlines', text: 'Review the latest submission dates' },
+	];
+
+	const statCards = [
+		{ label: 'Profile Completion', value: profilePercent + '%', tone: 'green', icon: 'fa-user-check', note: profilePercent >= 100 ? 'All set!' : 'Keep going!' },
+		{ label: 'Forms Completed', value: stats.formsCompleted ?? '—', tone: 'blue', icon: 'fa-file-lines', note: 'View all forms' },
+		{ label: 'Pending Forms', value: stats.pendingForms ?? '—', tone: 'orange', icon: 'fa-file-circle-exclamation', note: 'Complete now' },
+		{ label: 'Messages', value: stats.messages ?? '—', tone: 'purple', icon: 'fa-envelope', note: 'New replies' },
+	];
 %>
 
 <section class="student-dashboard">
@@ -67,8 +116,8 @@
 		<div class="hero-meta">
 			<div class="meta-card meta-card-profile">
 				<div class="student-avatar">
-					<% if (student.photoUrl || student.profilePhoto || student.avatar) { %>
-						<img src="<%= student.photoUrl || student.profilePhoto || student.avatar %>" alt="<%= studentName %> profile photo" />
+					<% if (studentPhoto) { %>
+						<img src="<%= studentPhoto %>" alt="<%= studentName %> profile photo" />
 					<% } else { %>
 						<span><%= studentInitials %></span>
 					<% } %>
@@ -76,7 +125,7 @@
 				<div class="student-meta-text">
 					<span class="meta-label">Signed in as</span>
 					<strong><%= studentName %></strong>
-					<small><%= student.department || 'General' %></small>
+					<small><%= studentDepartment %></small>
 				</div>
 			</div>
 			<a class="meta-card meta-card-icon meta-card-message" href="/students/messages" aria-label="Open messages">
@@ -96,15 +145,21 @@
 						<a href="/students/messages">View messages</a>
 					</div>
 					<div class="notification-popover__list">
-						<% notificationItems.forEach((notification) => { %>
-							<div class="notification-item notification-<%= notification.tone || 'blue' %>">
-								<span class="notification-item__icon"><i class="fa-solid <%= notification.icon %>"></i></span>
-								<div>
-									<p><%= notification.title %></p>
-									<small><%= notification.meta %></small>
+						<% if (notificationItems.length) { %>
+							<% notificationItems.forEach((notification) => { %>
+								<div class="notification-item notification-<%= notification.tone || 'blue' %>">
+									<span class="notification-item__icon"><i class="fa-solid <%= notification.icon %>"></i></span>
+									<div>
+										<p><%= notification.title %></p>
+										<small><%= notification.meta %></small>
+									</div>
 								</div>
+							<% }) %>
+						<% } else { %>
+							<div class="notification-item">
+								<div><p>You're all caught up. No new notifications.</p></div>
 							</div>
-						<% }) %>
+						<% } %>
 					</div>
 				</div>
 			</div>
@@ -112,7 +167,7 @@
 	</header>
 
 	<section class="stats-grid" aria-label="Dashboard summary">
-		<% defaultStats.forEach((stat) => { %>
+		<% statCards.forEach((stat) => { %>
 			<article class="stat-card stat-<%= stat.tone %>">
 				<div class="stat-icon"><i class="fa-solid <%= stat.icon %>"></i></div>
 				<div class="stat-content">
@@ -129,7 +184,7 @@
 			<div class="card-heading">
 				<div>
 					<p class="card-kicker">Profile Completion</p>
-					<h2><%= profile.title || 'Profile Completion' %></h2>
+					<h2>Profile Completion</h2>
 				</div>
 				<a href="/students/profile">Update Profile</a>
 			</div>
@@ -143,7 +198,7 @@
 				</div>
 
 				<div class="progress-list">
-					<p class="profile-note">You have completed <%= profile.completedFields || 24 %> of <%= profile.totalFields || 33 %> fields.</p>
+					<p class="profile-note">You have completed <%= completedFields %> of <%= totalFields %> fields.</p>
 					<% normalizedProfileItems.forEach((item) => { %>
 						<div class="progress-item">
 							<div class="progress-item__top">
@@ -161,25 +216,29 @@
 			<div class="card-heading">
 				<div>
 					<p class="card-kicker">Upcoming Deadlines</p>
-					<h2>Keep track of what’s next</h2>
+					<h2>Keep track of what's next</h2>
 				</div>
 				<a href="/students/notices">View All</a>
 			</div>
 
 			<div class="deadline-list">
-				<% deadlineItems.forEach((deadline) => { %>
-					<div class="deadline-item <%= deadline.urgent ? 'urgent' : '' %>">
-						<div class="deadline-date">
-							<strong><%= deadline.day %></strong>
-							<span><%= deadline.month %></span>
+				<% if (deadlineItems.length) { %>
+					<% deadlineItems.forEach((deadline) => { %>
+						<div class="deadline-item <%= deadline.urgent ? 'urgent' : '' %>">
+							<div class="deadline-date">
+								<strong><%= deadline.day %></strong>
+								<span><%= deadline.month %></span>
+							</div>
+							<div class="deadline-copy">
+								<h3><%= deadline.title %></h3>
+								<p><%= deadline.description %></p>
+							</div>
+							<div class="deadline-flag"><%= deadline.left %></div>
 						</div>
-						<div class="deadline-copy">
-							<h3><%= deadline.title %></h3>
-							<p><%= deadline.description %></p>
-						</div>
-						<div class="deadline-flag"><%= deadline.left %></div>
-					</div>
-				<% }) %>
+					<% }) %>
+				<% } else { %>
+					<p class="profile-note">No upcoming deadlines right now.</p>
+				<% } %>
 			</div>
 		</article>
 	</section>

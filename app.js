@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
 
 
-app.get("/students/dashboard", (req, res) => {
+app.get("/students/:id/dashboard", (req, res) => {
   res.render("students/dashboard", { currentPage: "dashboard" });
 });
 
