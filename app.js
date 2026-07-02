@@ -1,21 +1,27 @@
 const express = require("express");
 const app = express();
 
+const mongoose = require("mongoose");
+
 const path = require("path");
+const methodOverride = require("method-override");
 const ejsmate = require("ejs-mate")
 
 // 1. MIDDLEWARE SETTINGS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
 app.engine('ejs', ejsmate);
-app.use(express.static(path.join(__dirname, "public")));
+
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.urlencoded({ extended: true }));
 
 
 app.get("/students/dashboard", (req, res) => {
   res.render("students/dashboard", { currentPage: "dashboard" });
 });
 
-app.get("/students/profile", (req, res) => {
+app.get("/students/:id/profile", (req, res) => {
   res.render("students/profile", { currentPage: "profile" });
 });
 

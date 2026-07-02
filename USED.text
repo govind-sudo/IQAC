@@ -1,0 +1,188 @@
+Student Collection is designed as the central collection of your Student Management System. Every student has a single document that contains personal, academic, contact, family, and verification information.
+
+Database Structure
+MongoDB
+│
+└── iqac-student-portal
+      │
+      └── students   (Collection)
+              │
+              ├── Student Document 1
+              ├── Student Document 2
+              ├── Student Document 3
+              └── ...
+
+Unlike SQL databases, MongoDB stores most related information inside the student document instead of creating multiple tables.
+
+
+
+Student
+│
+├── Personal Information
+│     ├── title
+│     ├── firstName
+│     ├── middleName
+│     ├── lastName
+│     ├── fullName
+│     ├── gender
+│     ├── dob
+│     ├── bloodGroup
+│     ├── category
+│     ├── religion
+│     └── caste
+│
+├── Authentication
+│     ├── email
+│     ├── password
+│     └── enrollmentNo
+│
+├── Academic Information
+│     ├── institute
+│     ├── course
+│     ├── program
+│     ├── department
+│     ├── admissionYear
+│     ├── admissionType
+│     ├── admissionQuota
+│     └── studentStatus
+│
+├── Contact Information
+│     ├── phone
+│     ├── whatsapp
+│     └── alternateEmail
+│
+├── Emergency Contact
+│     ├── name
+│     └── phone
+│
+├── Father
+│     ├── name
+│     ├── phone
+│     └── email
+│
+├── Mother
+│     ├── name
+│     ├── phone
+│     └── email
+│
+├── Present Address
+│     ├── address1
+│     ├── address2
+│     ├── city
+│     ├── district
+│     ├── state
+│     ├── country
+│     └── pincode
+│
+├── Permanent Address
+│     ├── address1
+│     ├── address2
+│     ├── city
+│     ├── district
+│     ├── state
+│     ├── country
+│     └── pincode
+│
+├── Identity
+│     ├── aadhaarNumber
+│     └── mentorFaculty
+│
+└── System Fields
+      ├── role
+      ├── profileStatus
+      ├── isActive
+      ├── createdAt
+      └── updatedAt
+
+
+
+Embedded Document Design
+
+Your schema uses embedded documents instead of separate collections for information that belongs only to one student.
+
+Student
+│
+├── father
+│      ├── name
+│      ├── phone
+│      └── email
+│
+├── mother
+│      ├── name
+│      ├── phone
+│      └── email
+│
+├── emergencyContact
+│      ├── name
+│      └── phone
+│
+├── presentAddress
+│      ├── city
+│      ├── state
+│      └── pincode
+│
+└── permanentAddress
+       ├── city
+       ├── state
+       └── pincode
+
+Therefore MongoDB stores everything in one Student document instead of creating collections like:
+
+
+
+
+Collections Used
+
+Current project
+
+iqac-student-portal
+│
+└── students
+
+Future project
+
+iqac-student-portal
+│
+├── students
+├── faculty
+├── hod
+├── admin
+├── departments
+├── courses
+├── attendance
+├── notices
+├── events
+├── placements
+├── internships
+├── results
+└── achievements
+
+
+
+                     IQAC Student Portal
+
+                            │
+                            ▼
+
+                    MongoDB Database
+             iqac-student-portal
+                            │
+            ┌───────────────┴───────────────┐
+            │                               │
+      students (Current)          Future Collections
+            │               (Faculty, HOD, Admin, etc.)
+            │
+            ▼
+
+        Student Document
+        ├── Personal Details
+        ├── Academic Details
+        ├── Authentication
+        ├── Contact Details
+        ├── Father (Embedded)
+        ├── Mother (Embedded)
+        ├── Emergency Contact (Embedded)
+        ├── Present Address (Embedded)
+        ├── Permanent Address (Embedded)
+        ├── Mentor Faculty (Reference)
+        └── Status & Verification
