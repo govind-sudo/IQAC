@@ -1,0 +1,48 @@
+D:.
+│   .env
+│   .gitignore
+│   app.js
+│   package-lock.json
+│   package.json
+│   USED.text
+│
+├───init
+│       data.js
+│       index.js
+│
+├───models
+│       addressSchema.js
+│       emergencyContactSchema.js
+│       parentSchema.js
+│       student.js
+│
+|
+├───public
+│   ├───css
+│   │   ├───students
+│   │   │       studentsDashboard.css
+│   │   │       studentsProfile.css
+│   │   │       studentsSidebar.css
+│   │   │
+│   │   └───teacher
+│   └───js
+└───views
+    ├───include
+    │       studentsSidebar.ejs
+    │
+    ├───layout
+    │       adminBoilerPlate.ejs
+    │       studentsBoilerPlate.ejs
+    │       teacherBoilerPlate.ejs
+    │
+    └───students
+            dashboard.ejs
+            documents.ejs
+            forms.ejs
+            help.ejs
+            messages.ejs
+            notices.ejs
+            profile.ejs
+            settings.ejs
+
+PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Porta
