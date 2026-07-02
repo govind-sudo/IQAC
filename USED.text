@@ -186,3 +186,65 @@ iqac-student-portal
         ├── Permanent Address (Embedded)
         ├── Mentor Faculty (Reference)
         └── Status & Verification
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+Database
+│
+└── iqac-student-portal
+      │
+      └── students
+            │
+            ├── Student Document
+            │
+            ├── _id
+            ├── title
+            ├── firstName
+            ├── middleName
+            ├── lastName
+            ├── gender
+            ├── dob
+            ├── email
+            ├── password
+            ├── enrollmentNo
+            ├── phone
+            ├── whatsapp
+            │
+            ├── father
+            │      ├── name
+            │      ├── phone
+            │      └── email
+            │
+            ├── mother
+            │      ├── name
+            │      ├── phone
+            │      └── email
+            │
+            ├── emergencyContact
+            │      ├── name
+            │      └── phone
+            │
+            ├── presentAddress
+            │      ├── address1
+            │      ├── city
+            │      ├── state
+            │      └── pincode
+            │
+            ├── permanentAddress
+            │      ├── address1
+            │      ├── city
+            │      ├── state
+            │      └── pincode
+            │
+            ├── profileStatus
+            ├── role
+            ├── createdAt
+            └── updatedAt
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
