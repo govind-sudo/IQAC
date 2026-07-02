@@ -7,7 +7,7 @@ const rawStudents = Array.isArray(imported)
   ? imported
   : imported.data;
 
-const MONGO_URI = process.env.MONGO_URL
+const MONGO_URL = process.env.MONGO_URL
 
 // ---------------- Helper Functions ----------------
 
@@ -186,7 +186,7 @@ async function cleanRecord(raw) {
 
 async function seed() {
   try {
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(MONGO_URL);
 
     console.log("✅ Connected");
 
