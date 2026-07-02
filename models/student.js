@@ -5,6 +5,7 @@ const addressSchema = require("./addressSchema");
 const parentSchema = require("./parentSchema");
 const emergencyContactSchema = require("./emergencyContactSchema");
 
+
 const studentSchema = new Schema(
   {
     // ---------- Personal ----------
