@@ -1,3 +1,5 @@
+require("dotenv").config();
+console.log(process.env.MONGO_URL);
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const Student = require("../models/student");
