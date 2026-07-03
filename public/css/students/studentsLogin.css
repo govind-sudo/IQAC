@@ -52,12 +52,80 @@ body {
   margin-bottom: 28px;
 }
 
+/* Admin / Student role toggle */
+.role-select {
+  display: flex;
+  background: #e9ecf1;
+  border-radius: 999px;
+  padding: 4px;
+  margin-bottom: 22px;
+  gap: 4px;
+}
+
+.role-option {
+  flex: 1;
+  position: relative;
+  cursor: pointer;
+}
+
+.role-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.role-pill {
+  display: block;
+  text-align: center;
+  padding: 9px 0;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #5a6270;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-option input[type="radio"]:checked + .role-pill {
+  background: #1e3a6e;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(30, 58, 110, 0.35);
+}
+
+.role-option input[type="radio"]:focus-visible + .role-pill {
+  outline: 2px solid #4f8ef7;
+  outline-offset: 2px;
+}
+
 .field-label {
   display: block;
   text-align: left;
   font-size: 14px;
   color: #333;
   margin-bottom: 8px;
+}
+
+.field-label-spaced {
+  margin-top: 16px;
+}
+
+.admin-login-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #1e3a6e;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-login-btn:hover {
+  background: #16305e;
+  box-shadow: 0 4px 12px rgba(30, 58, 110, 0.3);
 }
 
 .mis-input {
