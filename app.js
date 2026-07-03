@@ -12,7 +12,7 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsmate = require("ejs-mate")
 // const mongoose = require("mongoose");
-const Student = require("./models/student");
+// const Student = require("./models/student");
 // 1. MIDDLEWARE SETTINGS
 
 app.set("view engine", "ejs");
@@ -87,3 +87,30 @@ app.get("/students/help", (req, res) => {
 app.listen(3000,()=>{
     console.log("server is listing to 3000");
 })
+
+
+
+const Student = require("./models/student.js");
+
+
+app.get("/login", (req, res)=>{
+  res.render("students/login");
+  // res.redirect("/students/login");
+})
+
+// app.post("/login", (req, res)=>{
+//   // const
+// });
+
+// app.get("/students/login", (req, res)=>{
+// });
+
+app.get("/register", (req, res)=>{
+  res.render("students/register");
+});
+
+// app.post("/register", (req, res)=>{
+//   const student = new Student(req.body);
+//   await student.save();
+//   res.send("Registered Successfully.")
+// });

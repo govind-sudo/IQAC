@@ -1,0 +1,146 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #2c4c86 0%, #1e3a6e 45%, #16305e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-card {
+  background: #f7f8fa;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 400px;
+  padding: 36px 32px 32px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-title {
+  color: #1e3a6e;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 28px;
+}
+
+.field-label {
+  display: block;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.mis-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d7dbe0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mis-input::placeholder {
+  color: #9aa1ab;
+}
+
+.mis-input:focus {
+  border-color: #4f8ef7;
+  box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.25);
+}
+
+/* Google sign-in section: hidden by default, revealed via JS */
+.google-section {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
+}
+
+.google-section.visible {
+  max-height: 200px;
+  opacity: 1;
+  margin-top: 16px;
+}
+
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1px solid #d7dbe0;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #3c4043;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.google-btn:hover {
+  background: #f5f6f8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.google-icon {
+  flex-shrink: 0;
+}
+
+.google-note {
+  margin-top: 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #555c66;
+}
+
+.google-note strong {
+  color: #1e3a6e;
+}
+
+.register-link {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e3a6e;
+  text-decoration: none;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
