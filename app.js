@@ -33,7 +33,8 @@ async function main() {
   await mongoose.connect(MONGO_URL);
 }
 
-app.get("/students/:id/dashboard", (req, res) => {
+// app.get("/students/:id/dashboard", (req, res) => {
+app.get("/students/dashboard", (req, res) => {
   res.render("students/dashboard", { currentPage: "dashboard" });
 });
 // app.get("/students/:id/dashboard", async (req, res) => {
@@ -52,7 +53,8 @@ app.get("/students/:id/dashboard", (req, res) => {
 //   }
 // });
 
-app.get("/students/:id/profile", (req, res) => {
+// app.get("/students/:id/profile", (req, res) => {
+app.get("/students/profile", (req, res) => {
   res.render("students/profile", { currentPage: "profile" });
 });
 
