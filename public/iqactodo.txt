@@ -1,0 +1,6 @@
+remove acc secu.
+district should also be required
+add drop down for all ields of address, only address line is text field.
+no cgpa option, only percentage.
+
+do changes in schema, acc to ejs form.

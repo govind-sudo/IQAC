@@ -1,11 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Registration</title>
+  <link rel="stylesheet" href="/css/students/studentRegistration.css" />
 </head>
 <body>
-    
+
+  <!-- HEADER BANNER -->
+  <header class="page-banner">
+    <div class="banner-left">
+      <svg class="banner-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 12a4 4 0 100-8 4 4 0 000 8z" stroke="white" stroke-width="1.6"/>
+        <path d="M2.5 20c1-3.6 3.9-6 6.5-6s5.5 2.4 6.5 6" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M18.5 8v5.5M15.75 10.75h5.5" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1>Student Registration</h1>
+        <p>Register new students to the IQAC system</p>
+      </div>
+    </div>
+    <button type="button" id="resetTopBtn" class="btn-reset-top">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 12a8 8 0 10-2.34 5.66" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M20 5v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Reset Form
+    </button>
+  </header>
+
+  <main class="page-body">
+    <form id="studentForm" action="/register/student" method="POST" enctype="multipart/form-data" autocomplete="off">
+
+      <!-- ============ BASIC INFORMATION ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          Basic Information
+        </h2>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="title">Honorific<span class="req">*</span></label>
+            <select id="title" name="title" required>
+              <option value="" selected disabled>Select</option>
+              <option value="Mr">Mr.</option>
+              <option value="Ms">Ms.</option>
+              <option value="Mrs">Mrs.</option>
+              <option value="Dr">Dr.</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="firstName">First Name<span class="req">*</span></label>
+            <input type="text" id="firstName" name="firstName" required />
+          </div>
+
+          <div class="form-field">
+            <label for="middleName">Middle Name</label>
+            <input type="text" id="middleName" name="middleName" />
+          </div>
+          <div class="form-field">
+            <label for="lastName">Last Name<span class="req">*</span></label>
+            <input type="text" id="lastName" name="lastName" required />
+          </div>
+
+          <div class="form-field">
+            <label for="ugNumber">UG Number<span class="req">*</span></label>
+            <input type="text" id="ugNumber" name="ugNumber" placeholder="Enter your UG Number" required />
+            <p class="field-hint field-hint-warn">Not yet a field on Student.js — see note below</p>
+          </div>
+          <div class="form-field">
+            <label for="enrollmentNo">Enrollment Number</label>
+            <input type="text" id="enrollmentNo" name="enrollmentNo" class="field-disabled" placeholder="Assigned by Admin" disabled />
+            <p class="field-hint">Disabled — will be filled in by Admin (maps to enrollmentNo)</p>
+          </div>
+
+          <div class="form-field">
+            <label for="email">Personal Email ID<span class="req">*</span></label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required />
+            <p class="field-hint">OTP will be sent to this email for verification</p>
+          </div>
+          <div class="form-field">
+            <label for="phone">Contact Number<span class="req">*</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" required />
+          </div>
+
+          <div class="form-field">
+            <label for="parulEmailId">Institute Email ID</label>
+            <input type="email" id="parulEmailId" name="parulEmailId" class="field-disabled" placeholder="Not yet assigned" disabled />
+            <p class="field-hint">Disabled — issued by Admin after verification (parulEmailActive stays false until then)</p>
+          </div>
+          <div class="form-field">
+            <label for="institute">Institute<span class="req">*</span></label>
+            <select id="institute" name="institute" required>
+              <option value="" selected>Select Institute</option>
+              <option value="Parul Institute of Engineering and Technology">Parul Institute of Engineering and Technology</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="department">Department<span class="req">*</span></label>
+            <select id="department" name="department" disabled required>
+              <option value="" selected>Select Institute First</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="branch">Branch<span class="req">*</span></label>
+            <select id="branch" name="branch" disabled required>
+              <option value="" selected>Select Department First</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="specialization">Specialization<span class="req">*</span></label>
+            <select id="specialization" name="specialization" disabled required>
+              <option value="" selected>Select Branch First</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="gender">Gender<span class="req">*</span></label>
+            <select id="gender" name="gender" required>
+              <option value="" selected disabled>Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="dob">Date of Birth<span class="req">*</span></label>
+            <input type="date" id="dob" name="dob" required />
+          </div>
+          <div class="form-field">
+            <label for="joiningDate">Campus Reporting Date<span class="req">*</span></label>
+            <input type="date" id="joiningDate" name="joiningDate" required />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ACCOUNT SECURITY (required by schema: password) ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+          Account Security
+        </h2>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="password">Password<span class="req">*</span></label>
+            <input type="password" id="password" name="password" minlength="8" required />
+          </div>
+          <div class="form-field">
+            <label for="confirmPassword">Confirm Password<span class="req">*</span></label>
+            <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" required />
+            <p class="field-hint" id="passwordMismatch" style="display:none; color:#e0433c;">Passwords do not match</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ADDRESS (maps to presentAddress sub-schema) ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z" stroke="currentColor" stroke-width="1.6"/>
+            <circle cx="12" cy="9.5" r="2.3" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+          Address
+        </h2>
+
+        <div class="form-grid">
+          <div class="form-field form-field-full">
+            <label for="address1">Address Line 1<span class="req">*</span></label>
+            <input type="text" id="address1" name="presentAddress[address1]" placeholder="House / Street / Locality" required />
+          </div>
+          <div class="form-field form-field-full">
+            <label for="address2">Address Line 2</label>
+            <input type="text" id="address2" name="presentAddress[address2]" placeholder="Landmark, Area (optional)" />
+          </div>
+
+          <div class="form-field">
+            <label for="city">City<span class="req">*</span></label>
+            <input type="text" id="city" name="presentAddress[city]" required />
+          </div>
+          <div class="form-field">
+            <label for="district">District</label>
+            <input type="text" id="district" name="presentAddress[district]" />
+          </div>
+
+          <div class="form-field">
+            <label for="state">State<span class="req">*</span></label>
+            <input type="text" id="state" name="presentAddress[state]" required />
+          </div>
+          <div class="form-field">
+            <label for="country">Country<span class="req">*</span></label>
+            <input type="text" id="country" name="presentAddress[country]" value="India" required />
+          </div>
+
+          <div class="form-field">
+            <label for="pincode">Pincode<span class="req">*</span></label>
+            <input type="text" id="pincode" name="presentAddress[pincode]" required />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ EDUCATIONAL DETAILS ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3l10 5-10 5L2 8l10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          Educational Details
+        </h2>
+        <p class="field-hint field-hint-warn section-note">
+          School name / percentage / CGPA below aren't fields on educationSchema.js yet — only the marksheet link is. See note at the bottom of the chat.
+        </p>
+
+        <!-- 10th standard -->
+        <div class="edu-block">
+          <h3 class="edu-block-title">10th Standard</h3>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="tenthSchool">School Name<span class="req">*</span></label>
+              <input type="text" id="tenthSchool" name="education[tenth][schoolName]" required />
+            </div>
+            <div class="form-field">
+              <label>Result Type<span class="req">*</span></label>
+              <div class="radio-toggle-row">
+                <label class="radio-pill">
+                  <input type="radio" name="education[tenth][gradeType]" value="percentage" checked />
+                  <span>Percentage</span>
+                </label>
+                <label class="radio-pill">
+                  <input type="radio" name="education[tenth][gradeType]" value="cgpa" />
+                  <span>CGPA</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="tenthGradeValue" id="tenthGradeLabel">Percentage (%)<span class="req">*</span></label>
+              <input type="number" id="tenthGradeValue" name="education[tenth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 92.4" required />
+            </div>
+            <div class="form-field">
+              <label for="tenthMarksheet">Upload 10th Marksheet (PDF)<span class="req">*</span></label>
+              <input type="file" id="tenthMarksheet" name="education[tenth][marksheet]" accept="application/pdf" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- 12th / Diploma -->
+        <div class="edu-block">
+          <div class="edu-block-header">
+            <h3 class="edu-block-title" id="twelfthBlockTitle">12th Standard</h3>
+            <div class="radio-toggle-row">
+              <label class="radio-pill">
+                <input type="radio" name="qualificationType" value="twelfth" checked />
+                <span>12th Standard</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="qualificationType" value="diploma" />
+                <span>Diploma</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="twelfthSchool" id="twelfthSchoolLabel">School / College Name<span class="req">*</span></label>
+              <input type="text" id="twelfthSchool" name="education[twelfth][schoolName]" required />
+            </div>
+            <div class="form-field">
+              <label>Result Type<span class="req">*</span></label>
+              <div class="radio-toggle-row">
+                <label class="radio-pill">
+                  <input type="radio" name="twelfthGradeTypeUI" value="percentage" checked />
+                  <span>Percentage</span>
+                </label>
+                <label class="radio-pill">
+                  <input type="radio" name="twelfthGradeTypeUI" value="cgpa" />
+                  <span>CGPA</span>
+                </label>
+              </div>
+              <!-- Real submitted field name switches with the qualification toggle (twelfth vs diploma) -->
+              <input type="hidden" id="twelfthGradeTypeHidden" name="education[twelfth][gradeType]" value="percentage" />
+            </div>
+
+            <div class="form-field">
+              <label for="twelfthGradeValue" id="twelfthGradeLabel">Percentage (%)<span class="req">*</span></label>
+              <input type="number" id="twelfthGradeValue" name="education[twelfth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 88.6" required />
+            </div>
+            <div class="form-field">
+              <label for="twelfthMarksheet" id="twelfthMarksheetLabel">Upload 12th Marksheet (PDF)<span class="req">*</span></label>
+              <input type="file" id="twelfthMarksheet" name="education[twelfth][marksheet]" accept="application/pdf" required />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ACTION BUTTONS ============ -->
+      <div class="btn-row">
+        <button type="button" id="resetBottomBtn" class="btn btn-gray">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 12a8 8 0 10-2.34 5.66" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M20 5v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Reset Form
+        </button>
+        <button type="submit" class="btn btn-blue">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12a4 4 0 100-8 4 4 0 000 8z" stroke="white" stroke-width="1.6"/>
+            <path d="M2.5 20c1-3.6 3.9-6 6.5-6s5.5 2.4 6.5 6" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M18.5 8v5.5M15.75 10.75h5.5" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          Register Student
+        </button>
+        <a href="/login" class="btn btn-red">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 6l12 12M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Cancel
+        </a>
+      </div>
+    </form>
+  </main>
+
+  <script src="/js/studentRegistration.js"></script>
 </body>
 </html>
