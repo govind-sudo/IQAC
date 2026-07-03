@@ -1,8 +1,7 @@
 // init/data.js
-// Raw student data exactly as exported/collected.
-// Left untouched here on purpose — all cleaning/conversion happens
-// in index.js right before insert, so this file stays a faithful
-// copy of the source data if you need to re-check it later.
+// Raw student data. abcId added as null (not in original export —
+// filled with a placeholder during cleaning). First record's email
+// swapped to a real inbox for testing signup/login end-to-end.
 
 module.exports = [
   {
@@ -18,7 +17,7 @@ module.exports = [
     "category": "OPEN",
     "religion": "HINDU",
     "caste": "Reddy",
-    "email": "alugondasaicharanreddy2006@gmail.com",
+    "email": "govindbhadoriya668@gmail.com",
     "password": null,
     "enrollmentNo": "ALUGONDA",
     "institute": "Parul Institute of Engineering & Technology (First Shift)",
@@ -72,7 +71,8 @@ module.exports = [
     "isActive": true,
     "profileStatus": null,
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
     "_id": null,
@@ -141,7 +141,8 @@ module.exports = [
     "isActive": true,
     "profileStatus": null,
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
     "_id": null,
@@ -210,7 +211,8 @@ module.exports = [
     "isActive": true,
     "profileStatus": null,
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
     "_id": null,
@@ -279,77 +281,79 @@ module.exports = [
     "isActive": true,
     "profileStatus": null,
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
-  "_id": null,
-  "title": "Miss",
-  "firstName": "PRIYA",
-  "middleName": "RANI",
-  "lastName": "SINGH",
-  "fullName": "PRIYA RANI SINGH",
-  "gender": "Female",
-  "dob": "09-11-2005",
-  "bloodGroup": "A+",
-  "category": "SC",
-  "religion": "Hinduism",
-  "caste": "JATAV",
-  "email": "priya.singh24@example.com",
-  "password": null,
-  "enrollmentNo": "24UG036615",
-  "institute": "Parul Institute of Engineering & Technology (First Shift)",
-  "course": "BTech - Bachelor of Technology",
-  "program": "PIET-1 - BTech - Computer Science & Engineering (Artificial Intelligence & Machine Learning)",
-  "department": null,
-  "admissionYear": 2024,
-  "admissionType": "Regular",
-  "admissionQuota": "ACPC",
-  "studentStatus": "Active",
-  "phone": 9898123456,
-  "whatsapp": 9898123456,
-  "alternateEmail": "priya.personal@example.com",
-  "emergencyContact": {
-    "name": "Mahesh Singh",
-    "phone": 9876012345
+    "_id": null,
+    "title": "Mr",
+    "firstName": "AAYUSH THAKRE",
+    "middleName": "VINOD",
+    "lastName": "THAKRE",
+    "fullName": "AAYUSH THAKRE VINOD THAKRE",
+    "gender": "Male",
+    "dob": "2005-11-09T00:00:00",
+    "bloodGroup": "O+",
+    "category": "OBC (SEBC)",
+    "religion": "Hinduism",
+    "caste": "HINDU",
+    "email": "aayushthakre487@gmail.com",
+    "password": null,
+    "enrollmentNo": "24UG034121",
+    "institute": "Parul Institute of Engineering & Technology (First Shift)",
+    "course": "BTech - Bachelor of Technology",
+    "program": "PIET-1 - BTech - Computer Science & Engineering(Artificial Intelligence & Machine Learning)",
+    "department": null,
+    "admissionYear": 2024.0,
+    "admissionType": "Regular",
+    "admissionQuota": "VACANT QUOTA",
+    "studentStatus": "Active",
+    "phone": "+91 6265604881",
+    "whatsapp": "+91 6265604881",
+    "alternateEmail": null,
+    "emergencyContact": {
+      "name": null,
+      "phone": "+91 6261912478"
+    },
+    "father": {
+      "name": "VINOD THAKRE",
+      "phone": "+91 6261912478",
+      "email": null
+    },
+    "mother": {
+      "name": "CHANDRAKALA THAKRE",
+      "phone": "+91 9754438864",
+      "email": null
+    },
+    "presentAddress": {
+      "address1": "A/22, Kotyark Nagar Society, Pani Gate",
+      "address2": null,
+      "address3": null,
+      "city": "Vadodara",
+      "district": "Vadodara",
+      "state": "Gujarat",
+      "country": "India",
+      "pincode": 390017.0
+    },
+    "permanentAddress": {
+      "address1": "Koste",
+      "address2": null,
+      "address3": null,
+      "city": "Balaghat",
+      "district": "Balaghat",
+      "state": "Madhya Pradesh",
+      "country": "India",
+      "pincode": 481331.0
+    },
+    "aadhaarNumber": 7297874902.0,
+    "mentorFaculty": "Deepika Pandey",
+    "role": "student",
+    "isActive": true,
+    "profileStatus": "yes",
+    "createdAt": null,
+    "updatedAt": null,
+    "abcId": null
   },
-  "father": {
-    "name": "Mahesh Singh",
-    "phone": 9876012345,
-    "email": "mahesh.singh@example.com"
-  },
-  "mother": {
-    "name": "Kavita Singh",
-    "phone": 9876019876,
-    "email": "kavita.singh@example.com"
-  },
-  "presentAddress": {
-    "address1": "Girls Hostel C, Room 214",
-    "address2": null,
-    "address3": null,
-    "city": "Vadodara",
-    "district": "Waghodia",
-    "state": "Gujarat",
-    "country": "India",
-    "pincode": 391760
-  },
-  "permanentAddress": {
-    "address1": "House No. 118, Shanti Nagar",
-    "address2": null,
-    "address3": null,
-    "city": "Bhopal",
-    "district": "Bhopal",
-    "state": "Madhya Pradesh",
-    "country": "India",
-    "pincode": 462001
-  },
-  "aadhaarNumber": 789456123012,
-  "mentorFaculty": "Prof. Anjali Desai",
-  "role": "student",
-  "isActive": true,
-  "profileStatus": "yes",
-  "createdAt": null,
-  "updatedAt": null
-},
   {
     "_id": null,
     "title": "Mr",
@@ -417,7 +421,8 @@ module.exports = [
     "isActive": true,
     "profileStatus": "yes",
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
     "_id": null,
@@ -486,7 +491,8 @@ module.exports = [
     "isActive": true,
     "profileStatus": "yes",
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
     "_id": null,
@@ -555,7 +561,8 @@ module.exports = [
     "isActive": true,
     "profileStatus": null,
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
     "_id": null,
@@ -624,75 +631,77 @@ module.exports = [
     "isActive": true,
     "profileStatus": "yes",
     "createdAt": null,
-    "updatedAt": null
+    "updatedAt": null,
+    "abcId": null
   },
   {
-  "_id": null,
-  "title": "Mr",
-  "firstName": "RAHUL",
-  "middleName": "KUMAR",
-  "lastName": "SHARMA",
-  "fullName": "RAHUL KUMAR SHARMA",
-  "gender": "Male",
-  "dob": "14-07-2005",
-  "bloodGroup": "O+",
-  "category": "OBC",
-  "religion": "Hinduism",
-  "caste": "SHARMA",
-  "email": "rahul.sharma24@example.com",
-  "password": null,
-  "enrollmentNo": "24UG036528",
-  "institute": "Parul Institute of Engineering & Technology (First Shift)",
-  "course": "BTech - Bachelor of Technology",
-  "program": "PIET-1 - BTech - Computer Science & Engineering (Artificial Intelligence & Machine Learning)",
-  "department": null,
-  "admissionYear": 2024,
-  "admissionType": "Regular",
-  "admissionQuota": "GENERAL",
-  "studentStatus": "Active",
-  "phone": 9876543210,
-  "whatsapp": 9876543210,
-  "alternateEmail": "rahul.personal@example.com",
-  "emergencyContact": {
-    "name": "Rajesh Sharma",
-    "phone": 9876501234
-  },
-  "father": {
-    "name": "Rajesh Sharma",
-    "phone": 9876501234,
-    "email": "rajesh.sharma@example.com"
-  },
-  "mother": {
-    "name": "Sunita Sharma",
-    "phone": 9876505678,
-    "email": "sunita.sharma@example.com"
-  },
-  "presentAddress": {
-    "address1": "Room 312, Boys Hostel A",
-    "address2": null,
-    "address3": null,
-    "city": "Vadodara",
-    "district": "Waghodia",
-    "state": "Gujarat",
-    "country": "India",
-    "pincode": 391760
-  },
-  "permanentAddress": {
-    "address1": "45 Shastri Nagar",
-    "address2": null,
-    "address3": null,
-    "city": "Lucknow",
-    "district": "Lucknow",
-    "state": "Uttar Pradesh",
-    "country": "India",
-    "pincode": 226001
-  },
-  "aadhaarNumber": 567812349876,
-  "mentorFaculty": "Dr. Neha Patel",
-  "role": "student",
-  "isActive": true,
-  "profileStatus": "yes",
-  "createdAt": null,
-  "updatedAt": null
-}
+    "_id": null,
+    "title": "Miss",
+    "firstName": "ADITI GUPTA",
+    "middleName": null,
+    "lastName": "GUPTA",
+    "fullName": "ADITI GUPTA GUPTA",
+    "gender": "Female",
+    "dob": "25-03-2006",
+    "bloodGroup": "B+",
+    "category": "OPEN",
+    "religion": "Hinduism",
+    "caste": "BANIYA",
+    "email": "ananyaditi32@gmail.com",
+    "password": null,
+    "enrollmentNo": "24UG036412",
+    "institute": "Parul Institute of Engineering & Technology (First Shift)",
+    "course": "BTech - Bachelor of Technology",
+    "program": "PIET-1 - BTech - Computer Science & Engineering(Artificial Intelligence & Machine Learning)",
+    "department": null,
+    "admissionYear": 2024.0,
+    "admissionType": "Regular",
+    "admissionQuota": "MANAGEMENT QUOTA",
+    "studentStatus": "Active",
+    "phone": 8787240653.0,
+    "whatsapp": 8787240653.0,
+    "alternateEmail": "ananyaditi32@gmail.com",
+    "emergencyContact": {
+      "name": 8787240653.0,
+      "phone": null
+    },
+    "father": {
+      "name": "Avnish Gupta",
+      "phone": 8423145002.0,
+      "email": "ananyaditi32@gmail.com"
+    },
+    "mother": {
+      "name": "Deepti Rawat",
+      "phone": 8423145002.0,
+      "email": "ananyaditi32@gmail.com"
+    },
+    "presentAddress": {
+      "address1": "Shakuntala hostel b",
+      "address2": null,
+      "address3": null,
+      "city": "Vadodara",
+      "district": "Waghodia",
+      "state": "Gujarat",
+      "country": "India",
+      "pincode": 391760.0
+    },
+    "permanentAddress": {
+      "address1": "New patel nagar,orai",
+      "address2": null,
+      "address3": null,
+      "city": "Orai",
+      "district": "Jalaun",
+      "state": "Uttar pradesh",
+      "country": "India",
+      "pincode": 285001.0
+    },
+    "aadhaarNumber": 413601000000.0,
+    "mentorFaculty": "Deepika Pandey",
+    "role": "student",
+    "isActive": true,
+    "profileStatus": "yes",
+    "createdAt": null,
+    "updatedAt": null,
+    "abcId": null
+  }
 ];

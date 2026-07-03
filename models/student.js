@@ -1,56 +1,38 @@
-const mongoose = require("mongoose");
+// models/Student.js
+
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const addressSchema = require("./addressSchema");
-const parentSchema = require("./parentSchema");
-const emergencyContactSchema = require("./emergencyContactSchema");
-
+const addressSchema = require('./addressSchema');
+const parentSchema = require('./parentSchema');
+const emergencyContactSchema = require('./emergencyContactSchema');
 
 const studentSchema = new Schema(
   {
     // ---------- Personal ----------
     title: {
       type: String,
-      enum: ["Mr", "Ms", "Mrs", "Dr"],
+      enum: ['Mr', 'Ms', 'Mrs', 'Dr'],
     },
-    firstName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    middleName: {
-      type: String,
-      trim: true,
-    },
-    lastName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    fullName: {
-      type: String,
-      trim: true,
-    },
-
+    firstName: { type: String, required: true, trim: true },
+    middleName: { type: String, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    fullName: { type: String, trim: true }, // auto-set in a pre-save hook from first+middle+last
     gender: {
       type: String,
-      enum: ["male", "female", "other"],
+      enum: ['male', 'female', 'other'],
     },
-
-    dob: Date,
-
+    dob: { type: Date },
     bloodGroup: {
       type: String,
-      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
     },
-
     category: {
       type: String,
-      enum: ["General", "OBC", "SC", "ST", "EWS"],
+      enum: ['General', 'OBC', 'SC', 'ST', 'EWS'],
     },
-
-    religion: String,
-    caste: String,
+    religion: { type: String, trim: true },
+    caste: { type: String, trim: true },
 
     // ---------- Authentication ----------
     email: {
@@ -59,48 +41,49 @@ const studentSchema = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
+      index: true,
     },
-
     password: {
       type: String,
       required: true,
-      select: false,
+      select: false, // never returned by default in queries
     },
-
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // most students won't have this until Google login is added later
+    },
     enrollmentNo: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true, // new admissions won't have one yet — HOD/admin assigns it during verification
+      trim: true,
     },
 
     // ---------- Academic ----------
-    institute: String,
-    course: String,
-    program: String,
-    department: String,
-
-    admissionYear: Number,
-
+    institute: { type: String, trim: true },
+    course: { type: String, trim: true },       // e.g. B.Tech
+    program: { type: String, trim: true },       // e.g. Computer Engineering
+    department: { type: String, trim: true },
+    admissionYear: { type: Number },
     admissionType: {
       type: String,
-      enum: ["Regular", "Lateral Entry", "Transfer"],
+      enum: ['Regular', 'Lateral Entry', 'Transfer'],
     },
-
     admissionQuota: {
       type: String,
-      enum: ["General", "Management", "NRI", "Sports", "Other"],
+      enum: ['General', 'Management', 'NRI', 'Sports', 'Other'],
     },
-
     studentStatus: {
       type: String,
-      enum: ["active", "graduated", "dropped", "suspended"],
-      default: "active",
+      enum: ['active', 'graduated', 'dropped', 'suspended'],
+      default: 'active',
     },
 
     // ---------- Contact ----------
-    phone: String,
-    whatsapp: String,
-    alternateEmail: String,
+    phone: { type: String, trim: true },
+    whatsapp: { type: String, trim: true },
+    alternateEmail: { type: String, trim: true, lowercase: true },
 
     // ---------- Emergency ----------
     emergencyContact: emergencyContactSchema,
@@ -109,29 +92,29 @@ const studentSchema = new Schema(
     father: parentSchema,
     mother: parentSchema,
 
-    // ---------- Address ----------
+    // ---------- Addresses ----------
     presentAddress: addressSchema,
     permanentAddress: addressSchema,
 
     // ---------- Identity ----------
+    abcId: {
+      type: String,
+      unique: true,
+      sparse: true, // not every student may have generated one yet
+      trim: true,
+    },
     aadhaarNumber: {
       type: String,
       unique: true,
-      sparse: true,
-      select: false,
-    },
-
-    // ---------- Faculty ----------
-    mentorFaculty: {
-      type: Schema.Types.ObjectId,
-      ref: "Faculty",
+      sparse: true, // not every student may have it filled in immediately
+      select: false, // sensitive — excluded from queries unless explicitly requested
     },
 
     // ---------- Role ----------
     role: {
       type: String,
-      default: "student",
-      enum: ["student"],
+      enum: ['student'],
+      default: 'student',
     },
 
     // ---------- Status ----------
@@ -140,28 +123,23 @@ const studentSchema = new Schema(
       default: true,
     },
 
+    // ---------- Verification ----------
     profileStatus: {
       type: String,
-      enum: ["incomplete", "pending", "verified", "rejected"],
-      default: "incomplete",
+      enum: ['incomplete', 'pending', 'verified', 'rejected'],
+      default: 'incomplete',
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true } // adds createdAt, updatedAt automatically
 );
 
-// Build full name automatically
-studentSchema.pre("save", function (next) {
-  this.fullName = [
-    this.firstName,
-    this.middleName,
-    this.lastName,
-  ]
+// Auto-build fullName from parts on every save, so you never have to
+// remember to keep it in sync by hand.
+studentSchema.pre('save', function (next) {
+  this.fullName = [this.firstName, this.middleName, this.lastName]
     .filter(Boolean)
-    .join(" ");
-
+    .join(' ');
   next();
 });
 
-module.exports = mongoose.model("Student", studentSchema);
+module.exports = mongoose.model('Student', studentSchema);

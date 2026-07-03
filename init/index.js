@@ -2,14 +2,14 @@ require("dotenv").config();
 console.log(process.env.MONGO_URL);
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const Student = require("../models/student");
+const Student = require("../models/student"); // capital S — matches actual filename
 
 const imported = require("./data");
 const rawStudents = Array.isArray(imported)
   ? imported
   : imported.data;
 
-const MONGO_URL = process.env.MONGO_URL
+const MONGO_URL = process.env.MONGO_URL;
 
 // ---------------- Helper Functions ----------------
 
@@ -121,6 +121,10 @@ async function cleanRecord(raw) {
 
     enrollmentNo: raw.enrollmentNo,
 
+    // CHANGED: Passing undefined allows the schema's `sparse: true` index to completely bypass this field 
+    // instead of throwing duplicate key errors for hardcoded strings.
+    abcId: raw.abcId || undefined,
+
     institute: raw.institute,
     course: raw.course,
     program: raw.program,
@@ -176,8 +180,6 @@ async function cleanRecord(raw) {
 
     aadhaarNumber: numToString(raw.aadhaarNumber),
 
-    mentorFaculty: undefined,
-
     profileStatus: normalizeProfileStatus(raw.profileStatus),
 
     isActive: raw.isActive,
@@ -200,9 +202,13 @@ async function seed() {
 
     console.log("Cleaned:", cleaned.length);
 
-    // Remove previous students
-    await Student.deleteMany({});
-    console.log("Old records deleted.");
+    // CHANGED: Dropping the collection forces MongoDB to purge the corrupted/old unique indexes cached in memory.
+    try {
+      await Student.collection.drop();
+      console.log("Old records and cached indexes cleared.");
+    } catch (dropErr) {
+      console.log("Collection clean or didn't exist yet.");
+    }
 
     // Insert one by one to identify errors
     for (let i = 0; i < cleaned.length; i++) {
