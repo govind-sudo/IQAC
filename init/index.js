@@ -2,7 +2,7 @@ require("dotenv").config();
 console.log(process.env.MONGO_URL);
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const Student = require("../models/student"); // capital S — matches actual filename
+const Student = require("../models/student"); // Matches actual filename
 
 const imported = require("./data");
 const rawStudents = Array.isArray(imported)
@@ -16,11 +16,19 @@ const MONGO_URL = process.env.MONGO_URL;
 function parseDob(dobStr) {
   if (!dobStr) return undefined;
 
-  if (dobStr.includes("T")) {
-    return new Date(dobStr);
+  // FIX: If it's already a native Date object, return it directly
+  if (dobStr instanceof Date) {
+    return dobStr;
   }
 
-  const [day, month, year] = dobStr.split("-");
+  // Coerce to string to safely run string methods if it's a number or raw string
+  const str = String(dobStr).trim();
+
+  if (str.includes("T")) {
+    return new Date(str);
+  }
+
+  const [day, month, year] = str.split("-");
   return new Date(`${year}-${month}-${day}`);
 }
 
@@ -115,20 +123,28 @@ async function cleanRecord(raw) {
     religion: raw.religion,
     caste: raw.caste,
 
+    state: raw.state || (raw.presentAddress ? raw.presentAddress.state : undefined),
+    country: raw.country || (raw.presentAddress ? raw.presentAddress.country : undefined) || "India",
+    city: raw.city || (raw.presentAddress ? raw.presentAddress.city : undefined),
+
     email: raw.email.toLowerCase(),
 
     password: hash,
 
     enrollmentNo: raw.enrollmentNo,
 
-    // CHANGED: Passing undefined allows the schema's `sparse: true` index to completely bypass this field 
-    // instead of throwing duplicate key errors for hardcoded strings.
     abcId: raw.abcId || undefined,
+
+    parulEmailId: raw.parulEmailId || undefined,
+    parulEmailActive: raw.parulEmailActive || false,
 
     institute: raw.institute,
     course: raw.course,
     program: raw.program,
-    department: raw.department,
+    department: raw.department || "FET",
+    branch: raw.branch || "CSE",
+    specialization: raw.specialization || undefined,
+    joiningDate: raw.joiningDate ? parseDob(raw.joiningDate) : undefined,
 
     admissionYear: raw.admissionYear,
     admissionType: raw.admissionType,
@@ -178,6 +194,8 @@ async function cleanRecord(raw) {
         }
       : undefined,
 
+    education: raw.education || undefined,
+
     aadhaarNumber: numToString(raw.aadhaarNumber),
 
     profileStatus: normalizeProfileStatus(raw.profileStatus),
@@ -202,7 +220,6 @@ async function seed() {
 
     console.log("Cleaned:", cleaned.length);
 
-    // CHANGED: Dropping the collection forces MongoDB to purge the corrupted/old unique indexes cached in memory.
     try {
       await Student.collection.drop();
       console.log("Old records and cached indexes cleared.");

@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 const addressSchema = require('./addressSchema');
 const parentSchema = require('./parentSchema');
 const emergencyContactSchema = require('./emergencyContactSchema');
+const educationSchema = require('./educationSchema');
 
 const studentSchema = new Schema(
   {
@@ -33,6 +34,12 @@ const studentSchema = new Schema(
     },
     religion: { type: String, trim: true },
     caste: { type: String, trim: true },
+    // Domicile state — separate from presentAddress.state/permanentAddress.state,
+    // since this is likely used for quota/reservation purposes rather than
+    // a mailing address. Flag me if you actually meant one of those instead.
+    state: { type: String, trim: true },
+    country: { type: String, trim: true, default: 'India' },
+    city: { type: String, trim: true },
 
     // ---------- Authentication ----------
     email: {
@@ -53,6 +60,21 @@ const studentSchema = new Schema(
       unique: true,
       sparse: true, // most students won't have this until Google login is added later
     },
+    // Official Parul University email — issued by the institute, not
+    // self-entered. Not usable for login yet since issuance is disabled
+    // on the university's end; parulEmailActive tracks that separately
+    // so the field itself can exist without implying it's live.
+    parulEmailId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+    },
+    parulEmailActive: {
+      type: Boolean,
+      default: false, // flip to true once the university enables these accounts
+    },
     enrollmentNo: {
       type: String,
       unique: true,
@@ -64,7 +86,13 @@ const studentSchema = new Schema(
     institute: { type: String, trim: true },
     course: { type: String, trim: true },       // e.g. B.Tech
     program: { type: String, trim: true },       // e.g. Computer Engineering
-    department: { type: String, trim: true },
+    department: { type: String, trim: true, default: 'FET' }, // Faculty of Engineering & Technology
+    branch: { type: String, trim: true, default: 'CSE' },
+    specialization: {
+      type: String,
+      enum: ['AIML', 'AIRO'],
+    },
+    joiningDate: { type: Date },
     admissionYear: { type: Number },
     admissionType: {
       type: String,
@@ -95,6 +123,9 @@ const studentSchema = new Schema(
     // ---------- Addresses ----------
     presentAddress: addressSchema,
     permanentAddress: addressSchema,
+
+    // ---------- Education ----------
+    education: educationSchema,
 
     // ---------- Identity ----------
     abcId: {
