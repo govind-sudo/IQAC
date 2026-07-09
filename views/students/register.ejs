@@ -44,7 +44,7 @@
         </h2>
 
         <div class="form-grid">
-          <div class="form-field">
+          <!-- <div class="form-field">
             <label for="title">Honorific<span class="req">*</span></label>
             <select id="title" name="title" required>
               <option value="" selected disabled>Select</option>
@@ -53,6 +53,16 @@
               <option value="Mrs">Mrs.</option>
               <option value="Dr">Dr.</option>
             </select>
+          </div> -->
+          <div class="form-field">
+            <label for="ugNumber">UG Number<span class="req">*</span></label>
+            <input type="text" id="ugNumber" name="ugNumber" placeholder="Enter your UG Number" required />
+            <p class="field-hint field-hint-warn">Not yet a field on Student.js — see note below</p>
+          </div>
+          <div class="form-field">
+            <label for="enrollmentNo">Enrollment Number</label>
+            <input type="text" id="enrollmentNo" name="enrollmentNo" class="field-disabled" placeholder="Assigned by Admin" disabled />
+            <p class="field-hint">Disabled — will be filled in by Admin (maps to enrollmentNo)</p>
           </div>
           <div class="form-field">
             <label for="firstName">First Name<span class="req">*</span></label>
@@ -68,16 +78,7 @@
             <input type="text" id="lastName" name="lastName" required />
           </div>
 
-          <div class="form-field">
-            <label for="ugNumber">UG Number<span class="req">*</span></label>
-            <input type="text" id="ugNumber" name="ugNumber" placeholder="Enter your UG Number" required />
-            <p class="field-hint field-hint-warn">Not yet a field on Student.js — see note below</p>
-          </div>
-          <div class="form-field">
-            <label for="enrollmentNo">Enrollment Number</label>
-            <input type="text" id="enrollmentNo" name="enrollmentNo" class="field-disabled" placeholder="Assigned by Admin" disabled />
-            <p class="field-hint">Disabled — will be filled in by Admin (maps to enrollmentNo)</p>
-          </div>
+          
 
           <div class="form-field">
             <label for="email">Personal Email ID<span class="req">*</span></label>
