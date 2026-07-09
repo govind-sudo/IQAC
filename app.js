@@ -53,11 +53,6 @@ app.get("/students/dashboard", (req, res) => {
 //   }
 // });
 
-// app.get("/students/:id/profile", (req, res) => {
-app.get("/students/profile", (req, res) => {
-  res.render("students/profile", { currentPage: "profile" });
-});
-
 app.get("/students/forms", (req, res) => {
   res.render("students/forms", { currentPage: "forms" });
 });
@@ -70,13 +65,7 @@ app.get("/students/notices", (req, res) => {
   res.render("students/notices", { currentPage: "notices" });
 });
 
-app.get("/students/messages", (req, res) => {
-  res.render("students/messages", { currentPage: "messages" });
-});
 
-app.get("/students/settings", (req, res) => {
-  res.render("students/settings", { currentPage: "settings" });
-});
 
 app.get("/students/help", (req, res) => {
   res.render("students/help", { currentPage: "help" });
