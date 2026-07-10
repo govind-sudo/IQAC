@@ -273,4 +273,104 @@ module.exports = [
     isActive: true,
     profileStatus: 'pending', // new admission, awaiting admin verification
   },
+  {
+  title: 'Mr',
+  firstName: 'Govind',
+  middleName: '',
+  lastName: 'Bhadoriya',
+  gender: 'male',
+  dob: new Date('2004-10-15'),
+  bloodGroup: 'B+',
+  category: 'General',
+  religion: 'Hinduism',
+  caste: 'Rajput',
+  state: 'Gujarat',
+  country: 'India',
+  city: 'Vadodara',
+
+  email: 'govindbhadoriya672@gmail.com',
+
+  password: '$2b$10$examplehashonlynotreal000000000000000000000000000014',
+
+  enrollmentNo: '24UG040999',
+
+  abcId: '123456789999',
+
+  googleId: null,
+  parulEmailId: null,
+  parulEmailActive: false,
+
+  institute: 'Parul Institute of Engineering & Technology (First Shift)',
+  course: 'BTech - Bachelor of Technology',
+  program: 'PIET-1 - BTech - Computer Science & Engineering(Artificial Intelligence & Machine Learning)',
+  department: 'FET',
+  branch: 'CSE',
+  specialization: 'AIML',
+
+  joiningDate: new Date('2024-08-01'),
+
+  admissionYear: 2024,
+  admissionType: 'Regular',
+  admissionQuota: 'General',
+  studentStatus: 'active',
+
+  phone: '9876543299',
+  whatsapp: '9876543299',
+  alternateEmail: 'govind.personal@example.com',
+
+  emergencyContact: {
+    name: 'Ramesh Bhadoriya',
+    phone: '9876500199',
+  },
+
+  father: {
+    name: 'Ramesh Bhadoriya',
+    phone: '9876500199',
+    email: 'ramesh.bhadoriya@example.com',
+  },
+
+  mother: {
+    name: 'Suman Bhadoriya',
+    phone: '9876500200',
+    email: 'suman.bhadoriya@example.com',
+  },
+
+  presentAddress: {
+    address1: 'Boys Hostel A, Room 305',
+    address2: null,
+    address3: null,
+    city: 'Vadodara',
+    district: 'Waghodia',
+    state: 'Gujarat',
+    country: 'India',
+    pincode: '391760',
+  },
+
+  permanentAddress: {
+    address1: '101 Shree Residency',
+    address2: null,
+    address3: null,
+    city: 'Vadodara',
+    district: 'Vadodara',
+    state: 'Gujarat',
+    country: 'India',
+    pincode: '390019',
+  },
+
+  education: {
+    tenth: {
+      marksheet: 'https://example.com/marksheets/govind-10th.pdf',
+    },
+    twelfth: {
+      marksheet: 'https://example.com/marksheets/govind-12th.pdf',
+    },
+    diploma: null,
+  },
+
+  aadhaarNumber: '789012345678',
+
+  role: 'student',
+  isActive: true,
+  profileStatus: 'verified',
+},
 ];

@@ -2,7 +2,7 @@ require("dotenv").config();
 console.log(process.env.MONGO_URL);
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const Student = require("../models/student"); // Matches actual filename
+const Student = require("../models/Student"); // Matches actual filename
 
 const imported = require("./data");
 const rawStudents = Array.isArray(imported)

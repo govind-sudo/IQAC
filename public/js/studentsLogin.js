@@ -38,7 +38,30 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   googleSignInBtn.addEventListener("click", () => {
-    // Redirect to your Google OAuth route, e.g. Passport's /auth/google
-    window.location.href = "/auth/google";
+    const value = ugNumber.value.trim();
+    if (!value) return;
+
+    // FIXED: this used to jump straight to /auth/google, skipping the
+    // enrollment number check entirely. Now it does a real POST to
+    // /auth/enrollment-check first (full page navigation, not fetch,
+    // so the server can render an error page directly if the number
+    // isn't recognized). The server redirects to /auth/google itself
+    // once the enrollment number is confirmed valid.
+    //
+    // Field name is "enrollmentNo" here, matching what the backend
+    // route reads via req.body.enrollmentNo - NOT "ugNumber", even
+    // though the visible input's id/name on the page is ugNumber.
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/auth/enrollment-check";
+
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "enrollmentNo";
+    input.value = value;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
   });
 });

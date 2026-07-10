@@ -1,18 +1,18 @@
-if(process.env.NODE_ENV != "production"){
-    require("dotenv").config();
+if (process.env.NODE_ENV != "production") {
+  require("dotenv").config();
 }
-
 
 const express = require("express");
 const app = express();
 
 const mongoose = require("mongoose");
+const session = require("express-session");
+const passport = require("./config/passport");
 
 const path = require("path");
 const methodOverride = require("method-override");
-const ejsmate = require("ejs-mate")
-// const mongoose = require("mongoose");
-// const Student = require("./models/student");
+const ejsmate = require("ejs-mate");
+
 // 1. MIDDLEWARE SETTINGS
 
 app.set("view engine", "ejs");
@@ -22,6 +22,18 @@ app.engine('ejs', ejsmate);
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
+
+// Session + Passport — must come BEFORE any route that uses
+// req.session or passport.authenticate()
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'change-this-in-production',
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.initialize());
+
 // Mongo Connection
 const MONGO_URL = process.env.MONGO_URL;
 
@@ -33,25 +45,22 @@ async function main() {
   await mongoose.connect(MONGO_URL);
 }
 
-// app.get("/students/:id/dashboard", (req, res) => {
-app.get("/students/dashboard", (req, res) => {
-  res.render("students/dashboard", { currentPage: "dashboard" });
-});
-// app.get("/students/:id/dashboard", async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const student = await Student.findById(id);
+// ---------------- Auth routes ----------------
+// These handle: GET/POST /login, GET /logout,
+// POST /auth/enrollment-check, GET /auth/google, GET /auth/google/callback
+app.use(require("./routes/authRoutes"));
+app.use(require("./routes/googleAuthRoutes"));
 
-//     if (!student) {
-//       return res.status(404).send("Student not found");
-//     }
+// ---------------- Student routes ----------------
+// Handles GET /students/dashboard with REAL data + auth check.
+// This must be mounted BEFORE the leftover static routes below,
+// so it wins the /students/dashboard match instead of the old one.
+app.use("/students", require("./routes/studentRoutes"));
 
-//     res.render("students/dashboard", { currentPage: "dashboard", student });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).send("Something went wrong");
-//   }
-// });
+// ---------------- Remaining static pages (not yet wired to real data) ----------------
+// NOTE: the old app.get("/students/dashboard", ...) line has been
+// REMOVED here on purpose — it's now handled by studentRoutes.js
+// with real database data instead of a blank render.
 
 app.get("/students/forms", (req, res) => {
   res.render("students/forms", { currentPage: "forms" });
@@ -65,41 +74,14 @@ app.get("/students/notices", (req, res) => {
   res.render("students/notices", { currentPage: "notices" });
 });
 
-
-
 app.get("/students/help", (req, res) => {
   res.render("students/help", { currentPage: "help" });
 });
 
-
-
-app.listen(3000,()=>{
-    console.log("server is listing to 3000");
-})
-
-
-
-const Student = require("./models/student.js");
-
-
-app.get("/login", (req, res)=>{
-  res.render("students/login");
-  // res.redirect("/students/login");
-})
-
-// app.post("/login", (req, res)=>{
-//   // const
-// });
-
-// app.get("/students/login", (req, res)=>{
-// });
-
-app.get("/register", (req, res)=>{
+app.get("/register", (req, res) => {
   res.render("students/register");
 });
 
-// app.post("/register", (req, res)=>{
-//   const student = new Student(req.body);
-//   await student.save();
-//   res.send("Registered Successfully.")
-// });
+app.listen(3000, () => {
+  console.log("server is listening on 3000");
+});
