@@ -1,44 +1,58 @@
 require("dotenv").config();
-console.log(process.env.MONGO_URL);
+
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const Student = require("../models/Student"); // Matches actual filename
+
+const Student = require("../models/Student");
 
 const imported = require("./data");
+
 const rawStudents = Array.isArray(imported)
   ? imported
   : imported.data;
 
 const MONGO_URL = process.env.MONGO_URL;
 
-// ---------------- Helper Functions ----------------
+// ==============================
+// Helper Functions
+// ==============================
 
-function parseDob(dobStr) {
-  if (!dobStr) return undefined;
+function parseDate(value) {
+  if (!value) return undefined;
 
-  // FIX: If it's already a native Date object, return it directly
-  if (dobStr instanceof Date) {
-    return dobStr;
-  }
+  if (value instanceof Date) return value;
 
-  // Coerce to string to safely run string methods if it's a number or raw string
-  const str = String(dobStr).trim();
+  const str = String(value).trim();
 
+  // Already ISO
   if (str.includes("T")) {
     return new Date(str);
   }
 
-  const [day, month, year] = str.split("-");
-  return new Date(`${year}-${month}-${day}`);
+  // YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    return new Date(str);
+  }
+
+  // DD-MM-YYYY
+  const parts = str.split("-");
+
+  if (parts.length === 3) {
+    return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+  }
+
+  return new Date(str);
 }
 
-function numToString(value) {
+function toString(value) {
   if (value === null || value === undefined) return undefined;
+
   return String(value).trim();
 }
 
 function normalizeGender(value) {
   if (!value) return undefined;
+
   value = value.toLowerCase();
 
   if (value === "male") return "male";
@@ -47,28 +61,17 @@ function normalizeGender(value) {
   return "other";
 }
 
-function normalizeStudentStatus(value) {
-  if (!value) return "active";
-  return value.toLowerCase();
-}
-
-function normalizeProfileStatus(value) {
-  if (!value) return "incomplete";
-
-  value = value.toLowerCase();
-
-  if (value === "yes") return "verified";
-
-  return value;
-}
-
 function normalizeCategory(value) {
   if (!value) return undefined;
 
-  switch (value.toUpperCase()) {
+  value = value.toUpperCase();
+
+  switch (value) {
     case "OPEN":
+    case "GENERAL":
       return "General";
 
+    case "OBC":
     case "OBC (SEBC)":
       return "OBC";
 
@@ -91,167 +94,366 @@ function normalizeQuota(value) {
 
   value = value.toUpperCase();
 
+  if (value.includes("GENERAL")) return "General";
   if (value.includes("MANAGEMENT")) return "Management";
   if (value.includes("SPORT")) return "Sports";
   if (value.includes("NRI")) return "NRI";
-  if (value.includes("GENERAL")) return "General";
 
   return "Other";
 }
 
-// ---------------- Cleaning ----------------
+function normalizeStatus(value) {
+  if (!value) return "active";
+
+  return value.toLowerCase();
+}
+
+function normalizeProfile(value) {
+  if (!value) return "pending";
+
+  value = value.toLowerCase();
+
+  if (value === "yes") return "verified";
+
+  return value;
+}
+
+// ==============================
+// Clean One Student Record
+// ==============================
 
 async function cleanRecord(raw) {
-  const hash = await bcrypt.hash("ChangeMe123!", 10);
+  const dob = parseDate(raw.dob);
+
+  // Password = DOB (YYYY-MM-DD)
+  const passwordString = dob
+    ? dob.toISOString().split("T")[0]
+    : "2000-01-01";
+
+  const hash = await bcrypt.hash(passwordString, 10);
 
   return {
-    title:
-      raw.title === "Miss"
-        ? "Ms"
-        : raw.title,
+    // ---------- Personal ----------
+    title: raw.title === "Miss" ? "Ms" : raw.title,
 
-    firstName: raw.firstName,
-    middleName: raw.middleName,
-    lastName: raw.lastName,
+    firstName: raw.firstName?.trim(),
+    middleName: raw.middleName?.trim(),
+    lastName: raw.lastName?.trim(),
 
     gender: normalizeGender(raw.gender),
-    dob: parseDob(raw.dob),
+
+    dob,
 
     bloodGroup: raw.bloodGroup,
+
     category: normalizeCategory(raw.category),
 
     religion: raw.religion,
     caste: raw.caste,
 
-    state: raw.state || (raw.presentAddress ? raw.presentAddress.state : undefined),
-    country: raw.country || (raw.presentAddress ? raw.presentAddress.country : undefined) || "India",
-    city: raw.city || (raw.presentAddress ? raw.presentAddress.city : undefined),
+    nationality: raw.nationality || "Indian",
 
-    email: raw.email.toLowerCase(),
+    state:
+      raw.state ||
+      raw.presentAddress?.state,
+
+    district:
+      raw.district ||
+      raw.presentAddress?.district,
+
+    country:
+      raw.country ||
+      raw.presentAddress?.country ||
+      "India",
+
+    city:
+      raw.city ||
+      raw.presentAddress?.city,
+
+    // ---------- Hostel ----------
+
+    residesInHostel:
+      raw.residesInHostel || false,
+
+    hostelName:
+      raw.hostelName || undefined,
+
+    // ---------- Authentication ----------
+
+    email:
+      raw.email.toLowerCase(),
 
     password: hash,
 
-    enrollmentNo: raw.enrollmentNo,
+    googleId:
+      raw.googleId || undefined,
 
-    abcId: raw.abcId || undefined,
+    parulEmailId:
+      raw.parulEmailId || undefined,
 
-    parulEmailId: raw.parulEmailId || undefined,
-    parulEmailActive: raw.parulEmailActive || false,
+    parulEmailActive:
+      raw.parulEmailActive || false,
 
-    institute: raw.institute,
-    course: raw.course,
-    program: raw.program,
-    department: raw.department || "FET",
-    branch: raw.branch || "CSE",
-    specialization: raw.specialization || undefined,
-    joiningDate: raw.joiningDate ? parseDob(raw.joiningDate) : undefined,
+    enrollmentNo:
+      raw.enrollmentNo || undefined,
 
-    admissionYear: raw.admissionYear,
-    admissionType: raw.admissionType,
-    admissionQuota: normalizeQuota(raw.admissionQuota),
+    // ---------- Academic ----------
 
-    studentStatus: normalizeStudentStatus(raw.studentStatus),
+    faculty:
+      raw.faculty || "FET",
 
-    phone: numToString(raw.phone),
-    whatsapp: numToString(raw.whatsapp),
+    institute:
+      raw.institute,
 
-    alternateEmail: raw.alternateEmail,
+    course:
+      raw.course,
 
-    emergencyContact: raw.emergencyContact
-      ? {
-          name: raw.emergencyContact.name,
-          phone: numToString(raw.emergencyContact.phone),
-        }
-      : undefined,
+    program:
+      raw.program,
 
-    father: raw.father
-      ? {
-          name: raw.father.name,
-          phone: numToString(raw.father.phone),
-          email: raw.father.email,
-        }
-      : undefined,
+    department:
+      raw.department,
 
-    mother: raw.mother
-      ? {
-          name: raw.mother.name,
-          phone: numToString(raw.mother.phone),
-          email: raw.mother.email,
-        }
-      : undefined,
+    branch:
+      raw.branch || "CSE",
 
-    presentAddress: raw.presentAddress
-      ? {
-          ...raw.presentAddress,
-          pincode: numToString(raw.presentAddress.pincode),
-        }
-      : undefined,
+    specialization:
+      raw.specialization || undefined,
 
-    permanentAddress: raw.permanentAddress
-      ? {
-          ...raw.permanentAddress,
-          pincode: numToString(raw.permanentAddress.pincode),
-        }
-      : undefined,
+    joiningDate:
+      raw.joiningDate
+        ? parseDate(raw.joiningDate)
+        : undefined,
 
-    education: raw.education || undefined,
+    admissionYear:
+      raw.admissionYear,
 
-    aadhaarNumber: numToString(raw.aadhaarNumber),
+    admissionType:
+      raw.admissionType,
 
-    profileStatus: normalizeProfileStatus(raw.profileStatus),
+    admissionQuota:
+      normalizeQuota(raw.admissionQuota),
 
-    isActive: raw.isActive,
+    studentStatus:
+      normalizeStatus(raw.studentStatus),
+
+    // ---------- Contact ----------
+
+    phone:
+      toString(raw.phone),
+
+    whatsapp:
+      toString(raw.whatsapp),
+
+    alternateEmail:
+      raw.alternateEmail
+        ? raw.alternateEmail.toLowerCase()
+        : undefined,
+
+    // ---------- Emergency ----------
+
+    emergencyContact:
+      raw.emergencyContact
+        ? {
+            name:
+              raw.emergencyContact.name,
+
+            phone:
+              toString(
+                raw.emergencyContact.phone
+              ),
+          }
+        : undefined,
+
+    // ---------- Parents ----------
+
+    father:
+      raw.father
+        ? {
+            name:
+              raw.father.name,
+
+            phone:
+              toString(raw.father.phone),
+
+            email:
+              raw.father.email,
+          }
+        : undefined,
+
+    mother:
+      raw.mother
+        ? {
+            name:
+              raw.mother.name,
+
+            phone:
+              toString(raw.mother.phone),
+
+            email:
+              raw.mother.email,
+          }
+        : undefined,
+
+    // ---------- Addresses ----------
+
+    presentAddress:
+      raw.presentAddress
+        ? {
+            address1:
+              raw.presentAddress.address1,
+
+            address2:
+              raw.presentAddress.address2,
+
+            address3:
+              raw.presentAddress.address3,
+
+            city:
+              raw.presentAddress.city,
+
+            district:
+              raw.presentAddress.district,
+
+            state:
+              raw.presentAddress.state,
+
+            country:
+              raw.presentAddress.country,
+
+            pincode:
+              toString(
+                raw.presentAddress.pincode
+              ),
+          }
+        : undefined,
+
+    permanentAddress:
+      raw.permanentAddress
+        ? {
+            address1:
+              raw.permanentAddress.address1,
+
+            address2:
+              raw.permanentAddress.address2,
+
+            address3:
+              raw.permanentAddress.address3,
+
+            city:
+              raw.permanentAddress.city,
+
+            district:
+              raw.permanentAddress.district,
+
+            state:
+              raw.permanentAddress.state,
+
+            country:
+              raw.permanentAddress.country,
+
+            pincode:
+              toString(
+                raw.permanentAddress.pincode
+              ),
+          }
+        : undefined,
+
+    // ---------- Education ----------
+
+    education:
+      raw.education || undefined,
+
+    // ---------- Documents ----------
+
+    documents:
+      raw.documents || undefined,
+
+    // ---------- Identity ----------
+
+    abcId:
+      raw.abcId || undefined,
+
+    // Aadhaar intentionally omitted because
+    // your current Student schema doesn't have it.
+
+    // ---------- Role ----------
+
+    role:
+      "student",
+
+    // ---------- Status ----------
+
+    isActive:
+      raw.isActive ?? true,
+
+    profileStatus:
+      normalizeProfile(
+        raw.profileStatus
+      ),
   };
 }
 
-// ---------------- Seed ----------------
+// ==============================
+// Seed Database
+// ==============================
 
 async function seed() {
   try {
     await mongoose.connect(MONGO_URL);
 
-    console.log("✅ Connected");
+    console.log("\n======================================");
+    console.log("✅ Connected to MongoDB");
+    console.log("======================================");
 
-    console.log("Records Found:", rawStudents.length);
+    console.log(`Found ${rawStudents.length} student records.\n`);
 
-    const cleaned = await Promise.all(
-      rawStudents.map(cleanRecord)
-    );
+   const cleanedStudents = [];
 
-    console.log("Cleaned:", cleaned.length);
+for (let i = 0; i < rawStudents.length; i++) {
+  console.log(`Cleaning student ${i + 1}`);
 
-    try {
-      await Student.collection.drop();
-      console.log("Old records and cached indexes cleared.");
-    } catch (dropErr) {
-      console.log("Collection clean or didn't exist yet.");
-    }
+  console.log(rawStudents[i]);   // <-- print original data
 
-    // Insert one by one to identify errors
-    for (let i = 0; i < cleaned.length; i++) {
-      try {
-        await Student.create(cleaned[i]);
-        console.log(
-          `Inserted ${i + 1}/${cleaned.length}`
-        );
-      } catch (err) {
-        console.log(
-          `❌ Failed Record ${i + 1}`
-        );
-        console.log(err.message);
-      }
-    }
+  const cleaned = await cleanRecord(rawStudents[i]);
 
-    const count = await Student.countDocuments();
+  console.log(cleaned);          // <-- print cleaned object
 
-    console.log("\n=======================");
-    console.log("Students in Database:", count);
-    console.log("=======================\n");
+  cleanedStudents.push(cleaned);
+}
+    // Delete existing students
+    await Student.deleteMany({});
+    console.log("🗑️  Old student records deleted.");
+
+    // Insert all students
+    await Student.insertMany(cleanedStudents);
+
+    console.log(`✅ Inserted ${cleanedStudents.length} students.`);
+
+    const total = await Student.countDocuments();
+
+    console.log("\n======================================");
+    console.log(`📚 Total Students in Database : ${total}`);
+    console.log("======================================");
+
+    // Show first few students
+    const sample = await Student.find({}, "fullName enrollmentNo email").limit(5);
+
+    console.log("\nSample Records:");
+    sample.forEach((student, index) => {
+      console.log(
+        `${index + 1}. ${student.fullName} | ${student.enrollmentNo} | ${student.email}`
+      );
+    });
+
+    console.log("\n🎉 Database seeded successfully!");
   } catch (err) {
-    console.log(err);
+    console.error("\n❌ Seeding Failed\n");
+    console.error(err);
   } finally {
     await mongoose.disconnect();
-    console.log("Disconnected.");
+    console.log("\n🔌 MongoDB Disconnected.");
+    process.exit(0);
   }
 }
 
