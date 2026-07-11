@@ -1,7 +1,19 @@
-* {
+/* ============================================
+   STUDENT REGISTRATION — RESPONSIVE CSS
+   Breakpoints:
+     mobile  : < 480px
+     tablet  : 481px – 768px
+     desktop : 769px+
+   ============================================ */
+
+*, *::before, *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html {
+  font-size: 16px; /* base for rem calculations */
 }
 
 body {
@@ -9,39 +21,46 @@ body {
     "Helvetica Neue", Arial, sans-serif;
   background: #eef0f3;
   color: #26292e;
+  -webkit-text-size-adjust: 100%; /* prevents iOS font scaling on rotate */
+  min-height: 100vh;
 }
 
 /* ============ HEADER BANNER ============ */
 .page-banner {
   background: linear-gradient(120deg, #1d6fe0, #0d4fb5);
   color: #fff;
-  padding: 26px 40px;
+  padding: 20px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .banner-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  min-width: 0; /* allows text to shrink/wrap */
 }
 
 .banner-icon {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
 }
 
 .page-banner h1 {
-  font-size: 24px;
+  font-size: clamp(16px, 3vw, 22px); /* scales smoothly between screen sizes */
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .page-banner p {
-  font-size: 13.5px;
+  font-size: clamp(11px, 1.8vw, 13.5px);
   opacity: 0.85;
   margin-top: 2px;
 }
@@ -54,11 +73,13 @@ body {
   color: #0d4fb5;
   border: none;
   border-radius: 8px;
-  padding: 10px 16px;
-  font-size: 13.5px;
+  padding: 9px 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-reset-top:hover {
@@ -69,14 +90,16 @@ body {
 .page-body {
   max-width: 900px;
   margin: 0 auto;
-  padding: 32px 20px 60px;
+  padding: 24px 16px 60px;
+  width: 100%;
 }
 
+/* ============ FORM CARDS ============ */
 .form-card {
   background: #ffffff;
   border-radius: 10px;
-  padding: 28px 32px 32px;
-  margin-bottom: 24px;
+  padding: 24px 20px 28px;
+  margin-bottom: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
@@ -84,11 +107,11 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 17px;
+  font-size: clamp(14px, 2.5vw, 17px);
   font-weight: 700;
   color: #16305e;
   padding-bottom: 12px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
   border-bottom: 2px solid #1d6fe0;
 }
 
@@ -100,26 +123,44 @@ body {
 }
 
 /* ============ FORM GRID ============ */
+/* Mobile-first: single column always.
+   Two-column kicks in at 540px where fields comfortably sit side-by-side. */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px 28px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 540px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 24px;
+  }
+}
+
+@media (min-width: 769px) {
+  .form-grid {
+    gap: 20px 28px;
+  }
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
+  min-width: 0; /* prevents overflow on narrow screens */
 }
 
 .form-field-full {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1; /* always spans full width regardless of grid columns */
 }
 
+/* ============ LABELS ============ */
 .form-field label {
-  font-size: 13.5px;
+  font-size: clamp(12px, 2vw, 13.5px);
   font-weight: 500;
   color: #333;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
+  line-height: 1.3;
 }
 
 .req {
@@ -127,6 +168,7 @@ body {
   margin-left: 2px;
 }
 
+/* ============ INPUTS, SELECTS, TEXTAREAS ============ */
 .form-field input[type="text"],
 .form-field input[type="email"],
 .form-field input[type="tel"],
@@ -138,16 +180,28 @@ body {
   border: 1px solid #d7dbe0;
   border-radius: 8px;
   padding: 10px 12px;
-  font-size: 14px;
+  font-size: clamp(13px, 2vw, 14px);
   color: #26292e;
   background: #ffffff;
   outline: none;
   font-family: inherit;
+  width: 100%;
+  max-width: 100%;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  /* prevents inputs from overflowing their container on small screens */
+  min-width: 0;
+}
+
+/* date inputs look different on mobile — normalize them */
+.form-field input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 42px;
 }
 
 .form-field textarea {
   resize: vertical;
+  min-height: 80px;
 }
 
 .form-field input:focus,
@@ -155,6 +209,12 @@ body {
 .form-field textarea:focus {
   border-color: #1d6fe0;
   box-shadow: 0 0 0 3px rgba(29, 111, 224, 0.15);
+}
+
+/* touch targets: minimum 44px height for accessibility on mobile */
+.form-field input,
+.form-field select {
+  min-height: 42px;
 }
 
 .form-field select:disabled,
@@ -165,11 +225,28 @@ body {
   cursor: not-allowed;
 }
 
+/* ============ FILE INPUTS ============ */
+.form-field input[type="file"] {
+  padding: 8px 10px;
+  cursor: pointer;
+  min-height: 42px;
+}
+
+/* on mobile, file inputs can be very cramped — give them more breathing room */
+@media (max-width: 480px) {
+  .form-field input[type="file"] {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+/* ============ HINTS ============ */
 .field-hint {
-  font-size: 11.5px;
+  font-size: clamp(10.5px, 1.8vw, 11.5px);
   color: #8b929c;
-  margin-top: 6px;
+  margin-top: 5px;
   font-style: italic;
+  line-height: 1.4;
 }
 
 .field-hint-warn {
@@ -177,20 +254,16 @@ body {
 }
 
 .section-note {
-  margin: -8px 0 20px;
+  margin: -8px 0 18px;
   font-size: 12px;
-}
-
-.form-field input[type="file"] {
-  padding: 8px 10px;
-  cursor: pointer;
 }
 
 /* ============ RADIO PILL TOGGLES ============ */
 .radio-toggle-row {
   display: flex;
-  gap: 10px;
-  margin-top: 2px;
+  flex-wrap: wrap; /* wraps on very narrow screens instead of overflowing */
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .radio-pill {
@@ -207,14 +280,19 @@ body {
 
 .radio-pill span {
   display: block;
-  padding: 9px 16px;
+  padding: 8px 14px;
   border: 1px solid #d7dbe0;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: clamp(12px, 1.8vw, 13px);
   font-weight: 500;
   color: #5a6270;
   background: #f5f6f8;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  /* minimum tap target */
+  min-height: 36px;
+  display: flex;
+  align-items: center;
 }
 
 .radio-pill input[type="radio"]:checked + span {
@@ -225,7 +303,7 @@ body {
 
 /* ============ EDUCATIONAL BLOCKS ============ */
 .edu-block {
-  padding: 18px 0;
+  padding: 16px 0;
   border-top: 1px solid #eef0f3;
 }
 
@@ -236,86 +314,225 @@ body {
 
 .edu-block-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .edu-block-title {
-  font-size: 14.5px;
+  font-size: clamp(13px, 2vw, 14.5px);
   font-weight: 700;
   color: #16305e;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .edu-block-header .edu-block-title {
   margin-bottom: 0;
 }
 
+/* ============ CHECKBOX ROW ============ */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: clamp(12.5px, 2vw, 13.5px);
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: #1d6fe0;
+}
+
 /* ============ ACTION BUTTONS ============ */
 .btn-row {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 8px;
 }
 
 .btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 13px 26px;
+  padding: 12px 22px;
   border-radius: 8px;
   border: none;
-  font-size: 14.5px;
+  font-size: clamp(13px, 2vw, 14.5px);
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
   transition: filter 0.15s ease, box-shadow 0.15s ease;
+  min-height: 44px; /* accessibility touch target */
+  white-space: nowrap;
 }
 
 .btn:hover {
   filter: brightness(0.94);
 }
 
-.btn-gray {
-  background: #6b7280;
-  color: #ffffff;
-}
+.btn-gray { background: #6b7280; color: #fff; }
+.btn-blue { background: #1d6fe0; color: #fff; }
+.btn-red  { background: #e0433c; color: #fff; }
 
-.btn-blue {
-  background: #1d6fe0;
-  color: #ffffff;
-}
+/* ============ RESPONSIVE BREAKPOINTS ============ */
 
-.btn-red {
-  background: #e0433c;
-  color: #ffffff;
-}
-
-/* ============ RESPONSIVE ============ */
-@media (max-width: 680px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .page-banner {
-    padding: 22px 20px;
+/* --- Large desktop (901px+): give the card more padding --- */
+@media (min-width: 901px) {
+  .page-body {
+    padding: 32px 20px 60px;
   }
 
   .form-card {
-    padding: 22px 18px 26px;
+    padding: 28px 32px 32px;
+  }
+
+  .page-banner {
+    padding: 26px 40px;
+  }
+}
+
+/* --- Tablet (481px–768px): comfortable two-column, moderate padding --- */
+@media (min-width: 481px) and (max-width: 768px) {
+  .page-body {
+    padding: 20px 16px 50px;
+  }
+
+  .form-card {
+    padding: 20px 18px 24px;
+  }
+
+  .page-banner {
+    padding: 18px 20px;
+  }
+}
+
+/* --- Small mobile (< 480px): full single column, compact padding --- */
+@media (max-width: 480px) {
+  .page-banner {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+
+  .page-banner h1 {
+    font-size: 15px;
+  }
+
+  .page-banner p {
+    display: none; /* hide subtitle on very small screens to save space */
+  }
+
+  .btn-reset-top {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .page-body {
+    padding: 14px 10px 50px;
+  }
+
+  .form-card {
+    padding: 16px 14px 20px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr; /* force single column */
+    gap: 14px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+
+  .edu-block-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .btn-row {
     flex-direction: column;
+    align-items: stretch;
   }
 
   .btn {
-    justify-content: center;
     width: 100%;
+    justify-content: center;
   }
+
+  /* radio pills stack on very small screens */
+  .radio-toggle-row {
+    gap: 6px;
+  }
+
+  .radio-pill span {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+}
+
+/* --- Very small (< 360px): ultra-compact --- */
+@media (max-width: 360px) {
+  .page-body {
+    padding: 10px 8px 40px;
+  }
+
+  .form-card {
+    padding: 14px 12px 16px;
+  }
+
+  .form-field input,
+  .form-field select {
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .section-icon {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+/* ============ UTILITY ============ */
+
+/* Smooth focus outline for keyboard nav — don't hide it completely */
+:focus-visible {
+  outline: 2px solid #1d6fe0;
+  outline-offset: 2px;
+}
+
+/* Prevent horizontal scroll on all screens */
+body, .page-body, .form-card {
+  overflow-x: hidden;
+}
+
+/* Make sure select arrows are always visible */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6270' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+select:disabled {
+  background-image: none;
 }

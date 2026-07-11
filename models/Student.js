@@ -7,6 +7,7 @@ const addressSchema = require('./addressSchema');
 const parentSchema = require('./parentSchema');
 const emergencyContactSchema = require('./emergencyContactSchema');
 const educationSchema = require('./educationSchema');
+const documentsSchema = require('./documentsSchema');
 
 const studentSchema = new Schema(
   {
@@ -34,12 +35,18 @@ const studentSchema = new Schema(
     },
     religion: { type: String, trim: true },
     caste: { type: String, trim: true },
+    nationality: { type: String, trim: true },
     // Domicile state — separate from presentAddress.state/permanentAddress.state,
     // since this is likely used for quota/reservation purposes rather than
     // a mailing address. Flag me if you actually meant one of those instead.
     state: { type: String, trim: true },
+    district: { type: String, trim: true },
     country: { type: String, trim: true, default: 'India' },
     city: { type: String, trim: true },
+
+    // ---------- Hostel ----------
+    residesInHostel: { type: Boolean, default: false },
+    hostelName: { type: String, trim: true }, // only relevant if residesInHostel is true
 
     // ---------- Authentication ----------
     email: {
@@ -83,10 +90,12 @@ const studentSchema = new Schema(
     },
 
     // ---------- Academic ----------
+    // Real hierarchy per the admission form: Faculty > Institute > Department
+    faculty: { type: String, trim: true, default: 'FET' }, // Faculty of Engineering & Technology
     institute: { type: String, trim: true },
     course: { type: String, trim: true },       // e.g. B.Tech
     program: { type: String, trim: true },       // e.g. Computer Engineering
-    department: { type: String, trim: true, default: 'FET' }, // Faculty of Engineering & Technology
+    department: { type: String, trim: true },   // FIXED: no longer defaults to 'FET' - that's the faculty field's job now. This holds the real department name (e.g. "Computer Science & Engineering")
     branch: { type: String, trim: true, default: 'CSE' },
     specialization: {
       type: String,
@@ -127,18 +136,15 @@ const studentSchema = new Schema(
     // ---------- Education ----------
     education: educationSchema,
 
+    // ---------- Documents (proof required) ----------
+    documents: documentsSchema,
+
     // ---------- Identity ----------
     abcId: {
       type: String,
       unique: true,
       sparse: true, // not every student may have generated one yet
       trim: true,
-    },
-    aadhaarNumber: {
-      type: String,
-      unique: true,
-      sparse: true, // not every student may have it filled in immediately
-      select: false, // sensitive — excluded from queries unless explicitly requested
     },
 
     // ---------- Role ----------

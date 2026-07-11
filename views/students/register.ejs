@@ -44,8 +44,8 @@
         </h2>
 
         <div class="form-grid">
-          <!-- <div class="form-field">
-            <label for="title">Honorific<span class="req">*</span></label>
+          <div class="form-field">
+            <label for="title">Title<span class="req">*</span></label>
             <select id="title" name="title" required>
               <option value="" selected disabled>Select</option>
               <option value="Mr">Mr.</option>
@@ -53,33 +53,106 @@
               <option value="Mrs">Mrs.</option>
               <option value="Dr">Dr.</option>
             </select>
-          </div> -->
-          <div class="form-field">
-            <label for="ugNumber">UG Number<span class="req">*</span></label>
-            <input type="text" id="ugNumber" name="ugNumber" placeholder="Enter your UG Number" required />
-            <p class="field-hint field-hint-warn">Not yet a field on Student.js — see note below</p>
           </div>
           <div class="form-field">
             <label for="enrollmentNo">Enrollment Number</label>
             <input type="text" id="enrollmentNo" name="enrollmentNo" class="field-disabled" placeholder="Assigned by Admin" disabled />
-            <p class="field-hint">Disabled — will be filled in by Admin (maps to enrollmentNo)</p>
+            <p class="field-hint">Disabled — will be filled in by Admin after verification</p>
           </div>
+
           <div class="form-field">
             <label for="firstName">First Name<span class="req">*</span></label>
             <input type="text" id="firstName" name="firstName" required />
           </div>
-
           <div class="form-field">
             <label for="middleName">Middle Name</label>
             <input type="text" id="middleName" name="middleName" />
           </div>
+
           <div class="form-field">
             <label for="lastName">Last Name<span class="req">*</span></label>
             <input type="text" id="lastName" name="lastName" required />
           </div>
+          <div class="form-field">
+            <label for="gender">Gender<span class="req">*</span></label>
+            <select id="gender" name="gender" required>
+              <option value="" selected disabled>Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
 
-          
+          <div class="form-field">
+            <label for="dob">Date of Birth<span class="req">*</span></label>
+            <input type="date" id="dob" name="dob" required />
+            <p class="field-hint">This will be your initial login password (DDMMYYYY format)</p>
+          </div>
+          <div class="form-field">
+            <label for="bloodGroup">Blood Group</label>
+            <select id="bloodGroup" name="bloodGroup">
+              <option value="" selected>Select Blood Group</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
 
+          <div class="form-field">
+            <label for="category">Category<span class="req">*</span></label>
+            <select id="category" name="category" required>
+              <option value="" selected disabled>Select Category</option>
+              <option value="General">General</option>
+              <option value="OBC">OBC</option>
+              <option value="SC">SC</option>
+              <option value="ST">ST</option>
+              <option value="EWS">EWS</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="nationality">Nationality<span class="req">*</span></label>
+            <select id="nationality" name="nationality" required>
+              <option value="" selected disabled>Select Nationality</option>
+              <option value="Indian">Indian</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="religion">Religion / Belief</label>
+            <input type="text" id="religion" name="religion" placeholder="e.g. Hinduism, Islam, Christianity" />
+          </div>
+          <div class="form-field">
+            <label for="caste">Caste</label>
+            <input type="text" id="caste" name="caste" />
+          </div>
+
+          <div class="form-field">
+            <label for="abcId">ABC ID / APAAR ID</label>
+            <input type="text" id="abcId" name="abcId" placeholder="12-digit ID, if you have one" maxlength="12" />
+          </div>
+          <div class="form-field">
+            <label for="joiningDate">Campus Reporting Date<span class="req">*</span></label>
+            <input type="date" id="joiningDate" name="joiningDate" required />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONTACT & ACCOUNT ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013.09 4.18 2 2 0 015.07 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+          Contact &amp; Account
+        </h2>
+
+        <div class="form-grid">
           <div class="form-field">
             <label for="email">Personal Email ID<span class="req">*</span></label>
             <input type="email" id="email" name="email" placeholder="you@example.com" required />
@@ -91,22 +164,51 @@
           </div>
 
           <div class="form-field">
+            <label for="whatsapp">WhatsApp Number</label>
+            <input type="tel" id="whatsapp" name="whatsapp" placeholder="Leave blank if same as contact" />
+          </div>
+          <div class="form-field">
+            <label for="alternateEmail">Alternate Email ID</label>
+            <input type="email" id="alternateEmail" name="alternateEmail" />
+          </div>
+
+          <div class="form-field">
             <label for="parulEmailId">Institute Email ID</label>
             <input type="email" id="parulEmailId" name="parulEmailId" class="field-disabled" placeholder="Not yet assigned" disabled />
-            <p class="field-hint">Disabled — issued by Admin after verification (parulEmailActive stays false until then)</p>
+            <p class="field-hint">Disabled — issued by Admin after verification</p>
           </div>
+        </div>
+      </section>
+
+      <!-- ============ INSTITUTE & ACADEMIC ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3l10 5-10 5L2 8l10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          Institute &amp; Academic
+        </h2>
+
+        <div class="form-grid">
           <div class="form-field">
             <label for="institute">Institute<span class="req">*</span></label>
             <select id="institute" name="institute" required>
-              <option value="" selected>Select Institute</option>
+              <option value="" selected disabled>Select Institute</option>
               <option value="Parul Institute of Engineering and Technology">Parul Institute of Engineering and Technology</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="faculty">Faculty<span class="req">*</span></label>
+            <select id="faculty" name="faculty" disabled required>
+              <option value="" selected>Select Institute First</option>
             </select>
           </div>
 
           <div class="form-field">
             <label for="department">Department<span class="req">*</span></label>
             <select id="department" name="department" disabled required>
-              <option value="" selected>Select Institute First</option>
+              <option value="" selected>Select Faculty First</option>
             </select>
           </div>
           <div class="form-field">
@@ -123,89 +225,196 @@
             </select>
           </div>
           <div class="form-field">
-            <label for="gender">Gender<span class="req">*</span></label>
-            <select id="gender" name="gender" required>
-              <option value="" selected disabled>Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+            <label for="admissionType">Admission Type<span class="req">*</span></label>
+            <select id="admissionType" name="admissionType" required>
+              <option value="" selected disabled>Select</option>
+              <option value="Regular">Regular</option>
+              <option value="Lateral Entry">Lateral Entry</option>
+              <option value="Transfer">Transfer</option>
             </select>
           </div>
 
           <div class="form-field">
-            <label for="dob">Date of Birth<span class="req">*</span></label>
-            <input type="date" id="dob" name="dob" required />
-          </div>
-          <div class="form-field">
-            <label for="joiningDate">Campus Reporting Date<span class="req">*</span></label>
-            <input type="date" id="joiningDate" name="joiningDate" required />
+            <label for="admissionQuota">Admission Quota<span class="req">*</span></label>
+            <select id="admissionQuota" name="admissionQuota" required>
+              <option value="" selected disabled>Select</option>
+              <option value="General">General</option>
+              <option value="Management">Management</option>
+              <option value="NRI">NRI</option>
+              <option value="Sports">Sports</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
         </div>
       </section>
 
-      <!-- ============ ACCOUNT SECURITY (required by schema: password) ============ -->
+      <!-- ============ HOSTEL ============ -->
       <section class="form-card">
         <h2 class="section-title">
           <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/>
-            <path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 9.5V21h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
           </svg>
-          Account Security
+          Hostel
         </h2>
+
         <div class="form-grid">
           <div class="form-field">
-            <label for="password">Password<span class="req">*</span></label>
-            <input type="password" id="password" name="password" minlength="8" required />
+            <label for="residesInHostel">Resides in PU Hostel?<span class="req">*</span></label>
+            <select id="residesInHostel" name="residesInHostel" required>
+              <option value="" selected disabled>Select</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
           </div>
-          <div class="form-field">
-            <label for="confirmPassword">Confirm Password<span class="req">*</span></label>
-            <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" required />
-            <p class="field-hint" id="passwordMismatch" style="display:none; color:#e0433c;">Passwords do not match</p>
+          <div class="form-field" id="hostelNameField" style="display:none;">
+            <label for="hostelName">Full Name of PU Hostel<span class="req">*</span></label>
+            <input type="text" id="hostelName" name="hostelName" placeholder="e.g. Atal Bhawan A" />
           </div>
         </div>
       </section>
 
-      <!-- ============ ADDRESS (maps to presentAddress sub-schema) ============ -->
+      <!-- ============ PRESENT ADDRESS ============ -->
       <section class="form-card">
         <h2 class="section-title">
           <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z" stroke="currentColor" stroke-width="1.6"/>
             <circle cx="12" cy="9.5" r="2.3" stroke="currentColor" stroke-width="1.6"/>
           </svg>
-          Address
+          Present Address
         </h2>
+        <p class="field-hint section-note">Your current residence — hostel room or off-campus address, whichever applies now.</p>
 
         <div class="form-grid">
           <div class="form-field form-field-full">
-            <label for="address1">Address Line 1<span class="req">*</span></label>
-            <input type="text" id="address1" name="presentAddress[address1]" placeholder="House / Street / Locality" required />
+            <label for="presAddress1">Address Line 1<span class="req">*</span></label>
+            <input type="text" id="presAddress1" name="presentAddress[address1]" placeholder="House / Street / Locality" required />
           </div>
           <div class="form-field form-field-full">
-            <label for="address2">Address Line 2</label>
-            <input type="text" id="address2" name="presentAddress[address2]" placeholder="Landmark, Area (optional)" />
+            <label for="presAddress2">Address Line 2</label>
+            <input type="text" id="presAddress2" name="presentAddress[address2]" placeholder="Landmark, Area (optional)" />
           </div>
 
           <div class="form-field">
-            <label for="city">City<span class="req">*</span></label>
-            <input type="text" id="city" name="presentAddress[city]" required />
+            <label for="presCity">City<span class="req">*</span></label>
+            <input type="text" id="presCity" name="presentAddress[city]" required />
           </div>
           <div class="form-field">
-            <label for="district">District</label>
-            <input type="text" id="district" name="presentAddress[district]" />
-          </div>
-
-          <div class="form-field">
-            <label for="state">State<span class="req">*</span></label>
-            <input type="text" id="state" name="presentAddress[state]" required />
-          </div>
-          <div class="form-field">
-            <label for="country">Country<span class="req">*</span></label>
-            <input type="text" id="country" name="presentAddress[country]" value="India" required />
+            <label for="presDistrict">District</label>
+            <input type="text" id="presDistrict" name="presentAddress[district]" />
           </div>
 
           <div class="form-field">
-            <label for="pincode">Pincode<span class="req">*</span></label>
-            <input type="text" id="pincode" name="presentAddress[pincode]" required />
+            <label for="presState">State<span class="req">*</span></label>
+            <input type="text" id="presState" name="presentAddress[state]" required />
+          </div>
+          <div class="form-field">
+            <label for="presCountry">Country<span class="req">*</span></label>
+            <input type="text" id="presCountry" name="presentAddress[country]" value="India" required />
+          </div>
+
+          <div class="form-field">
+            <label for="presPincode">Pincode<span class="req">*</span></label>
+            <input type="text" id="presPincode" name="presentAddress[pincode]" required />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PERMANENT ADDRESS ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 9.5V21h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          Permanent Address
+        </h2>
+
+        <label class="checkbox-row" style="display:flex; align-items:center; gap:8px; margin-bottom:18px; font-size:13.5px; cursor:pointer;">
+          <input type="checkbox" id="sameAsPresent" />
+          Same as present address
+        </label>
+
+        <div class="form-grid">
+          <div class="form-field form-field-full">
+            <label for="permAddress1">Address Line 1<span class="req">*</span></label>
+            <input type="text" id="permAddress1" name="permanentAddress[address1]" required />
+          </div>
+          <div class="form-field form-field-full">
+            <label for="permAddress2">Address Line 2</label>
+            <input type="text" id="permAddress2" name="permanentAddress[address2]" />
+          </div>
+
+          <div class="form-field">
+            <label for="permCity">City<span class="req">*</span></label>
+            <input type="text" id="permCity" name="permanentAddress[city]" required />
+          </div>
+          <div class="form-field">
+            <label for="permDistrict">District</label>
+            <input type="text" id="permDistrict" name="permanentAddress[district]" />
+          </div>
+
+          <div class="form-field">
+            <label for="permState">State<span class="req">*</span></label>
+            <input type="text" id="permState" name="permanentAddress[state]" required />
+          </div>
+          <div class="form-field">
+            <label for="permCountry">Country<span class="req">*</span></label>
+            <input type="text" id="permCountry" name="permanentAddress[country]" value="India" required />
+          </div>
+
+          <div class="form-field">
+            <label for="permPincode">Pincode<span class="req">*</span></label>
+            <input type="text" id="permPincode" name="permanentAddress[pincode]" required />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PARENT / GUARDIAN ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 12a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M2.5 20c1-3.6 3.9-6 6.5-6s5.5 2.4 6.5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          Parent / Guardian Details
+        </h2>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="fatherName">Father's Full Name<span class="req">*</span></label>
+            <input type="text" id="fatherName" name="father[name]" required />
+          </div>
+          <div class="form-field">
+            <label for="fatherPhone">Father's Contact Number<span class="req">*</span></label>
+            <input type="tel" id="fatherPhone" name="father[phone]" required />
+          </div>
+
+          <div class="form-field">
+            <label for="fatherEmail">Father's Email</label>
+            <input type="email" id="fatherEmail" name="father[email]" />
+          </div>
+          <div class="form-field">
+            <label for="motherName">Mother's Full Name<span class="req">*</span></label>
+            <input type="text" id="motherName" name="mother[name]" required />
+          </div>
+
+          <div class="form-field">
+            <label for="motherPhone">Mother's Contact Number<span class="req">*</span></label>
+            <input type="tel" id="motherPhone" name="mother[phone]" required />
+          </div>
+          <div class="form-field">
+            <label for="motherEmail">Mother's Email</label>
+            <input type="email" id="motherEmail" name="mother[email]" />
+          </div>
+
+          <div class="form-field">
+            <label for="emergencyName">Emergency Contact Name<span class="req">*</span></label>
+            <input type="text" id="emergencyName" name="emergencyContact[name]" required />
+          </div>
+          <div class="form-field">
+            <label for="emergencyPhone">Emergency Contact Number<span class="req">*</span></label>
+            <input type="tel" id="emergencyPhone" name="emergencyContact[phone]" required />
           </div>
         </div>
       </section>
@@ -219,9 +428,6 @@
           </svg>
           Educational Details
         </h2>
-        <p class="field-hint field-hint-warn section-note">
-          School name / percentage / CGPA below aren't fields on educationSchema.js yet — only the marksheet link is. See note at the bottom of the chat.
-        </p>
 
         <!-- 10th standard -->
         <div class="edu-block">
@@ -235,14 +441,15 @@
               <label>Result Type<span class="req">*</span></label>
               <div class="radio-toggle-row">
                 <label class="radio-pill">
-                  <input type="radio" name="education[tenth][gradeType]" value="percentage" checked />
+                  <input type="radio" name="tenthGradeTypeUI" value="percentage" checked />
                   <span>Percentage</span>
                 </label>
                 <label class="radio-pill">
-                  <input type="radio" name="education[tenth][gradeType]" value="cgpa" />
+                  <input type="radio" name="tenthGradeTypeUI" value="cgpa" />
                   <span>CGPA</span>
                 </label>
               </div>
+              <input type="hidden" id="tenthGradeTypeHidden" name="education[tenth][gradeType]" value="percentage" />
             </div>
 
             <div class="form-field">
@@ -289,7 +496,6 @@
                   <span>CGPA</span>
                 </label>
               </div>
-              <!-- Real submitted field name switches with the qualification toggle (twelfth vs diploma) -->
               <input type="hidden" id="twelfthGradeTypeHidden" name="education[twelfth][gradeType]" value="percentage" />
             </div>
 
@@ -301,6 +507,42 @@
               <label for="twelfthMarksheet" id="twelfthMarksheetLabel">Upload 12th Marksheet (PDF)<span class="req">*</span></label>
               <input type="file" id="twelfthMarksheet" name="education[twelfth][marksheet]" accept="application/pdf" required />
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ PROOF DOCUMENTS ============ -->
+      <section class="form-card">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 2h9l5 5v15H6V2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          Proof Documents
+        </h2>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="aadhaarNumber">Aadhaar Number</label>
+            <input type="text" id="aadhaarNumber" name="documents[aadhaarNumber]" maxlength="12" placeholder="12-digit number" />
+          </div>
+          <div class="form-field">
+            <label for="abcIdProof">ABC ID / APAAR ID Proof</label>
+            <input type="file" id="abcIdProof" name="documents[abcIdProof]" accept="application/pdf,image/*" />
+          </div>
+
+          <div class="form-field">
+            <label for="casteProof">Caste Certificate</label>
+            <input type="file" id="casteProof" name="documents[casteProof]" accept="application/pdf,image/*" />
+          </div>
+          <div class="form-field">
+            <label for="nationalityProof">Nationality Proof<span class="req">*</span></label>
+            <input type="file" id="nationalityProof" name="documents[nationalityProof]" accept="application/pdf,image/*" required />
+          </div>
+
+          <div class="form-field">
+            <label for="leavingCertificate">Leaving Certificate<span class="req">*</span></label>
+            <input type="file" id="leavingCertificate" name="documents[leavingCertificate]" accept="application/pdf,image/*" required />
           </div>
         </div>
       </section>
@@ -329,6 +571,11 @@
           Cancel
         </a>
       </div>
+
+      <p class="field-hint" style="text-align:center; margin-top:12px;">
+        Your initial login password will be your Date of Birth in <strong>DDMMYYYY</strong> format (e.g., 14072006). You can change this after verification.
+      </p>
+
     </form>
   </main>
 
