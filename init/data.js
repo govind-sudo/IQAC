@@ -114,7 +114,112 @@ module.exports = [
     isActive: true,
     profileStatus: "verified",
   },
+  {
+    title: "Mr",
+    firstName: "Raman",
+    middleName: "",
+    lastName: "Kumar",
+    gender: "male",
+    dob: new Date("2006-05-14"),
+    bloodGroup: "O+",
+    category: "General",
+    religion: "Hinduism",
+    caste: "Maratha",
+    nationality: "Indian",
+    state: "Maharashtra",
+    district: "Nashik",
+    country: "India",
+    city: "Nashik",
 
+    residesInHostel: true,
+    hostelName: "Boys Hostel B",
+
+    email: "raghav7434@gmail.com",
+    parulEmailId: null,
+    parulEmailActive: false,
+    enrollmentNo: "24UG046750",
+
+    faculty: "FET",
+    institute: "Parul Institute of Engineering & Technology (First Shift)",
+    course: "B.Tech",
+    program: "Computer Science & Engineering",
+    department: "Computer Science & Engineering",
+    branch: "CSE",
+    specialization: "AIML",
+
+    joiningDate: new Date("2024-08-01"),
+    admissionYear: 2024,
+    admissionType: "Regular",
+    admissionQuota: "General",
+    studentStatus: "active",
+
+    phone: "9876543220",
+    whatsapp: "9876543220",
+
+    emergencyContact: {
+      name: "Pravin Chavan",
+      phone: "9876500111",
+    },
+
+    father: {
+      name: "Pravin Chavan",
+      phone: "9876500111",
+      email: "pravin@gmail.com",
+    },
+
+    mother: {
+      name: "Sunita Chavan",
+      phone: "9876500112",
+      email: "sunita@gmail.com",
+    },
+
+    presentAddress: {
+      address1: "Boys Hostel B Room 210",
+      city: "Vadodara",
+      district: "Waghodia",
+      state: "Gujarat",
+      country: "India",
+      pincode: "391760",
+    },
+
+    permanentAddress: {
+      address1: "Gangapur Road",
+      city: "Nashik",
+      district: "Nashik",
+      state: "Maharashtra",
+      country: "India",
+      pincode: "422013",
+    },
+
+    education: {
+      tenth: {
+        schoolName: "St Xavier School",
+        gradeType: "percentage",
+        gradeValue: 90,
+        marksheet: "uploads/10th/yash.pdf",
+      },
+      twelfth: {
+        schoolName: "St Xavier School",
+        gradeType: "percentage",
+        gradeValue: 88,
+        marksheet: "uploads/12th/yash.pdf",
+      },
+    },
+
+    documents: {
+      abcIdProof: "uploads/docs/yashabc.pdf",
+      casteProof: "uploads/docs/yashcaste.pdf",
+      nationalityProof: "uploads/docs/yashnat.pdf",
+      leavingCertificate: "uploads/docs/yashlc.pdf",
+      aadhaarNumber: "456789012350",
+    },
+
+    abcId: "ABC24000002",
+
+    role: "student",
+    isActive: true,
+    profileStatus: "verified",
+  },
   {
     title: "Mr",
     firstName: "Yash",

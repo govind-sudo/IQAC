@@ -1,6 +1,24 @@
-remove acc secu.
 district should also be required
-add drop down for all ields of address, only address line is text field.
-no cgpa option, only percentage.
+
 
 do changes in schema, acc to ejs form.
+
+
+
+UG number option
+
+Nationality Verification (AI)
+Caste Proof
+ABC ID Verification
+Aadhar CARD
+Leaving Certificate
+
+
+District Dropdown List API
+City List API
+State/Union Territory List API
+Country
+
+no cgpa option, only percentage.
+
+Gujarati verification

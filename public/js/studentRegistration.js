@@ -19,12 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const DEPARTMENT_OPTIONS = {
     FET: [
-      { value: "Computer Science and Engineering", label: "Computer Science and Engineering" },
+      { value: "Bachelor of Technology", label: "Bachelor of Technology" },
     ],
   };
 
   const BRANCH_OPTIONS = {
-    "Computer Science and Engineering": [
+    "Bachelor of Technology": [
       { value: "CSE", label: "Computer Science and Engineering (CSE)" },
     ],
   };
