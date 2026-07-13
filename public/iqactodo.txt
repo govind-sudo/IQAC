@@ -22,3 +22,11 @@ Country
 no cgpa option, only percentage.
 
 Gujarati verification
+
+
+
+// Production:
+in .env file
+change the google client ID and google client secret for university
+mongo url
+production level session secret
