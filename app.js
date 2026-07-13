@@ -11,7 +11,6 @@ const passport = require("./config/passport");
 
 const path = require("path");
 const methodOverride = require("method-override");
-const ejsmate = require("ejs-mate");
 
 // 1. MIDDLEWARE SETTINGS
 
