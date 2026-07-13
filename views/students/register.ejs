@@ -307,7 +307,7 @@
       </section>
 
       <!-- ============ PRESENT ADDRESS ============ -->
-      <section class="form-card">
+      <!-- <section class="form-card">
         <h2 class="section-title">
           <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z" stroke="currentColor" stroke-width="1.6"/>
@@ -333,16 +333,30 @@
           </div>
           <div class="form-field">
             <label for="presDistrict">District<span class="req">*</span></label>
-            <input type="text" id="presDistrict" name="presentAddress[district]" required />
+             <select id="presDistrict" name="presentAddress[district]" required></select>
+
+<input
+    type="text"
+    id="presDistrictText"
+    placeholder="District / County"
+    style="display:none;"
+>
           </div>
 
           <div class="form-field">
-            <label for="presState">State<span class="req">*</span></label>
-            <input type="text" id="presState" name="presentAddress[state]" required />
-          </div>
+            <label for="presState">State/UT<span class="req">*</span></label>
+             <select id="presState" name="presentAddress[state]" required></select>
+
+              <input type="text" id="presStateText" placeholder="State / Province" style="display:none;">
+            </div>
           <div class="form-field">
             <label for="presCountry">Country<span class="req">*</span></label>
-            <input type="text" id="presCountry" name="presentAddress[country]" value="India" required />
+             <select id="presCountry" name="presentAddress[country]" required>
+                <option value="India" selected>India</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" id="presCountryText" placeholder="Country Name" style="display:none;">
+
           </div>
 
           <div class="form-field">
@@ -350,57 +364,122 @@
             <input type="text" id="presPincode" name="presentAddress[pincode]" required />
           </div>
         </div>
-      </section>
+      </section> -->
+<!-- ============ PRESENT ADDRESS ============ -->
+<section class="form-card">
+  <h2 class="section-title">
+    <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 21s7-6.5 7-11.5A7 7 0 105 9.5C5 14.5 12 21 12 21z" stroke="currentColor" stroke-width="1.6"/>
+      <circle cx="12" cy="9.5" r="2.3" stroke="currentColor" stroke-width="1.6"/>
+    </svg>
+    Present Address
+  </h2>
+  <p class="field-hint section-note">Your current residence — hostel room or off-campus address, whichever applies now.</p>
 
+  <div class="form-grid">
+    <div class="form-field form-field-full">
+      <label for="presAddress1">Address Line 1<span class="req">*</span></label>
+      <input type="text" id="presAddress1" name="presentAddress[address1]" placeholder="House / Street / Locality" required />
+    </div>
+    <div class="form-field form-field-full">
+      <label for="presAddress2">Address Line 2</label>
+      <input type="text" id="presAddress2" name="presentAddress[address2]" placeholder="Landmark, Area (optional)" />
+    </div>
+
+    <!-- Country first -->
+    <div class="form-field">
+      <label for="presCountry">Country<span class="req">*</span></label>
+      <select id="presCountry" name="presentAddress[country]" required>
+        <option value="India" selected>India</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="text" id="presCountryText" placeholder="Country Name" style="display:none; margin-top:8px;">
+    </div>
+
+    <!-- State (dropdown for India, text for other) -->
+    <div class="form-field">
+      <label for="presState">State/UT<span class="req">*</span></label>
+      <select id="presState" name="presentAddress[state]" required></select>
+      <input type="text" id="presStateText" placeholder="State / Province" style="display:none;">
+    </div>
+
+    <!-- District (dropdown for India, text for other) -->
+    <div class="form-field">
+      <label for="presDistrict">District<span class="req">*</span></label>
+      <select id="presDistrict" name="presentAddress[district]" required></select>
+      <input type="text" id="presDistrictText" placeholder="District / County" style="display:none;">
+    </div>
+
+    <!-- City -->
+    <div class="form-field">
+      <label for="presCity">City<span class="req">*</span></label>
+      <input type="text" id="presCity" name="presentAddress[city]" required />
+    </div>
+
+    <!-- Pincode -->
+    <div class="form-field">
+      <label for="presPincode">Pincode<span class="req">*</span></label>
+      <input type="text" id="presPincode" name="presentAddress[pincode]" required />
+    </div>
+  </div>
+</section>
       <!-- ============ PERMANENT ADDRESS ============ -->
-      <section class="form-card">
-        <h2 class="section-title">
-          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M5 9.5V21h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-          </svg>
-          Permanent Address
-        </h2>
+<section class="form-card">
+  <h2 class="section-title">
+    <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M5 9.5V21h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>
+    Permanent Address
+  </h2>
 
-        <label class="checkbox-row" style="display:flex; align-items:center; gap:8px; margin-bottom:18px; font-size:13.5px; cursor:pointer;">
-          <input type="checkbox" id="sameAsPresent" />
-          Same as present address
-        </label>
+  <div class="form-grid">
+    <div class="form-field form-field-full">
+      <label for="permAddress1">Address Line 1<span class="req">*</span></label>
+      <input type="text" id="permAddress1" name="permanentAddress[address1]" required />
+    </div>
+    <div class="form-field form-field-full">
+      <label for="permAddress2">Address Line 2</label>
+      <input type="text" id="permAddress2" name="permanentAddress[address2]" />
+    </div>
 
-        <div class="form-grid">
-          <div class="form-field form-field-full">
-            <label for="permAddress1">Address Line 1<span class="req">*</span></label>
-            <input type="text" id="permAddress1" name="permanentAddress[address1]" required />
-          </div>
-          <div class="form-field form-field-full">
-            <label for="permAddress2">Address Line 2</label>
-            <input type="text" id="permAddress2" name="permanentAddress[address2]" />
-          </div>
+    <!-- Country first -->
+    <div class="form-field">
+      <label for="permCountry">Country<span class="req">*</span></label>
+      <select id="permCountry" name="permanentAddress[country]" required>
+        <option value="India" selected>India</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="text" id="permCountryText" placeholder="Country Name" style="display:none; margin-top:8px;">
+    </div>
 
-          <div class="form-field">
-            <label for="permCity">City<span class="req">*</span></label>
-            <input type="text" id="permCity" name="permanentAddress[city]" required />
-          </div>
-          <div class="form-field">
-            <label for="permDistrict">District<span class="req">*</span></label>
-            <input type="text" id="permDistrict" name="permanentAddress[district]" required />
-          </div>
+    <!-- State -->
+    <div class="form-field">
+      <label for="permState">State/UT<span class="req">*</span></label>
+      <select id="permState" name="permanentAddress[state]" required></select>
+      <input type="text" id="permStateText" placeholder="State / Province" style="display:none;">
+    </div>
 
-          <div class="form-field">
-            <label for="permState">State<span class="req">*</span></label>
-            <input type="text" id="permState" name="permanentAddress[state]" required />
-          </div>
-          <div class="form-field">
-            <label for="permCountry">Country<span class="req">*</span></label>
-            <input type="text" id="permCountry" name="permanentAddress[country]" value="India" required />
-          </div>
+    <!-- District -->
+    <div class="form-field">
+      <label for="permDistrict">District<span class="req">*</span></label>
+      <select id="permDistrict" name="permanentAddress[district]" required></select>
+      <input type="text" id="permDistrictText" placeholder="District / County" style="display:none;">
+    </div>
 
-          <div class="form-field">
-            <label for="permPincode">Pincode<span class="req">*</span></label>
-            <input type="text" id="permPincode" name="permanentAddress[pincode]" required />
-          </div>
-        </div>
-      </section>
+    <!-- City -->
+    <div class="form-field">
+      <label for="permCity">City<span class="req">*</span></label>
+      <input type="text" id="permCity" name="permanentAddress[city]" required />
+    </div>
+
+    <!-- Pincode -->
+    <div class="form-field">
+      <label for="permPincode">Pincode<span class="req">*</span></label>
+      <input type="text" id="permPincode" name="permanentAddress[pincode]" required />
+    </div>
+  </div>
+</section>
 
       <!-- ============ PARENT / GUARDIAN ============ -->
       <section class="form-card">
@@ -475,7 +554,7 @@
 
             <div class="form-field">
               <label for="tenthPercentage">Percentage (%)<span class="req">*</span></label>
-              <input type="number" id="tenthPercentage" name="education[tenth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 92.4" required />
+              <input type="number" id="tenthPercentage" name="education[tenth][percentage]" step="0.01" min="0" max="100" placeholder="e.g., 92.4" required />
             </div>
             <div class="form-field">
               <label for="tenthMarksheet">Upload 10th Marksheet (PDF)<span class="req">*</span></label>
@@ -508,7 +587,7 @@
        
             <div class="form-field">
               <label for="twelfthPercentage">Percentage (%)<span class="req">*</span></label>
-              <input type="number" id="twelfthPercentage" name="education[twelfth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 88.6" required />
+              <input type="number" id="twelfthPercentage" name="education[twelfth][percentage]" step="0.01" min="0" max="100" placeholder="e.g., 88.6" required />
             </div>
             <div class="form-field">
               <label for="twelfthMarksheet" id="twelfthMarksheetLabel">Upload 12th Marksheet (PDF)<span class="req">*</span></label>

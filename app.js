@@ -51,6 +51,13 @@ async function main() {
 app.use(require("./routes/authRoutes"));
 app.use(require("./routes/googleAuthRoutes"));
 
+
+app.get('/', (req, res)=>{
+  return res.redirect('/login');
+});
+
+
+
 // ---------------- Student routes ----------------
 // Handles GET /students/dashboard with REAL data + auth check.
 // This must be mounted BEFORE the leftover static routes below,
