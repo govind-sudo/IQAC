@@ -137,43 +137,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ============ PERCENTAGE / CGPA TOGGLE — 10th ============ */
-  const tenthRadios = document.querySelectorAll('input[name="tenthGradeTypeUI"]');
-  const tenthValueInput = document.getElementById("tenthGradeValue");
-  const tenthValueLabel = document.getElementById("tenthGradeLabel");
-  const tenthGradeTypeHidden = document.getElementById("tenthGradeTypeHidden");
 
-  function applyGradeLabel(type, valueInput, valueLabel) {
-    if (type === "cgpa") {
-      valueLabel.innerHTML = 'CGPA (out of 10)<span class="req">*</span>';
-      valueInput.max = "10";
-      valueInput.placeholder = "e.g., 8.7";
-    } else {
-      valueLabel.innerHTML = 'Percentage (%)<span class="req">*</span>';
-      valueInput.max = "100";
-      valueInput.placeholder = "e.g., 92.4";
-    }
-    valueInput.value = "";
-  }
 
-  tenthRadios.forEach((radio) => {
-    radio.addEventListener("change", () => {
-      applyGradeLabel(radio.value, tenthValueInput, tenthValueLabel);
-      tenthGradeTypeHidden.value = radio.value;
-    });
-  });
+  const tenthPercentageInput = document.getElementById("tenthPercentage");
 
-  /* ============ PERCENTAGE / CGPA TOGGLE — 12th/Diploma ============ */
-  const twelfthRadiosUI = document.querySelectorAll('input[name="twelfthGradeTypeUI"]');
-  const twelfthValueInput = document.getElementById("twelfthGradeValue");
-  const twelfthValueLabel = document.getElementById("twelfthGradeLabel");
-  const twelfthGradeTypeHidden = document.getElementById("twelfthGradeTypeHidden");
-
-  twelfthRadiosUI.forEach((radio) => {
-    radio.addEventListener("change", () => {
-      applyGradeLabel(radio.value, twelfthValueInput, twelfthValueLabel);
-      twelfthGradeTypeHidden.value = radio.value;
-    });
-  });
+  const twelfthPercentageInput = document.getElementById("twelfthPercentage");
 
   /* ============ 12th vs DIPLOMA TOGGLE ============ */
   const qualificationRadios = document.querySelectorAll('input[name="qualificationType"]');
@@ -188,8 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const key = radio.value; // "twelfth" or "diploma"
 
       twelfthSchool.name           = `education[${key}][schoolName]`;
-      twelfthGradeTypeHidden.name  = `education[${key}][gradeType]`;
-      twelfthValueInput.name       = `education[${key}][gradeValue]`;
+      twelfthPercentageInput.name = `education[${key}][percentage]`;
       twelfthMarksheet.name        = `education[${key}][marksheet]`;
 
       if (key === "diploma") {
@@ -219,18 +186,19 @@ document.addEventListener("DOMContentLoaded", () => {
     addressPairs.map(([, permId]) => document.getElementById(permId))
       .forEach((el) => (el.disabled = false));
 
-    applyGradeLabel("percentage", tenthValueInput, tenthValueLabel);
-    tenthGradeTypeHidden.value = "percentage";
+    // applyGradeLabel("percentage", tenthValueInput, tenthValueLabel);
+    // tenthGradeTypeHidden.value = "percentage";
 
-    applyGradeLabel("percentage", twelfthValueInput, twelfthValueLabel);
-    twelfthGradeTypeHidden.value = "percentage";
+    // applyGradeLabel("percentage", twelfthValueInput, twelfthValueLabel);
+    // twelfthGradeTypeHidden.value = "percentage";
 
     twelfthBlockTitle.textContent   = "12th Standard";
     twelfthSchoolLabel.innerHTML    = 'School / College Name<span class="req">*</span>';
     twelfthMarksheetLabel.innerHTML = 'Upload 12th Marksheet (PDF)<span class="req">*</span>';
     twelfthSchool.name              = "education[twelfth][schoolName]";
-    twelfthGradeTypeHidden.name     = "education[twelfth][gradeType]";
-    twelfthValueInput.name          = "education[twelfth][gradeValue]";
+    // twelfthGradeTypeHidden.name     = "education[twelfth][gradeType]";
+    // twelfthValueInput.name          = "education[twelfth][gradeValue]";
+    twelfthPercentageInput.name = "education[twelfth][percentage]";
     twelfthMarksheet.name           = "education[twelfth][marksheet]";
   }
 

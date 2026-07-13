@@ -61,6 +61,12 @@
           </div>
 
           <div class="form-field">
+            <label for="ugNumber">UG Number<span class="req">*</span></label>
+            <input type="text" id="ugNumber" name="ugNumber" placeholder="Enter your UG Number" required/>
+          </div>
+
+
+          <div class="form-field">
             <label for="firstName">First Name<span class="req">*</span></label>
             <input type="text" id="firstName" name="firstName" required />
           </div>
@@ -269,7 +275,33 @@
           </div>
           <div class="form-field" id="hostelNameField" style="display:none;">
             <label for="hostelName">Full Name of PU Hostel<span class="req">*</span></label>
-            <input type="text" id="hostelName" name="hostelName" placeholder="e.g. Atal Bhawan A" />
+            <!-- <input type="text" id="hostelName" name="hostelName" placeholder="e.g. Atal Bhawan A" /> -->
+             <select id="hostelName" name="hostelName">
+              <option value="">Select Hostel</option>
+                      
+              <optgroup label="AZAD BHAWAN">
+                  <option value="AZAD BHAWAN - A">AZAD BHAWAN - A</option>
+                  <option value="AZAD BHAWAN - B">AZAD BHAWAN - B</option>
+                  <option value="AZAD BHAWAN - C">AZAD BHAWAN - C</option>
+                  <option value="AZAD BHAWAN - D">AZAD BHAWAN - D</option>
+              </optgroup>
+            
+              <optgroup label="TAGORE BHAWAN">
+                  <option value="TAGORE BHAWAN - A">TAGORE BHAWAN - A</option>
+                  <option value="TAGORE BHAWAN - B">TAGORE BHAWAN - B</option>
+                  <option value="TAGORE BHAWAN - C">TAGORE BHAWAN - C</option>
+              </optgroup>
+            
+              <optgroup label="ATAL BHAWAN">
+                  <option value="ATAL BHAWAN - A1">ATAL BHAWAN - A1</option>
+                  <option value="ATAL BHAWAN - A2">ATAL BHAWAN - A2</option>
+                  <option value="ATAL BHAWAN - B">ATAL BHAWAN - B</option>
+              </optgroup>
+            
+              <optgroup label="MILKHA BHAWAN">
+                  <option value="MILKHA BHAWAN">MILKHA BHAWAN</option>
+              </optgroup>
+          </select>
           </div>
         </div>
       </section>
@@ -300,8 +332,8 @@
             <input type="text" id="presCity" name="presentAddress[city]" required />
           </div>
           <div class="form-field">
-            <label for="presDistrict">District</label>
-            <input type="text" id="presDistrict" name="presentAddress[district]" />
+            <label for="presDistrict">District<span class="req">*</span></label>
+            <input type="text" id="presDistrict" name="presentAddress[district]" required />
           </div>
 
           <div class="form-field">
@@ -350,8 +382,8 @@
             <input type="text" id="permCity" name="permanentAddress[city]" required />
           </div>
           <div class="form-field">
-            <label for="permDistrict">District</label>
-            <input type="text" id="permDistrict" name="permanentAddress[district]" />
+            <label for="permDistrict">District<span class="req">*</span></label>
+            <input type="text" id="permDistrict" name="permanentAddress[district]" required />
           </div>
 
           <div class="form-field">
@@ -437,24 +469,13 @@
               <label for="tenthSchool">School Name<span class="req">*</span></label>
               <input type="text" id="tenthSchool" name="education[tenth][schoolName]" required />
             </div>
-            <div class="form-field">
-              <label>Result Type<span class="req">*</span></label>
-              <div class="radio-toggle-row">
-                <label class="radio-pill">
-                  <input type="radio" name="tenthGradeTypeUI" value="percentage" checked />
-                  <span>Percentage</span>
-                </label>
-                <label class="radio-pill">
-                  <input type="radio" name="tenthGradeTypeUI" value="cgpa" />
-                  <span>CGPA</span>
-                </label>
-              </div>
-              <input type="hidden" id="tenthGradeTypeHidden" name="education[tenth][gradeType]" value="percentage" />
-            </div>
+
+
+
 
             <div class="form-field">
-              <label for="tenthGradeValue" id="tenthGradeLabel">Percentage (%)<span class="req">*</span></label>
-              <input type="number" id="tenthGradeValue" name="education[tenth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 92.4" required />
+              <label for="tenthPercentage">Percentage (%)<span class="req">*</span></label>
+              <input type="number" id="tenthPercentage" name="education[tenth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 92.4" required />
             </div>
             <div class="form-field">
               <label for="tenthMarksheet">Upload 10th Marksheet (PDF)<span class="req">*</span></label>
@@ -484,24 +505,10 @@
               <label for="twelfthSchool" id="twelfthSchoolLabel">School / College Name<span class="req">*</span></label>
               <input type="text" id="twelfthSchool" name="education[twelfth][schoolName]" required />
             </div>
+       
             <div class="form-field">
-              <label>Result Type<span class="req">*</span></label>
-              <div class="radio-toggle-row">
-                <label class="radio-pill">
-                  <input type="radio" name="twelfthGradeTypeUI" value="percentage" checked />
-                  <span>Percentage</span>
-                </label>
-                <label class="radio-pill">
-                  <input type="radio" name="twelfthGradeTypeUI" value="cgpa" />
-                  <span>CGPA</span>
-                </label>
-              </div>
-              <input type="hidden" id="twelfthGradeTypeHidden" name="education[twelfth][gradeType]" value="percentage" />
-            </div>
-
-            <div class="form-field">
-              <label for="twelfthGradeValue" id="twelfthGradeLabel">Percentage (%)<span class="req">*</span></label>
-              <input type="number" id="twelfthGradeValue" name="education[twelfth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 88.6" required />
+              <label for="twelfthPercentage">Percentage (%)<span class="req">*</span></label>
+              <input type="number" id="twelfthPercentage" name="education[twelfth][gradeValue]" step="0.01" min="0" max="100" placeholder="e.g., 88.6" required />
             </div>
             <div class="form-field">
               <label for="twelfthMarksheet" id="twelfthMarksheetLabel">Upload 12th Marksheet (PDF)<span class="req">*</span></label>

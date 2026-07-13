@@ -88,6 +88,13 @@ const studentSchema = new Schema(
       sparse: true, // new admissions won't have one yet — HOD/admin assigns it during verification
       trim: true,
     },
+    ugNumber: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      uppercase: true,
+  },
 
     // ---------- Academic ----------
     // Real hierarchy per the admission form: Faculty > Institute > Department
