@@ -1,0 +1,42 @@
+module.exports = [
+  {
+    fullName: "Govind Bhadoriya",
+    misCode: "MIS1001",
+    email: "govindbhadoriya672@gmail.com",
+    phone: "9876543210",
+    role: "admin",
+    isActive: true,
+  },
+  {
+    fullName: "Rahul Patel",
+    misCode: "MIS1002",
+    email: "rahul.patel@paruluniversity.ac.in",
+    phone: "9876543211",
+    role: "subadmin",
+    isActive: true,
+  },
+  {
+    fullName: "Priya Shah",
+    misCode: "MIS1003",
+    email: "priya.shah@paruluniversity.ac.in",
+    phone: "9876543212",
+    role: "subadmin",
+    isActive: true,
+  },
+  {
+    fullName: "Amit Mehta",
+    misCode: "MIS1004",
+    email: "amit.mehta@paruluniversity.ac.in",
+    phone: "9876543213",
+    role: "subadmin",
+    isActive: true,
+  },
+  {
+    fullName: "Neha Joshi",
+    misCode: "MIS1005",
+    email: "neha.joshi@paruluniversity.ac.in",
+    phone: "9876543214",
+    role: "subadmin",
+    isActive: true,
+  },
+];

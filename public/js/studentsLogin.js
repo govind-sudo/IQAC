@@ -1,12 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
   const roleRadios = document.querySelectorAll('input[name="role"]');
+
   const studentFields = document.getElementById("studentFields");
   const adminFields = document.getElementById("adminFields");
+
   const registerLink = document.getElementById("registerLink");
 
+  // Student
   const ugNumber = document.getElementById("ugNumber");
   const googleSection = document.getElementById("googleSection");
   const googleSignInBtn = document.getElementById("googleSignInBtn");
+
+  // Admin / Subadmin
+  const misCode = document.getElementById("misCode");
+  const adminGoogleSection = document.getElementById("adminGoogleSection");
+  const adminGoogleBtn = document.getElementById("adminGoogleSignInBtn");
 
   function applyRole(role) {
     const isAdmin = role === "admin";
@@ -14,43 +22,46 @@ document.addEventListener("DOMContentLoaded", () => {
     studentFields.hidden = isAdmin;
     adminFields.hidden = !isAdmin;
 
-    // Admins cannot self-register
+    // Only students can register
     registerLink.style.display = isAdmin ? "none" : "inline-block";
 
-    // Reset the Google prompt when switching away from Student
+    // Hide Google sections when switching roles
     if (isAdmin) {
       googleSection.classList.remove("visible");
+    } else {
+      adminGoogleSection.classList.remove("visible");
     }
   }
 
+  // Role Switch
   roleRadios.forEach((radio) => {
-    radio.addEventListener("change", () => applyRole(radio.value));
+    radio.addEventListener("change", () => {
+      applyRole(radio.value);
+    });
   });
 
-  // Set initial state based on whichever radio is checked by default
-  const checkedRole = document.querySelector('input[name="role"]:checked');
+  const checkedRole = document.querySelector(
+    'input[name="role"]:checked'
+  );
+
   applyRole(checkedRole ? checkedRole.value : "student");
 
-  // Show the Google sign-in button once the student starts typing their UG Number
+  // ============================
+  // STUDENT FLOW
+  // ============================
+
   ugNumber.addEventListener("input", () => {
-    const hasValue = ugNumber.value.trim().length > 0;
-    googleSection.classList.toggle("visible", hasValue);
+    googleSection.classList.toggle(
+      "visible",
+      ugNumber.value.trim().length > 0
+    );
   });
 
   googleSignInBtn.addEventListener("click", () => {
     const value = ugNumber.value.trim();
+
     if (!value) return;
 
-    // FIXED: this used to jump straight to /auth/google, skipping the
-    // enrollment number check entirely. Now it does a real POST to
-    // /auth/enrollment-check first (full page navigation, not fetch,
-    // so the server can render an error page directly if the number
-    // isn't recognized). The server redirects to /auth/google itself
-    // once the enrollment number is confirmed valid.
-    //
-    // Field name is "enrollmentNo" here, matching what the backend
-    // route reads via req.body.enrollmentNo - NOT "ugNumber", even
-    // though the visible input's id/name on the page is ugNumber.
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/auth/enrollment-check";
@@ -61,7 +72,41 @@ document.addEventListener("DOMContentLoaded", () => {
     input.value = value;
 
     form.appendChild(input);
+
     document.body.appendChild(form);
+
     form.submit();
   });
+
+  // ============================
+  // ADMIN / SUBADMIN FLOW
+  // ============================
+
+  misCode.addEventListener("input", () => {
+    adminGoogleSection.classList.toggle(
+      "visible",
+      misCode.value.trim().length > 0
+    );
+  });
+
+adminGoogleBtn.addEventListener("click", () => {
+    console.log("Admin Google button clicked");
+
+    const value = misCode.value.trim();
+
+    if (!value) return;
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/auth/admin-check";
+
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "misCode";
+    input.value = value;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+});
 });

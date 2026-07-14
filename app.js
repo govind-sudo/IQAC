@@ -50,7 +50,7 @@ async function main() {
 // POST /auth/enrollment-check, GET /auth/google, GET /auth/google/callback
 app.use(require("./routes/authRoutes"));
 app.use(require("./routes/googleAuthRoutes"));
-
+app.use("/admin", require("./routes/adminRoutes"));
 
 app.get('/', (req, res)=>{
   return res.redirect('/login');
