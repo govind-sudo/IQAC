@@ -170,6 +170,8 @@ exports.registerStudent = async (req, res) => {
       password: hashedPassword,
 
       ugNumber,
+    //   enrollmentNo: undefined,
+      enrollmentNo: ugNumber,
 
       faculty: body.faculty,
       institute: body.institute,
