@@ -31,7 +31,7 @@ const studentSchema = new Schema(
     },
     category: {
       type: String,
-      enum: ['General', 'OBC', 'SC', 'ST', 'EWS'],
+      enum: ['General', 'OBC', 'SC', 'ST', 'EWS', 'PWD'],
     },
     religion: { type: String, trim: true },
     caste: { type: String, trim: true },
