@@ -30,3 +30,7 @@ in .env file
 change the google client ID and google client secret for university
 mongo url
 production level session secret
+
+
+
+GUJRATI STUDENTS DOCUMENTS
