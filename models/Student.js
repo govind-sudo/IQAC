@@ -14,7 +14,7 @@ const studentSchema = new Schema(
     // ---------- Personal ----------
     title: {
       type: String,
-      enum: ['Mr', 'Ms', 'Mrs', 'Dr'],
+      enum: ['Mr', 'Ms', 'Mrs'],
     },
     firstName: { type: String, required: true, trim: true },
     middleName: { type: String, trim: true },
@@ -36,24 +36,22 @@ const studentSchema = new Schema(
     religion: { type: String, trim: true },
     caste: { type: String, trim: true },
     nationality: { type: String, trim: true },
-    passportNumber: {
-    type: String,
-    trim: true,
-    },
+    passportNumber: { type: String, trim: true, },
 
     aadhaarNumber: {
         type: String,
         trim: true,
         unique: true,
         sparse: true,
+        match: /^\d{12}$/
     },
     // Domicile state — separate from presentAddress.state/permanentAddress.state,
     // since this is likely used for quota/reservation purposes rather than
     // a mailing address. Flag me if you actually meant one of those instead.
-    state: { type: String, trim: true },
-    district: { type: String, trim: true },
-    country: { type: String, trim: true, default: 'India' },
-    city: { type: String, trim: true },
+    // state: { type: String, trim: true },
+    // district: { type: String, trim: true },
+    // country: { type: String, trim: true, default: 'India' },
+    // city: { type: String, trim: true },
 
     // ---------- Hostel ----------
     residesInHostel: { type: Boolean, default: false },
@@ -108,26 +106,19 @@ const studentSchema = new Schema(
   },
 
     // ---------- Academic ----------
-    // Real hierarchy per the admission form: Faculty > Institute > Department
+    // Hierarchy per the admission form: Faculty > Institute > Course > Branch > Specialization
     faculty: { type: String, trim: true, default: 'FET' }, // Faculty of Engineering & Technology
     institute: { type: String, trim: true },
     course: { type: String, trim: true },       // e.g. B.Tech
-    program: { type: String, trim: true },       // e.g. Computer Engineering
-    department: { type: String, trim: true },   // FIXED: no longer defaults to 'FET' - that's the faculty field's job now. This holds the real department name (e.g. "Computer Science & Engineering")
     branch: { type: String, trim: true, default: 'CSE' },
-    specialization: {
-      type: String,
-      enum: ['AIML', 'AIRO'],
-    },
+    specialization: {type:String, trim:true, },
+      
+    
     joiningDate: { type: Date },
     admissionYear: { type: Number },
     admissionType: {
       type: String,
       enum: ['Regular', 'Lateral Entry', 'Transfer'],
-    },
-    admissionQuota: {
-      type: String,
-      enum: ['General', 'Management', 'NRI', 'Sports', 'Other'],
     },
     studentStatus: {
       type: String,

@@ -51,26 +51,25 @@
 
         <div class="form-grid">
           <div class="form-field">
+            <label for="enrollmentNo">Enrollment Number</label>
+            <input type="text" id="enrollmentNo" name="enrollmentNo" class="field-disabled" placeholder="Assigned by Admin" disabled />
+            <p class="field-hint">Disabled — will be filled in by Admin after verification</p>
+          </div>
+          
+          <div class="form-field">
+            <label for="ugNumber">UG Number<span class="req">*</span></label>
+            <input type="text" id="ugNumber" name="ugNumber" placeholder="Enter your UG Number" required/>
+          </div>
+          
+          <div class="form-field">
             <label for="title">Title<span class="req">*</span></label>
             <select id="title" name="title" required>
               <option value="" selected disabled>Select</option>
               <option value="Mr">Mr.</option>
               <option value="Ms">Ms.</option>
               <option value="Mrs">Mrs.</option>
-              <option value="Dr">Dr.</option>
             </select>
           </div>
-          <div class="form-field">
-            <label for="enrollmentNo">Enrollment Number</label>
-            <input type="text" id="enrollmentNo" name="enrollmentNo" class="field-disabled" placeholder="Assigned by Admin" disabled />
-            <p class="field-hint">Disabled — will be filled in by Admin after verification</p>
-          </div>
-
-          <div class="form-field">
-            <label for="ugNumber">UG Number<span class="req">*</span></label>
-            <input type="text" id="ugNumber" name="ugNumber" placeholder="Enter your UG Number" required/>
-          </div>
-
 
           <div class="form-field">
             <label for="firstName">First Name<span class="req">*</span></label>
@@ -98,7 +97,7 @@
           <div class="form-field">
             <label for="dob">Date of Birth<span class="req">*</span></label>
             <input type="date" id="dob" name="dob" required />
-            <p class="field-hint">This will be your initial login password (DDMMYYYY format)</p>
+            <!-- <p class="field-hint">This will be your initial login password (DDMMYYYY format)</p> -->
           </div>
           <div class="form-field">
             <label for="bloodGroup">Blood Group</label>
@@ -150,7 +149,7 @@
           </div>
           <div class="form-field" id="passportNumberField" style="display:none;">
             <label>Passport Number<span class="req">*</span></label>
-            <input type="text" id="passportNumber" name="passportNumber">
+            <input type="text" id="passportNumber" name="passportNumber" placeholder="Enter Passport Number"> 
           </div>
 
           <div class="form-field">
@@ -195,7 +194,12 @@
           </div>
           <div class="form-field">
             <label for="phone">Contact Number<span class="req">*</span></label>
-            <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" required />
+            <div class="phone-input">
+              <div class="phone-group">
+                <select id="phoneCode" name="phoneCode"></select>
+                <input type="tel" id="phone" name="phone" placeholder="Mobile number" required />
+              </div>
+            </div>
           </div>
 
           <div class="form-field">
@@ -228,28 +232,28 @@
         <div class="form-grid">
           <div class="form-field">
             <label for="faculty">Faculty<span class="req">*</span></label>
-            <select id="faculty" name="faculty" disabled required>
-              <option value="" selected>Select Institute First</option>
+            <select id="faculty" name="faculty" required>
+              <option value="" selected disabled>Select Faculty</option>
+              <option value="FET">Faculty of Engineering and Technology (FET)</option>
             </select>
           </div>
           <div class="form-field">
             <label for="institute">Institute<span class="req">*</span></label>
-            <select id="institute" name="institute" required>
-              <option value="" selected disabled>Select Institute</option>
-              <option value="Parul Institute of Engineering and Technology">Parul Institute of Engineering and Technology</option>
+            <select id="institute" name="institute" disabled required>
+              <option value="" selected>Select Faculty First</option>
             </select>
           </div>
 
           <div class="form-field">
-            <label for="department">Department<span class="req">*</span></label>
+            <label for="department">Course<span class="req">*</span></label>
             <select id="department" name="course" disabled required>
-              <option value="" selected>Select Faculty First</option>
+              <option value="" selected>Select Institute First</option>
             </select>
           </div>
           <div class="form-field">
             <label for="branch">Branch<span class="req">*</span></label>
             <select id="branch" name="branch" disabled required>
-              <option value="" selected>Select Department First</option>
+              <option value="" selected>Select Course First</option>
             </select>
           </div>
 
@@ -410,9 +414,7 @@
       <label for="presCountry">Country<span class="req">*</span></label>
       <select id="presCountry" name="presentAddress[country]" required>
         <option value="India" selected>India</option>
-        <option value="Other">Other</option>
       </select>
-      <input type="text" id="presCountryText" placeholder="Country Name" style="display:none; margin-top:8px;">
     </div>
 
     <!-- State (dropdown for India, text for other) -->
@@ -517,7 +519,12 @@
           </div>
           <div class="form-field">
             <label for="fatherPhone">Father's Contact Number<span class="req">*</span></label>
-            <input type="tel" id="fatherPhone" name="father[phone]" required />
+            <div class="phone-input">
+              <div class="phone-group">
+                <select id="fatherPhoneCode" name="father[phoneCode]"></select>
+                <input type="tel" id="fatherPhone" name="father[phone]" required />
+              </div>
+            </div>
           </div>
 
           <div class="form-field">
@@ -529,9 +536,16 @@
             <input type="text" id="motherName" name="mother[name]" required />
           </div>
 
+          
           <div class="form-field">
             <label for="motherPhone">Mother's Contact Number<span class="req">*</span></label>
-            <input type="tel" id="motherPhone" name="mother[phone]" required />
+
+            <div class="phone-input">
+              <div class="phone-group">
+              <select id="motherPhoneCode" name="mother[phoneCode]"></select>
+              <input type="tel" id="motherPhone" name="mother[phone]" required />
+            </div>
+          </div>
           </div>
           <div class="form-field">
             <label for="motherEmail">Mother's Email</label>
@@ -544,9 +558,13 @@
           </div>
           <div class="form-field">
             <label for="emergencyPhone">Emergency Contact Number<span class="req">*</span></label>
-            <input type="tel" id="emergencyPhone" name="emergencyContact[phone]" required />
-          </div>
-        </div>
+              <div class="phone-group">
+                <div class="phone-input">
+                  <select id="emergencyPhoneCode" name="emergencyContact[phoneCode]"></select>
+                  <input type="tel" id="emergencyPhone" name="emergencyContact[phone]" required />
+                </div>
+              </div>
+            </div>
       </section>
 
       <!-- ============ EDUCATIONAL DETAILS ============ -->
@@ -648,8 +666,13 @@
           </div>
 
           <div class="form-field" id="casteProofField">
-            <label for="casteProof">Caste Certificate</label>
+            <label for="casteProof">Caste Certificate<span class="req">*</span></label>
             <input type="file" id="casteProof" name="documents[casteProof]" accept="application/pdf,image/*" />
+          </div>
+
+          <div class="form-field" id="pwdProofField" style="display:none;">
+            <label for="pwdProof">PWD Certificate<span class="req">*</span></label>
+            <input type="file" id="pwdProof" name="documents[pwdProof]" accept="application/pdf,image/*" >
           </div>
           
           <div class="form-field" id="leavingCertificateField">
@@ -660,17 +683,6 @@
       <!-- </section> -->
 
       <!-- ============ INTERNATIONAL STUDENT DOCUMENTS ============ -->
-      <!-- Hidden by default. Shown + made required only when Nationality = Other.
-           Toggled in studentRegistration.js (mirrors the Hostel toggle pattern). -->
-      <!-- <section class="form-card" id="internationalDocsSection" style="display:none;"> -->
-        <h2 class="section-title">
-          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 2h9l5 5v15H6V2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-            <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-          </svg>
-          Upload Documents
-        </h2>
-        <p class="field-hint section-note">Required only when Nationality is set to "Other".</p>
 
         <div class="form-grid" id="internationalDocuments">
           <!-- <div class="form-field" id="aoLevelCertificateField">
@@ -678,12 +690,12 @@
             <input type="file" id="aoLevelCertificate" name="documents[aoLevelCertificate]" accept="application/pdf,image/*" />
           </div> -->
           <div class="form-field" id="puAdmissionLetterField">
-            <label for="puOfferLetter">PU Admission Letter<span class="req">*</span></label>
-            <input type="file" id="puOfferLetter" name="documents[puOfferLetter]" accept="application/pdf,image/*" />
+            <label for="puAdmissionLetter">PU Admission Letter<span class="req">*</span></label>
+            <input type="file" id="puAdmissionLetter" name="documents[puAdmissionLetter]" accept="application/pdf,image/*" />
           </div>
           <div class="form-field" id="passportUploadField">
-            <label for="passport">Passport<span class="req">*</span></label>
-            <input type="file" id="passport" name="documents[passport]" accept="application/pdf,image/*" />
+            <label for="passportUpload">Passport<span class="req">*</span></label>
+            <input type="file" id="passportUpload" name="documents[passportUpload]" accept="application/pdf,image/*" />
           </div>
         </div>
       </section>
@@ -713,9 +725,9 @@
         </a>
       </div>
 
-      <p class="field-hint" style="text-align:center; margin-top:12px;">
+      <!-- <p class="field-hint" style="text-align:center; margin-top:12px;">
         Your initial login password will be your Date of Birth in <strong>DDMMYYYY</strong> format (e.g., 14072006). You can change this after verification.
-      </p>
+      </p> -->
 
     </form>
   </main>

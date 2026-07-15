@@ -2,24 +2,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("studentForm");
 
   /* ============ CASCADING DROPDOWNS ============ */
-  // FIXED: institute → faculty → department → branch → specialization
-  // Previously the "department" dropdown was holding Faculty values (FET),
-  // which is wrong per the schema's Faculty > Department hierarchy.
-  const institute = document.getElementById("institute");
+  // Hierarchy: faculty → institute → course → branch → specialization
+  // "course" is bound to the #department select (id kept as-is; it posts
+  // to req.body.course, not a department field — see registrationController.js).
   const faculty = document.getElementById("faculty");
-  const department = document.getElementById("department");
+  const institute = document.getElementById("institute");
+  const course = document.getElementById("department");
   const branch = document.getElementById("branch");
   const specialization = document.getElementById("specialization");
 
-  const FACULTY_OPTIONS = {
-    "Parul Institute of Engineering and Technology": [
-      { value: "FET", label: "FET — Faculty of Engineering and Technology" },
+  const INSTITUTE_OPTIONS = {
+    FET: [
+      {
+        value: "Parul Institute of Engineering and Technology",
+        label: "Parul Institute of Engineering and Technology (PIET)",
+      },
     ],
   };
 
-  const DEPARTMENT_OPTIONS = {
-    FET: [
-      { value: "Bachelor of Technology", label: "Bachelor of Technology" },
+  const COURSE_OPTIONS = {
+    "Parul Institute of Engineering and Technology": [
+      { value: "Bachelor of Technology", label: "Bachelor of Technology (B.Tech.)" },
     ],
   };
 
@@ -31,8 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const SPECIALIZATION_OPTIONS = {
     CSE: [
-      { value: "AIML", label: "AI/ML — Artificial Intelligence and Machine Learning" },
-      { value: "AIRO", label: "AIRO — Artificial Intelligence and Robotics" },
+      { value: "AIML", label: "Artificial Intelligence and Machine Learning (AIML)" },
+      { value: "AIRO", label: "Artificial Intelligence and Robotics (AIRO)" },
     ],
   };
 
@@ -65,30 +68,30 @@ document.addEventListener("DOMContentLoaded", () => {
     select.disabled = false;
   }
 
-  institute.addEventListener("change", () => {
-    const opts = FACULTY_OPTIONS[institute.value];
-    opts
-      ? populateSelect(faculty, opts, "Select Faculty")
-      : resetSelect(faculty, "Select Institute First", true);
-    resetSelect(department, "Select Faculty First", true);
-    resetSelect(branch, "Select Department First", true);
-    resetSelect(specialization, "Select Branch First", true);
-  });
-
   faculty.addEventListener("change", () => {
-    const opts = DEPARTMENT_OPTIONS[faculty.value];
+    const opts = INSTITUTE_OPTIONS[faculty.value];
     opts
-      ? populateSelect(department, opts, "Select Department")
-      : resetSelect(department, "Select Faculty First", true);
-    resetSelect(branch, "Select Department First", true);
+      ? populateSelect(institute, opts, "Select Institute")
+      : resetSelect(institute, "Select Faculty First", true);
+    resetSelect(course, "Select Institute First", true);
+    resetSelect(branch, "Select Course First", true);
     resetSelect(specialization, "Select Branch First", true);
   });
 
-  department.addEventListener("change", () => {
-    const opts = BRANCH_OPTIONS[department.value];
+  institute.addEventListener("change", () => {
+    const opts = COURSE_OPTIONS[institute.value];
+    opts
+      ? populateSelect(course, opts, "Select Course")
+      : resetSelect(course, "Select Institute First", true);
+    resetSelect(branch, "Select Course First", true);
+    resetSelect(specialization, "Select Branch First", true);
+  });
+
+  course.addEventListener("change", () => {
+    const opts = BRANCH_OPTIONS[course.value];
     opts
       ? populateSelect(branch, opts, "Select Branch")
-      : resetSelect(branch, "Select Department First", true);
+      : resetSelect(branch, "Select Course First", true);
     resetSelect(specialization, "Select Branch First", true);
   });
 
@@ -161,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
       // ---------------------------
 
       passportNumberField.style.display = isIndian ? "none" : "flex";
-
       passportNumber.required = !isIndian;
 
       if (isIndian)
@@ -171,9 +173,20 @@ document.addEventListener("DOMContentLoaded", () => {
       // Indian-only fields
       // ---------------------------
 
+      // Category
+      document.getElementById("category").required = isIndian;
       categoryField.style.display = isIndian ? "flex" : "none";
+
+      // Caste
+      document.getElementById("caste").required = isIndian;
       casteField.style.display = isIndian ? "flex" : "none";
+
+      // ABC
+      document.getElementById("abcId").required = isIndian;
       abcField.style.display = isIndian ? "flex" : "none";
+
+      // Aadhaar
+      document.getElementById("aadhaarNumber").required = isIndian;
       aadhaarField.style.display = isIndian ? "flex" : "none";
 
       // ---------------------------
@@ -181,58 +194,51 @@ document.addEventListener("DOMContentLoaded", () => {
       // ---------------------------
 
       educationSection.style.display = isIndian ? "block" : "none";
-      internationalEducation.style.display = isIndian ? "none" : "block";
+      const educationRequired = isIndian;
 
+      document.getElementById("tenthSchool").required = educationRequired;
+      document.getElementById("tenthPercentage").required = educationRequired;
+
+      document.getElementById("twelfthSchool").required = educationRequired;
+      document.getElementById("twelfthPercentage").required = educationRequired;
+      internationalEducation.style.display = isIndian ? "none" : "block";
+      document.getElementById("aoLevelCertificate").required = !isIndian;
+      document.getElementById("aadhaarProof").required = isIndian;
+
+      document.getElementById("leavingCertificate").required = isIndian;
+
+      document.getElementById("passportUpload").required = !isIndian;
+
+      document.getElementById("puAdmissionLetter").required = !isIndian;
       // ---------------------------
       // Documents
       // ---------------------------
+//       const category = document.getElementById("category");
+//       const casteProof = document.getElementById("casteProof");
 
+//       document.getElementById("casteProof").required = isIndian && category.value !== "General";
+//       function updateCasteProofRequirement() {
+
+//         const isIndian = nationalityType.value === "Indian";
+          
+//         if (!isIndian) {
+//             casteProof.required = false;
+//             return;
+//         }
+      
+//         casteProof.required = category.value !== "General";
+//     }
+
+// category.addEventListener("change", updateCasteProofRequirement);
+// nationalityType.addEventListener("change", updateCasteProofRequirement);
+
+// updateCasteProofRequirement();
       indianDocuments.style.display = isIndian ? "grid" : "none";
       internationalDocuments.style.display = isIndian ? "none" : "grid";
+
+      updateCategoryDocuments();
   }
   nationalityType.addEventListener("change", toggleNationalityFields);
-
-  /* ============ NATIONALITY TOGGLE (INTERNATIONAL DOCUMENTS) ============ */
-  const nationality = document.getElementById("nationality");
-  const internationalDocsSection = document.getElementById("internationalDocsSection");
-  const aoLevelCertificateInput = document.getElementById("aoLevelCertificate");
-  const puOfferLetterInput = document.getElementById("puOfferLetter");
-  const passportInput = document.getElementById("passport");
-
-  function toggleInternationalDocs() {
-    const show = nationality.value === "Other";
-    internationalDocsSection.style.display = show ? "block" : "none";
-    [aoLevelCertificateInput, puOfferLetterInput, passportInput].forEach((input) => {
-      input.required = show;
-      if (!show) input.value = ""; // clear any previously selected file
-    });
-  }
-
-  nationality.addEventListener("change", toggleInternationalDocs);
-  /* ============ SAME AS PRESENT ADDRESS ============ */
-  // const sameAsPresent = document.getElementById("sameAsPresent");
-
-  // const addressPairs = [
-  //   ["presAddress1", "permAddress1"],
-  //   ["presAddress2", "permAddress2"],
-  //   ["presCity",     "permCity"],
-  //   ["presDistrict", "permDistrict"],
-  //   ["presState",    "permState"],
-  //   ["presCountry",  "permCountry"],
-  //   ["presPincode",  "permPincode"],
-  // ];
-
-  // sameAsPresent.addEventListener("change", () => {
-  //   const permInputs = addressPairs.map(([, permId]) => document.getElementById(permId));
-  //   if (sameAsPresent.checked) {
-  //     addressPairs.forEach(([presId, permId]) => {
-  //       document.getElementById(permId).value = document.getElementById(presId).value;
-  //     });
-  //     permInputs.forEach((el) => (el.disabled = true));
-  //   } else {
-  //     permInputs.forEach((el) => (el.disabled = false));
-  //   }
-  // });
 
   /* ============ PERCENTAGE / CGPA TOGGLE — 10th ============ */
 
@@ -273,9 +279,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function resetForm() {
     form.reset();
 
-    resetSelect(faculty, "Select Institute First", true);
-    resetSelect(department, "Select Faculty First", true);
-    resetSelect(branch, "Select Department First", true);
+    resetSelect(institute, "Select Faculty First", true);
+    resetSelect(course, "Select Institute First", true);
+    resetSelect(branch, "Select Course First", true);
     resetSelect(specialization, "Select Branch First", true);
 
     hostelNameField.style.display = "none";
@@ -314,69 +320,133 @@ document.addEventListener("DOMContentLoaded", () => {
     const districtText = document.getElementById(prefix + "DistrictText");
     const countryText = document.getElementById(prefix + "CountryText");
 
-    function update() {
-
-        if (country.value === "India") {
-
+      function update() {
+          
+        const isIndia = country.value === "India";
+        
+        if (isIndia) {
+            countryText.required = false;
+            // Show dropdowns
             stateSelect.style.display = "";
             districtSelect.style.display = "";
-
+        
+            // Hide textboxes
             stateText.style.display = "none";
             districtText.style.display = "none";
             countryText.style.display = "none";
-
-            stateText.removeAttribute("name");
-            districtText.removeAttribute("name");
-            countryText.removeAttribute("name");
-
+        
+            // Names
             stateSelect.name = prefix === "pres"
                 ? "presentAddress[state]"
                 : "permanentAddress[state]";
-
+        
             districtSelect.name = prefix === "pres"
                 ? "presentAddress[district]"
                 : "permanentAddress[district]";
-
+        
             country.name = prefix === "pres"
                 ? "presentAddress[country]"
                 : "permanentAddress[country]";
+        
+            stateText.removeAttribute("name");
+            districtText.removeAttribute("name");
+            countryText.removeAttribute("name");
+        
+            // Required
+            stateSelect.required = true;
+            districtSelect.required = true;
+            country.required = true;
+        
+            stateText.required = false;
+            districtText.required = false;
+            countryText.required = false;
+        
         }
         else {
-
+            countryText.required = true;
+            // Hide dropdowns
             stateSelect.style.display = "none";
             districtSelect.style.display = "none";
-
+        
+            // Show textboxes
             stateText.style.display = "";
             districtText.style.display = "";
             countryText.style.display = "";
-
+        
+            // Remove dropdown names
             stateSelect.removeAttribute("name");
             districtSelect.removeAttribute("name");
-            // The select's job here is just to pick "Other"; the actual
-            // country name is submitted from countryText instead, so it
-            // can't also carry the presentAddress[country]/permanentAddress[country] name.
             country.removeAttribute("name");
-
+        
+            // Textbox names
             stateText.name = prefix === "pres"
                 ? "presentAddress[state]"
                 : "permanentAddress[state]";
-
+        
             districtText.name = prefix === "pres"
                 ? "presentAddress[district]"
                 : "permanentAddress[district]";
-
+        
             countryText.name = prefix === "pres"
                 ? "presentAddress[country]"
                 : "permanentAddress[country]";
+        
+            // Required
+            stateSelect.required = false;
+            districtSelect.required = false;
+            country.required = false;
+        
+            stateText.required = true;
+            districtText.required = true;
+            countryText.required = true;
         }
+
     }
 
     country.addEventListener("change", update);
 
     update();
 }
-toggleCountry("pres");
+// toggleCountry("pres");
 toggleCountry("perm");
+
+let countryCodes = [];
+
+function populatePhoneCodeDropdown(select) {
+
+    select.innerHTML = "";
+
+    countryCodes.forEach(country => {
+
+        const option = document.createElement("option");
+
+        option.value = country.dialCode;
+
+        option.textContent = `${country.name} (${country.dialCode})`;
+
+        if (country.dialCode === "+91") {
+            option.selected = true;
+        }
+
+        select.appendChild(option);
+
+    });
+
+}
+
+fetch("/data/countryCodes.json")
+    .then(res => res.json())
+    .then(data => {
+
+        countryCodes = data;
+
+        populatePhoneCodeDropdown(document.getElementById("phoneCode"));
+        populatePhoneCodeDropdown(document.getElementById("fatherPhoneCode"));
+        populatePhoneCodeDropdown(document.getElementById("motherPhoneCode"));
+        populatePhoneCodeDropdown(document.getElementById("emergencyPhoneCode"));
+
+    })
+    .catch(err => console.error(err));
 
 // ========== POPULATE STATE & DISTRICT FROM STATIC JSON ==========
 let districtsMap = {};
@@ -433,10 +503,56 @@ function setupDistrictPopulation(stateId, districtId) {
     }
   });
 }
+function updateCategoryDocuments() {
+
+    const isIndian = nationalityType.value === "Indian";
+
+    const category = document.getElementById("category").value;
+
+    const casteField = document.getElementById("casteProofField");
+    const casteInput = document.getElementById("casteProof");
+
+    const pwdField = document.getElementById("pwdProofField");
+    const pwdInput = document.getElementById("pwdProof");
+
+    casteField.style.display = "none";
+    pwdField.style.display = "none";
+
+    casteInput.required = false;
+    pwdInput.required = false;
+
+    if (!isIndian) {
+        return;
+    }
+
+    if (category === "General") {
+        return;
+    }
+
+    if (category === "PWD") {
+        pwdField.style.display = "flex";
+        pwdInput.required = true;
+        return;
+    }
+
+    casteField.style.display = "flex";
+    casteInput.required = true;
+}
 
 // Wire up both address sections
 setupDistrictPopulation('presState', 'presDistrict');
 setupDistrictPopulation('permState', 'permDistrict');
 toggleNationalityFields();
+
+document
+    .getElementById("category")
+    .addEventListener("change", updateCategoryDocuments);
+
+nationalityType.addEventListener(
+    "change",
+    updateCategoryDocuments
+);
+
+updateCategoryDocuments();
 
 });

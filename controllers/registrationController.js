@@ -3,12 +3,6 @@
 const bcrypt = require('bcrypt');
 const Student = require('../models/Student');
 
-// Only branch currently offered by the form (see studentRegistration.js
-// BRANCH_OPTIONS). Extend this map when more branches/departments are added.
-const BRANCH_DEPARTMENT_MAP = {
-  CSE: 'Computer Science and Engineering',
-};
-
 function pad2(n) {
   return String(n).padStart(2, '0');
 }
@@ -27,15 +21,33 @@ exports.showRegisterForm = (req, res) => {
 
 exports.registerStudent = async (req, res) => {
   const body = req.body || {};
+  const isIndian = body.nationality === "Indian";
 
   try {
     // ---------- 1. Required top-level fields ----------
     const requiredTopLevel = [
-      'title', 'firstName', 'lastName', 'gender', 'dob', 'category',
-      'nationality', 'joiningDate', 'email', 'phone', 'institute',
-      'faculty', 'course', 'branch', 'specialization',
-      'admissionType', 'admissionQuota', 'residesInHostel', 'ugNumber',
+      'title',
+      'firstName',
+      'lastName',
+      'gender',
+      'dob',
+      'nationality',
+      'joiningDate',
+      'email',
+      'phone',
+      'institute',
+      'faculty',
+      'course',
+      'branch',
+      'specialization',
+      'admissionType',
+      'residesInHostel',
+      'ugNumber',
     ];
+
+    if (isIndian) {
+        requiredTopLevel.push("category");
+    }
 
     const missing = requiredTopLevel.filter(
       (field) => !body[field] || String(body[field]).trim() === ''
@@ -68,26 +80,56 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    if (!body.education?.tenth?.schoolName || !body.education?.tenth?.percentage) {
-      return res.status(400).render('students/register', {
-        error: '10th standard education details are required.',
-      });
-    }
-
-    // register.ejs renames the 12th-standard fields to education[diploma][...]
-    // client-side when the "Diploma" radio is selected — see studentRegistration.js
-    const qualKey = body.qualificationType === 'diploma' ? 'diploma' : 'twelfth';
-    if (!body.education?.[qualKey]?.schoolName || !body.education?.[qualKey]?.percentage) {
-      return res.status(400).render('students/register', {
-        error: `${qualKey === 'diploma' ? 'Diploma' : '12th standard'} education details are required.`,
-      });
-    }
-
-    // if (body.residesInHostel === 'true' && !body.hostelName) {
+    // if (!body.education?.tenth?.schoolName || !body.education?.tenth?.percentage) {
     //   return res.status(400).render('students/register', {
-    //     error: 'Please select a hostel since you indicated you reside in a PU hostel.',
+    //     error: '10th standard education details are required.',
     //   });
     // }
+
+    // // register.ejs renames the 12th-standard fields to education[diploma][...]
+    // // client-side when the "Diploma" radio is selected — see studentRegistration.js
+    // const qualKey = body.qualificationType === 'diploma' ? 'diploma' : 'twelfth';
+    // if (!body.education?.[qualKey]?.schoolName || !body.education?.[qualKey]?.percentage) {
+    //   return res.status(400).render('students/register', {
+    //     error: `${qualKey === 'diploma' ? 'Diploma' : '12th standard'} education details are required.`,
+    //   });
+    // }
+
+    // Qualification type
+    const qualKey =
+      body.qualificationType === "diploma"
+        ? "diploma"
+        : "twelfth";
+      
+    // Only Indian students submit 10th / 12th / Diploma details
+    if (isIndian) {
+    
+      if (
+        !body.education?.tenth?.schoolName ||
+        !body.education?.tenth?.percentage
+      ) {
+        return res.status(400).render("students/register", {
+          error: "10th standard education details are required.",
+        });
+      }
+    
+      if (
+        !body.education?.[qualKey]?.schoolName ||
+        !body.education?.[qualKey]?.percentage
+      ) {
+        return res.status(400).render("students/register", {
+          error: `${
+            qualKey === "diploma"
+              ? "Diploma"
+              : "12th standard"
+          } education details are required.`,
+        });
+      }
+    
+    }
+    
+
+
     if (body.residesInHostel === 'true' && !body.hostelName) {
       return res.status(400).render('students/register', {
         error: 'Please select a hostel since you indicated you reside in a PU hostel.',
@@ -97,18 +139,21 @@ exports.registerStudent = async (req, res) => {
     // International students (Nationality = "Other") must supply three
     // additional proof documents. Indian students are exempt — mirrors the
     // hostel check above.
-    if (body.nationality === 'Other') {
-      const missingIntlDocs = [];
-      if (!body.documents?.aoLevelCertificate) missingIntlDocs.push('A/O Level Certificate');
-      if (!body.documents?.puOfferLetter) missingIntlDocs.push('PU Offer Letter');
-      if (!body.documents?.passport) missingIntlDocs.push('Passport');
 
-      if (missingIntlDocs.length) {
-        return res.status(400).render('students/register', {
-          error: `International students must upload: ${missingIntlDocs.join(', ')}.`,
-        });
-      }
-    }
+    // UNCOMMENT AFTER MULTER
+
+    // if (body.nationality === 'Other') {
+    //   const missingIntlDocs = [];
+    //   if (!body.documents?.aoLevelCertificate) missingIntlDocs.push('A/O Level Certificate');
+    //   if (!body.documents?.puAdmissionLetter) missingIntlDocs.push('PU Offer Letter');
+    //   if (!body.documents?.passportUpload) missingIntlDocs.push('Passport');
+
+    //   if (missingIntlDocs.length) {
+    //     return res.status(400).render('students/register', {
+    //       error: `International students must upload: ${missingIntlDocs.join(', ')}.`,
+    //     });
+    //   }
+    // }
 
     // ---------- 3. Normalize identifiers ----------
     const ugNumber = String(body.ugNumber).trim().toUpperCase();
@@ -144,30 +189,35 @@ exports.registerStudent = async (req, res) => {
     // ---------- 6. Booleans ----------
     const residesInHostel = body.residesInHostel === 'true';
 
-    // ---------- 7. Course / Department derivation ----------
-    // register.ejs's cascading select (id="department") now posts under
-    // req.body.course (e.g. "Bachelor of Technology") — see register.ejs
-    // change below. The real `department` name is derived from branch
-    // until more than one department is offered.
-    const department = BRANCH_DEPARTMENT_MAP[body.branch] || undefined;
+    // ---------- 7. Education block (only the active 12th/diploma key) ----------
 
-    // ---------- 8. Education block (only the active 12th/diploma key) ----------
-    const education = {
-      tenth: {
-        schoolName: body.education.tenth.schoolName,
-        percentage: body.education.tenth.percentage !== undefined
-          ? Number(body.education.tenth.percentage)
-          : undefined,
-        marksheet: body.education.tenth.marksheet || undefined,
-      },
-      [qualKey]: {
-        schoolName: body.education[qualKey].schoolName,
-        percentage: body.education[qualKey].percentage !== undefined
-          ? Number(body.education[qualKey].percentage)
-          : undefined,
-        marksheet: body.education[qualKey].marksheet || undefined,
-      },
-    };
+    let education = {};
+
+    if (isIndian) {
+    
+      education = {
+        tenth: {
+          schoolName: body.education.tenth.schoolName,
+          percentage:
+            body.education.tenth.percentage !== undefined
+              ? Number(body.education.tenth.percentage)
+              : undefined,
+          marksheet:
+            body.education.tenth.marksheet || undefined,
+        },
+      
+        [qualKey]: {
+          schoolName: body.education[qualKey].schoolName,
+          percentage:
+            body.education[qualKey].percentage !== undefined
+              ? Number(body.education[qualKey].percentage)
+              : undefined,
+          marksheet:
+            body.education[qualKey].marksheet || undefined,
+        },
+      };
+    
+    }
 
     // ---------- 9. Build and save the Student document ----------
     const student = new Student({
@@ -178,17 +228,20 @@ exports.registerStudent = async (req, res) => {
       gender: body.gender,
       dob,
       bloodGroup: body.bloodGroup || undefined,
-      category: body.category,
+      category: isIndian ? body.category : undefined,
       religion: body.religion || undefined,
-      caste: body.caste || undefined,
+      caste: isIndian ? body.caste : undefined,
       nationality: body.nationality,
-      abcId: body.abcId || undefined,
+      passportNumber: isIndian ? undefined : body.passportNumber,
+      aadhaarNumber: isIndian ? body.aadhaarNumber : undefined,
+      abcId: isIndian ? body.abcId : undefined,
 
       residesInHostel,
       hostelName: residesInHostel ? body.hostelName : undefined,
 
       email,
       password: hashedPassword,
+
 
       ugNumber,
     //   enrollmentNo: undefined,
@@ -198,29 +251,31 @@ exports.registerStudent = async (req, res) => {
       institute: body.institute,
       course: body.course,
       branch: body.branch,
-      department,
       specialization: body.specialization,
 
       joiningDate: new Date(body.joiningDate),
       admissionYear: new Date(body.joiningDate).getFullYear(),
       admissionType: body.admissionType,
-      admissionQuota: body.admissionQuota,
 
+      phoneCode: body.phoneCode || "+91",
       phone: body.phone,
       whatsapp: body.whatsapp || undefined,
       alternateEmail: body.alternateEmail ? body.alternateEmail.toLowerCase() : undefined,
 
       emergencyContact: {
         name: body.emergencyContact.name,
+        phoneCode: body.emergencyContact.phoneCode || "+91",
         phone: body.emergencyContact.phone,
       },
       father: {
         name: body.father.name,
+        phoneCode: body.father.phoneCode || "+91",
         phone: body.father.phone,
         email: body.father.email || undefined,
       },
       mother: {
         name: body.mother.name,
+        phoneCode: body.mother.phoneCode || "+91",
         phone: body.mother.phone,
         email: body.mother.email || undefined,
       },
@@ -233,15 +288,17 @@ exports.registerStudent = async (req, res) => {
 
     documents: body.documents
         ? {
+            aadhaarProof: body.documents.aadhaarProof || undefined,
             abcIdProof: body.documents.abcIdProof || undefined,
             casteProof: body.documents.casteProof || undefined,
-            nationalityProof: body.documents.nationalityProof || undefined,
+            pwdProof: body.documents?.pwdProof || undefined,
+            // nationalityProof: body.documents.nationalityProof || undefined,
             leavingCertificate: body.documents.leavingCertificate || undefined,
-            aadhaarNumber: body.documents.aadhaarNumber || undefined,
+            // aadhaarNumber: body.documents.aadhaarNumber || undefined,
             // International students only (nationality === 'Other')
             aoLevelCertificate: body.documents.aoLevelCertificate || undefined,
-            puOfferLetter: body.documents.puOfferLetter || undefined,
-            passport: body.documents.passport || undefined,
+            puAdmissionLetter: body.documents.puAdmissionLetter || undefined,
+            passportUpload: body.documents.passportUpload || undefined,
           }
         : undefined,
     });

@@ -8,17 +8,23 @@ const { Schema } = mongoose;
 
 const documentsSchema = new Schema(
   {
+    aadhaarProof: { type: String, trim: true },
     abcIdProof: { type: String, trim: true },       // proof for ABC ID / APAAR ID
     casteProof: { type: String, trim: true },
     leavingCertificate: { type: String, trim: true },
+    pwdProof: {
+        type: String,
+        trim: true,
+    },
 
     // ---------- International students only (nationality === 'Other') ----------
     // Kept optional here — conditional "required if nationality is Other" is
     // enforced in registrationController.js, same pattern already used for
     // father/mother/address/education checks in this codebase.
-    aoLevelCertificate: { type: String, trim: true },
-    puOfferLetter: { type: String, trim: true },
-    passport: { type: String, trim: true },
+    // aoLevelCertificate: { type: String, trim: true },
+    // puOfferLetter: { type: String, trim: true },
+    // passport: { type: String, trim: true },
+    
 
     // aadhaarNumber: {
     //   type: String,
@@ -41,10 +47,7 @@ const documentsSchema = new Schema(
         trim: true,
     },
 
-    apaarIdProof: {
-        type: String,
-        trim: true,
-    },
+ 
   },
   { _id: false }
 );

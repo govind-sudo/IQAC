@@ -536,3 +536,44 @@ select {
 select:disabled {
   background-image: none;
 }
+
+.phone-group{
+    display:flex;
+    align-items:center;
+    width:100%;
+    border:1px solid #d6d6d6;
+    border-radius:10px;
+    overflow:hidden;
+    background:#fff;
+    transition:.2s;
+}
+
+.phone-group:focus-within{
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,.15);
+}
+
+.phone-group select{
+    width:150px;
+    min-width:150px;
+    border:none;
+    border-right:1px solid #e5e7eb;
+    background:#f8fafc;
+    padding:12px;
+    outline:none;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.phone-group input{
+    flex:1;
+    border:none;
+    outline:none;
+    padding:12px;
+    font-size:14px;
+    background:#fff;
+}
+
+.phone-group input::placeholder{
+    color:#9ca3af;
+}

@@ -30,6 +30,9 @@ in .env file
 change the google client ID and google client secret for university
 mongo url
 production level session secret
+Write "required" in the rejister.ejs file, where the documents are required
+
+
 
 
 Aadhar Upload
@@ -121,3 +124,41 @@ And other basic verifications.
 
 
 Now make necessary changes in schema, and other files whereever required.
+
+
+
+
+
+
+
+
+if it is drop down make down arow and up arrow
+
+
+
+
+
+change this //   enrollmentNo: undefined,
+      enrollmentNo: ugNumber,
+
+
+
+
+UNCOMMENT AFTER MULTER
+
+1. // IN registrationController.js
+
+    if (body.nationality === 'Other') {
+      const missingIntlDocs = [];
+      if (!body.documents?.aoLevelCertificate) missingIntlDocs.push('A/O Level Certificate');
+      if (!body.documents?.puAdmissionLetter) missingIntlDocs.push('PU Offer Letter');
+      if (!body.documents?.passportUpload) missingIntlDocs.push('Passport');
+
+      if (missingIntlDocs.length) {
+        return res.status(400).render('students/register', {
+          error: `International students must upload: ${missingIntlDocs.join(', ')}.`,
+        });
+      }
+    }
+ 
+
