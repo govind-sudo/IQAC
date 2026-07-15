@@ -31,7 +31,13 @@
   </header>
 
   <main class="page-body">
-    <form id="studentForm" action="/register/student" method="POST" enctype="multipart/form-data" autocomplete="off">
+    <!-- <form id="studentForm" action="/register" method="POST" enctype="multipart/form-data" autocomplete="off"> -->
+    <form id="studentForm" action="/register" method="POST" autocomplete="off">
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="form-error-banner" style="background:#fee2e2;color:#991b1b;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:14px;">
+          <%= error %>
+        </div>
+      <% } %>
 
       <!-- ============ BASIC INFORMATION ============ -->
       <section class="form-card">
@@ -213,7 +219,7 @@
 
           <div class="form-field">
             <label for="department">Department<span class="req">*</span></label>
-            <select id="department" name="department" disabled required>
+            <select id="department" name="course" disabled required>
               <option value="" selected>Select Faculty First</option>
             </select>
           </div>
@@ -558,7 +564,7 @@
             </div>
             <div class="form-field">
               <label for="tenthMarksheet">Upload 10th Marksheet (PDF)<span class="req">*</span></label>
-              <input type="file" id="tenthMarksheet" name="education[tenth][marksheet]" accept="application/pdf" required />
+              <input type="file" id="tenthMarksheet" name="education[tenth][marksheet]" accept="application/pdf" />
             </div>
           </div>
         </div>
@@ -591,7 +597,7 @@
             </div>
             <div class="form-field">
               <label for="twelfthMarksheet" id="twelfthMarksheetLabel">Upload 12th Marksheet (PDF)<span class="req">*</span></label>
-              <input type="file" id="twelfthMarksheet" name="education[twelfth][marksheet]" accept="application/pdf" required />
+              <input type="file" id="twelfthMarksheet" name="education[twelfth][marksheet]" accept="application/pdf" />
             </div>
           </div>
         </div>
@@ -623,12 +629,12 @@
           </div>
           <div class="form-field">
             <label for="nationalityProof">Nationality Proof<span class="req">*</span></label>
-            <input type="file" id="nationalityProof" name="documents[nationalityProof]" accept="application/pdf,image/*" required />
+            <input type="file" id="nationalityProof" name="documents[nationalityProof]" accept="application/pdf,image/*" />
           </div>
 
           <div class="form-field">
             <label for="leavingCertificate">Leaving Certificate<span class="req">*</span></label>
-            <input type="file" id="leavingCertificate" name="documents[leavingCertificate]" accept="application/pdf,image/*" required />
+            <input type="file" id="leavingCertificate" name="documents[leavingCertificate]" accept="application/pdf,image/*" />
           </div>
         </div>
       </section>
