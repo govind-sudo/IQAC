@@ -36,6 +36,17 @@ const studentSchema = new Schema(
     religion: { type: String, trim: true },
     caste: { type: String, trim: true },
     nationality: { type: String, trim: true },
+    passportNumber: {
+    type: String,
+    trim: true,
+    },
+
+    aadhaarNumber: {
+        type: String,
+        trim: true,
+        unique: true,
+        sparse: true,
+    },
     // Domicile state — separate from presentAddress.state/permanentAddress.state,
     // since this is likely used for quota/reservation purposes rather than
     // a mailing address. Flag me if you actually meant one of those instead.
@@ -125,6 +136,7 @@ const studentSchema = new Schema(
     },
 
     // ---------- Contact ----------
+    phoneCode: { type: String, default: "+91",},
     phone: { type: String, trim: true },
     whatsapp: { type: String, trim: true },
     alternateEmail: { type: String, trim: true, lowercase: true },

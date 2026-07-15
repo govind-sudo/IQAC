@@ -10,7 +10,6 @@ const documentsSchema = new Schema(
   {
     abcIdProof: { type: String, trim: true },       // proof for ABC ID / APAAR ID
     casteProof: { type: String, trim: true },
-    nationalityProof: { type: String, trim: true },
     leavingCertificate: { type: String, trim: true },
 
     // ---------- International students only (nationality === 'Other') ----------
@@ -21,11 +20,30 @@ const documentsSchema = new Schema(
     puOfferLetter: { type: String, trim: true },
     passport: { type: String, trim: true },
 
-    aadhaarNumber: {
-      type: String,
-      unique: true,
-      sparse: true, // not every student may have it filled in immediately
-      select: false, // sensitive — excluded from queries unless explicitly requested
+    // aadhaarNumber: {
+    //   type: String,
+    //   unique: true,
+    //   sparse: true, // not every student may have it filled in immediately
+    //   select: false, // sensitive — excluded from queries unless explicitly requested
+    // },
+    passportUpload: {
+        type: String,
+        trim: true,
+    },
+
+    puAdmissionLetter: {
+        type: String,
+        trim: true,
+    },
+
+    aoLevelCertificate: {
+        type: String,
+        trim: true,
+    },
+
+    apaarIdProof: {
+        type: String,
+        trim: true,
     },
   },
   { _id: false }

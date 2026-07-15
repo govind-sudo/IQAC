@@ -115,7 +115,28 @@
             </select>
           </div>
 
+          
+          <!-- <div class="form-field">
+            <label for="nationality">Nationality<span class="req">*</span></label>
+            <select id="nationality" name="nationality" required>
+              <option value="" selected disabled>Select Nationality</option>
+              <option value="Indian">Indian</option>
+              <option value="Other">Other</option>
+            </select>
+          </div> -->
           <div class="form-field">
+              <label>Nationality <span class="req">*</span></label>
+              <select id="nationalityType" required>
+                  <option value="Indian" selected>Indian</option>
+                  <option value="Other">Other</option>
+              </select>
+          </div>
+
+          <div class="form-field" id="nationalityField" style="display:none;">
+              <label>Enter Nationality <span class="req">*</span></label>
+              <input type="text" id="nationality" name="nationality" placeholder="Enter Nationality" >
+          </div>
+<div class="form-field" id="categoryField">
             <label for="category">Category<span class="req">*</span></label>
             <select id="category" name="category" required>
               <option value="" selected disabled>Select Category</option>
@@ -124,30 +145,31 @@
               <option value="SC">SC</option>
               <option value="ST">ST</option>
               <option value="EWS">EWS</option>
-              <option value="EWS">PWD</option>
+              <option value="PWD">PWD</option>
             </select>
           </div>
-          <div class="form-field">
-            <label for="nationality">Nationality<span class="req">*</span></label>
-            <select id="nationality" name="nationality" required>
-              <option value="" selected disabled>Select Nationality</option>
-              <option value="Indian">Indian</option>
-              <option value="Other">Other</option>
-            </select>
+          <div class="form-field" id="passportNumberField" style="display:none;">
+            <label>Passport Number<span class="req">*</span></label>
+            <input type="text" id="passportNumber" name="passportNumber">
           </div>
 
           <div class="form-field">
             <label for="religion">Religion / Belief</label>
             <input type="text" id="religion" name="religion" placeholder="e.g. Hinduism, Islam, Christianity" />
           </div>
-          <div class="form-field">
-            <label for="caste">Caste</label>
-            <input type="text" id="caste" name="caste" />
+          <div class="form-field" id="casteField">
+            <label for="caste">Caste<span class="req">*</span></label>
+            <input type="text" id="caste" name="caste" placeholder="Enter your caste" required/>
           </div>
 
-          <div class="form-field">
+          <div class="form-field" id="abcField">
             <label for="abcId">ABC ID / APAAR ID</label>
             <input type="text" id="abcId" name="abcId" placeholder="12-digit ID, if you have one" maxlength="12" />
+          </div>
+          <div class="form-field" id="aadhaarField">
+            <label>Aadhaar Number<span class="req">*</span></label>
+            <input type="text" id="aadhaarNumber" name="aadhaarNumber" placeholder="Enter your 12 digit Aadhar Number" inputmode="numeric" maxlength="12" pattern="[0-9]{12}" required>
+            <small id="aadhaarError"></small>
           </div>
           <div class="form-field">
             <label for="joiningDate">Campus Reporting Date<span class="req">*</span></label>
@@ -205,16 +227,16 @@
 
         <div class="form-grid">
           <div class="form-field">
+            <label for="faculty">Faculty<span class="req">*</span></label>
+            <select id="faculty" name="faculty" disabled required>
+              <option value="" selected>Select Institute First</option>
+            </select>
+          </div>
+          <div class="form-field">
             <label for="institute">Institute<span class="req">*</span></label>
             <select id="institute" name="institute" required>
               <option value="" selected disabled>Select Institute</option>
               <option value="Parul Institute of Engineering and Technology">Parul Institute of Engineering and Technology</option>
-            </select>
-          </div>
-          <div class="form-field">
-            <label for="faculty">Faculty<span class="req">*</span></label>
-            <select id="faculty" name="faculty" disabled required>
-              <option value="" selected>Select Institute First</option>
             </select>
           </div>
 
@@ -247,17 +269,7 @@
             </select>
           </div>
 
-          <div class="form-field">
-            <label for="admissionQuota">Admission Quota<span class="req">*</span></label>
-            <select id="admissionQuota" name="admissionQuota" required>
-              <option value="" selected disabled>Select</option>
-              <option value="General">General</option>
-              <option value="Management">Management</option>
-              <option value="NRI">NRI</option>
-              <option value="Sports">Sports</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+          
         </div>
       </section>
 
@@ -538,7 +550,7 @@
       </section>
 
       <!-- ============ EDUCATIONAL DETAILS ============ -->
-      <section class="form-card">
+      <section class="form-card" id="educationSection">
         <h2 class="section-title">
           <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 3l10 5-10 5L2 8l10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
@@ -604,6 +616,16 @@
         </div>
       </section>
 
+      <section class="form-card" id="internationalEducation" style="display:none;">
+        <h2 class="section-title">Educational Details</h2>
+        <div class="form-grid">
+            <div class="form-field">
+                <label for="aoLevelCertificate">Upload A/O Level Certificate<span class="req">*</span></label>
+                <input type="file" id="aoLevelCertificate" name="documents[aoLevelCertificate]" accept="application/pdf,image/*">
+            </div>
+        </div>
+      </section>
+
       <!-- ============ PROOF DOCUMENTS ============ -->
       <section class="form-card">
         <h2 class="section-title">
@@ -611,59 +633,55 @@
             <path d="M6 2h9l5 5v15H6V2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
             <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
           </svg>
-          Proof Documents
+          Upload Documents
         </h2>
 
-        <div class="form-grid">
-          <div class="form-field">
-            <label for="aadhaarNumber">Aadhaar Number</label>
-            <input type="text" id="aadhaarNumber" name="documents[aadhaarNumber]" maxlength="12" placeholder="12-digit number" />
+        <div class="form-grid" id="indianDocuments">
+          <div class="form-field" id="aadhaarUploadField">
+            <label for="aadhaarProof">Aadhaar Card Upload<span class="req">*</span></label>
+            <input type="file" id="aadhaarProof" name="documents[aadhaarProof]" accept="application/pdf,image/*">
           </div>
-          <div class="form-field">
+
+          <div class="form-field" id="abcProofField">
             <label for="abcIdProof">ABC ID / APAAR ID Proof</label>
             <input type="file" id="abcIdProof" name="documents[abcIdProof]" accept="application/pdf,image/*" />
           </div>
 
-          <div class="form-field">
+          <div class="form-field" id="casteProofField">
             <label for="casteProof">Caste Certificate</label>
             <input type="file" id="casteProof" name="documents[casteProof]" accept="application/pdf,image/*" />
           </div>
-          <div class="form-field">
-            <label for="nationalityProof">Nationality Proof<span class="req">*</span></label>
-            <input type="file" id="nationalityProof" name="documents[nationalityProof]" accept="application/pdf,image/*" />
-          </div>
-
           
-      <div class="form-field">
+          <div class="form-field" id="leavingCertificateField">
             <label for="leavingCertificate">Leaving Certificate<span class="req">*</span></label>
             <input type="file" id="leavingCertificate" name="documents[leavingCertificate]" accept="application/pdf,image/*" />
           </div>
         </div>
-      </section>
+      <!-- </section> -->
 
       <!-- ============ INTERNATIONAL STUDENT DOCUMENTS ============ -->
       <!-- Hidden by default. Shown + made required only when Nationality = Other.
            Toggled in studentRegistration.js (mirrors the Hostel toggle pattern). -->
-      <section class="form-card" id="internationalDocsSection" style="display:none;">
+      <!-- <section class="form-card" id="internationalDocsSection" style="display:none;"> -->
         <h2 class="section-title">
           <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 2h9l5 5v15H6V2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
             <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
           </svg>
-          International Student Documents
+          Upload Documents
         </h2>
         <p class="field-hint section-note">Required only when Nationality is set to "Other".</p>
 
-        <div class="form-grid">
-          <div class="form-field">
+        <div class="form-grid" id="internationalDocuments">
+          <!-- <div class="form-field" id="aoLevelCertificateField">
             <label for="aoLevelCertificate">A/O Level Certificate<span class="req">*</span></label>
             <input type="file" id="aoLevelCertificate" name="documents[aoLevelCertificate]" accept="application/pdf,image/*" />
-          </div>
-          <div class="form-field">
-            <label for="puOfferLetter">PU Offer Letter<span class="req">*</span></label>
+          </div> -->
+          <div class="form-field" id="puAdmissionLetterField">
+            <label for="puOfferLetter">PU Admission Letter<span class="req">*</span></label>
             <input type="file" id="puOfferLetter" name="documents[puOfferLetter]" accept="application/pdf,image/*" />
           </div>
-          <div class="form-field">
+          <div class="form-field" id="passportUploadField">
             <label for="passport">Passport<span class="req">*</span></label>
             <input type="file" id="passport" name="documents[passport]" accept="application/pdf,image/*" />
           </div>

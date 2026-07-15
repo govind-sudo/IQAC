@@ -117,6 +117,81 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!show) hostelNameInput.value = "";
   });
 
+  /* ============ NATIONALITY TOGGLE ============ */
+
+  const nationalityType = document.getElementById("nationalityType");
+
+  const nationalityField = document.getElementById("nationalityField");
+  const nationalityInput = document.getElementById("nationality");
+
+  const passportNumberField = document.getElementById("passportNumberField");
+  const passportNumber = document.getElementById("passportNumber");
+
+  const categoryField = document.getElementById("categoryField");
+  const casteField = document.getElementById("casteField");
+  const abcField = document.getElementById("abcField");
+  const aadhaarField = document.getElementById("aadhaarField");
+
+  const educationSection = document.getElementById("educationSection");
+  const internationalEducation = document.getElementById("internationalEducation");
+
+  const indianDocuments = document.getElementById("indianDocuments");
+  const internationalDocuments = document.getElementById("internationalDocuments");
+  function toggleNationalityFields() {
+
+      const isIndian = nationalityType.value === "Indian";
+
+      // ---------------------------
+      // Nationality textbox
+      // ---------------------------
+
+      nationalityField.style.display = isIndian ? "none" : "flex";
+
+      nationalityInput.required = !isIndian;
+
+      if (isIndian)
+          nationalityInput.value = "Indian";
+      else 
+          nationalityInput.value = "";
+
+
+
+      // ---------------------------
+      // Passport Number
+      // ---------------------------
+
+      passportNumberField.style.display = isIndian ? "none" : "flex";
+
+      passportNumber.required = !isIndian;
+
+      if (isIndian)
+          passportNumber.value = "";
+
+      // ---------------------------
+      // Indian-only fields
+      // ---------------------------
+
+      categoryField.style.display = isIndian ? "flex" : "none";
+      casteField.style.display = isIndian ? "flex" : "none";
+      abcField.style.display = isIndian ? "flex" : "none";
+      aadhaarField.style.display = isIndian ? "flex" : "none";
+
+      // ---------------------------
+      // Education
+      // ---------------------------
+
+      educationSection.style.display = isIndian ? "block" : "none";
+      internationalEducation.style.display = isIndian ? "none" : "block";
+
+      // ---------------------------
+      // Documents
+      // ---------------------------
+
+      indianDocuments.style.display = isIndian ? "grid" : "none";
+      internationalDocuments.style.display = isIndian ? "none" : "grid";
+  }
+  nationalityType.addEventListener("change", toggleNationalityFields);
+
   /* ============ NATIONALITY TOGGLE (INTERNATIONAL DOCUMENTS) ============ */
   const nationality = document.getElementById("nationality");
   const internationalDocsSection = document.getElementById("internationalDocsSection");
@@ -362,6 +437,6 @@ function setupDistrictPopulation(stateId, districtId) {
 // Wire up both address sections
 setupDistrictPopulation('presState', 'presDistrict');
 setupDistrictPopulation('permState', 'permDistrict');
-
+toggleNationalityFields();
 
 });

@@ -45,3 +45,79 @@ caste proof not required
 
 FINAL:
 
+First Ask nationality.
+
+Then: 
+
+FOR FOREIGN STUDENTS: 
+We Require: 
+    Nationality: (Ask by a textbox)
+    Passport Number (Textbox) in Basic info section after nationality.
+    Passport Upload in document upload section.
+    PU addmission Letter
+    Education Section: Upload A/O Level Certificate
+
+
+
+And Hide: {
+    Category
+    Caste
+    ABC/ APAAR ID
+    Education Details Section which asks 10th, 12th/diploma.
+}
+
+
+
+For Indains:
+We require: 
+    Category
+    Caste
+    ABC/ APAAR ID
+    Aadhar Card Number in Basic Information Section not in proof document section
+    Education Details Section.
+    In Proof Document Section:
+        Leaving Certificate Upload
+        Aadhar Card Upload
+        ABC/ APAAR Identity
+        Caste Certificate upload required for all Category except General.
+
+We Hide:
+    A/O Level Certificate
+    Passport Upload
+    PU addmission Letter
+    Passport number
+    
+
+
+
+
+For Both Foreign and Indians
+We require: 
+    Religion (Text Box)
+
+remove completely:
+    Nationality Proof upload
+
+
+Add: Phone Code JSON. and Dropdown  at all places where phone number required.
+
+
+If students select reside inside hostel YES and a hostel name from thed drop down then For their present address , make india, gujarat, Vadodara, Waghodia in city. as default, and students can change, do not lock them.
+
+While typing this addhar. It should live verify that it is of 12 digits of not .
+
+Make aadhar type as number
+
+Make apaar id upload in schema, not in front / EJS. Make it invisible.
+
+
+Make data type of all numbers in number
+
+
+Also live check the basic verifications like phone number is of 10 digits or not for India.
+I don't know about other country.
+
+And other basic verifications.
+
+
+Now make necessary changes in schema, and other files whereever required.
