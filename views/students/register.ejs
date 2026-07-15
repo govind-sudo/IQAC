@@ -632,9 +632,39 @@
             <input type="file" id="nationalityProof" name="documents[nationalityProof]" accept="application/pdf,image/*" />
           </div>
 
-          <div class="form-field">
+          
+      <div class="form-field">
             <label for="leavingCertificate">Leaving Certificate<span class="req">*</span></label>
             <input type="file" id="leavingCertificate" name="documents[leavingCertificate]" accept="application/pdf,image/*" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INTERNATIONAL STUDENT DOCUMENTS ============ -->
+      <!-- Hidden by default. Shown + made required only when Nationality = Other.
+           Toggled in studentRegistration.js (mirrors the Hostel toggle pattern). -->
+      <section class="form-card" id="internationalDocsSection" style="display:none;">
+        <h2 class="section-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 2h9l5 5v15H6V2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M14 2v5h5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          International Student Documents
+        </h2>
+        <p class="field-hint section-note">Required only when Nationality is set to "Other".</p>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="aoLevelCertificate">A/O Level Certificate<span class="req">*</span></label>
+            <input type="file" id="aoLevelCertificate" name="documents[aoLevelCertificate]" accept="application/pdf,image/*" />
+          </div>
+          <div class="form-field">
+            <label for="puOfferLetter">PU Offer Letter<span class="req">*</span></label>
+            <input type="file" id="puOfferLetter" name="documents[puOfferLetter]" accept="application/pdf,image/*" />
+          </div>
+          <div class="form-field">
+            <label for="passport">Passport<span class="req">*</span></label>
+            <input type="file" id="passport" name="documents[passport]" accept="application/pdf,image/*" />
           </div>
         </div>
       </section>

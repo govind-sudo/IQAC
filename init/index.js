@@ -89,6 +89,36 @@ function normalizeCategory(value) {
   }
 }
 
+// Registration form's nationality <select> only ever submits "Indian" or
+// "Other" (see register.ejs). Any legacy/seed value that isn't exactly
+// "Indian" is normalized to "Other" so downstream logic (e.g. which
+// document uploads are required) behaves the same as it does for live
+// registrations.
+function normalizeNationality(value) {
+  if (!value) return "Indian";
+  return String(value).trim().toLowerCase() === "indian" ? "Indian" : "Other";
+}
+
+// International students (nationality === "Other") must supply the same
+// 3 documents that registrationController.js requires at signup:
+// aoLevelCertificate, puOfferLetter, passport. This does NOT block
+// seeding — it just flags incomplete seed records so bad data doesn't
+// silently make it into the database.
+function validateInternationalDocuments(raw, nationality) {
+  if (nationality !== "Other") return;
+
+  const missing = [];
+  if (!raw.documents?.aoLevelCertificate) missing.push("aoLevelCertificate");
+  if (!raw.documents?.puOfferLetter) missing.push("puOfferLetter");
+  if (!raw.documents?.passport) missing.push("passport");
+
+  if (missing.length) {
+    console.warn(
+      `⚠️  ${raw.firstName || "Unknown"} ${raw.lastName || ""} has nationality "Other" but is missing: ${missing.join(", ")}`
+    );
+  }
+}
+
 function normalizeQuota(value) {
   if (!value) return "Other";
 
@@ -132,6 +162,9 @@ async function cleanRecord(raw) {
 
   const hash = await bcrypt.hash(passwordString, 10);
 
+  const nationality = normalizeNationality(raw.nationality);
+  validateInternationalDocuments(raw, nationality);
+
   return {
     // ---------- Personal ----------
     title: raw.title === "Miss" ? "Ms" : raw.title,
@@ -151,8 +184,7 @@ async function cleanRecord(raw) {
     religion: raw.religion,
     caste: raw.caste,
 
-    nationality: raw.nationality || "Indian",
-
+    nationality,
     state:
       raw.state ||
       raw.presentAddress?.state,
@@ -371,6 +403,9 @@ async function cleanRecord(raw) {
 
     // ---------- Documents ----------
 
+    // Passed through as-is — aoLevelCertificate, puOfferLetter, and
+    // passport (added for international students) flow through here
+    // automatically, same as every other documents.* field.
     documents:
       raw.documents || undefined,
 

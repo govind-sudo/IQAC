@@ -83,10 +83,31 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
+    // if (body.residesInHostel === 'true' && !body.hostelName) {
+    //   return res.status(400).render('students/register', {
+    //     error: 'Please select a hostel since you indicated you reside in a PU hostel.',
+    //   });
+    // }
     if (body.residesInHostel === 'true' && !body.hostelName) {
       return res.status(400).render('students/register', {
         error: 'Please select a hostel since you indicated you reside in a PU hostel.',
       });
+    }
+
+    // International students (Nationality = "Other") must supply three
+    // additional proof documents. Indian students are exempt — mirrors the
+    // hostel check above.
+    if (body.nationality === 'Other') {
+      const missingIntlDocs = [];
+      if (!body.documents?.aoLevelCertificate) missingIntlDocs.push('A/O Level Certificate');
+      if (!body.documents?.puOfferLetter) missingIntlDocs.push('PU Offer Letter');
+      if (!body.documents?.passport) missingIntlDocs.push('Passport');
+
+      if (missingIntlDocs.length) {
+        return res.status(400).render('students/register', {
+          error: `International students must upload: ${missingIntlDocs.join(', ')}.`,
+        });
+      }
     }
 
     // ---------- 3. Normalize identifiers ----------
@@ -209,13 +230,18 @@ exports.registerStudent = async (req, res) => {
 
       education,
 
-      documents: body.documents
+
+    documents: body.documents
         ? {
             abcIdProof: body.documents.abcIdProof || undefined,
             casteProof: body.documents.casteProof || undefined,
             nationalityProof: body.documents.nationalityProof || undefined,
             leavingCertificate: body.documents.leavingCertificate || undefined,
             aadhaarNumber: body.documents.aadhaarNumber || undefined,
+            // International students only (nationality === 'Other')
+            aoLevelCertificate: body.documents.aoLevelCertificate || undefined,
+            puOfferLetter: body.documents.puOfferLetter || undefined,
+            passport: body.documents.passport || undefined,
           }
         : undefined,
     });

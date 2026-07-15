@@ -104,13 +104,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const hostelNameField = document.getElementById("hostelNameField");
   const hostelNameInput = document.getElementById("hostelName");
 
-  residesInHostel.addEventListener("change", () => {
+  // residesInHostel.addEventListener("change", () => {
+  //   const show = residesInHostel.value === "true";
+  //   hostelNameField.style.display = show ? "flex" : "none";
+  //   hostelNameInput.required = show;
+  //   if (!show) hostelNameInput.value = "";
+  // });
+      residesInHostel.addEventListener("change", () => {
     const show = residesInHostel.value === "true";
     hostelNameField.style.display = show ? "flex" : "none";
     hostelNameInput.required = show;
     if (!show) hostelNameInput.value = "";
   });
 
+  /* ============ NATIONALITY TOGGLE (INTERNATIONAL DOCUMENTS) ============ */
+  const nationality = document.getElementById("nationality");
+  const internationalDocsSection = document.getElementById("internationalDocsSection");
+  const aoLevelCertificateInput = document.getElementById("aoLevelCertificate");
+  const puOfferLetterInput = document.getElementById("puOfferLetter");
+  const passportInput = document.getElementById("passport");
+
+  function toggleInternationalDocs() {
+    const show = nationality.value === "Other";
+    internationalDocsSection.style.display = show ? "block" : "none";
+    [aoLevelCertificateInput, puOfferLetterInput, passportInput].forEach((input) => {
+      input.required = show;
+      if (!show) input.value = ""; // clear any previously selected file
+    });
+  }
+
+  nationality.addEventListener("change", toggleInternationalDocs);
   /* ============ SAME AS PRESENT ADDRESS ============ */
   // const sameAsPresent = document.getElementById("sameAsPresent");
 
