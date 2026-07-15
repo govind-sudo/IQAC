@@ -305,7 +305,8 @@ exports.registerStudent = async (req, res) => {
 
     await student.save();
 
-    return res.redirect('/login?registered=true');
+    // return res.redirect('/login?registered=true');
+    return res.render("students/registerSuccess");
   } catch (err) {
     if (err.name === 'ValidationError') {
       const messages = Object.values(err.errors).map((e) => e.message);
