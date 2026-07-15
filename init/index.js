@@ -197,6 +197,11 @@ async function cleanRecord(raw) {
     enrollmentNo:
       raw.enrollmentNo || undefined,
 
+    ugNumber:
+      raw.ugNumber
+        ? String(raw.ugNumber).trim().toUpperCase()
+        : undefined,
+
     // ---------- Academic ----------
 
     faculty:
@@ -374,8 +379,9 @@ async function cleanRecord(raw) {
     abcId:
       raw.abcId || undefined,
 
-    // Aadhaar intentionally omitted because
-    // your current Student schema doesn't have it.
+    // NOTE: Aadhaar is NOT omitted — it lives inside the `documents`
+    // sub-object above (documents.aadhaarNumber), which is passed through
+    // in full via `documents: raw.documents || undefined`.
 
     // ---------- Role ----------
 
