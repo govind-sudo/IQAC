@@ -48,9 +48,14 @@ async function main() {
 // ---------------- Auth routes ----------------
 // These handle: GET/POST /login, GET /logout,
 // POST /auth/enrollment-check, GET /auth/google, GET /auth/google/callback
+// app.use(require("./routes/authRoutes"));
+// app.use(require("./routes/googleAuthRoutes"));
+// app.use("/admin", require("./routes/adminRoutes"));
+
 app.use(require("./routes/authRoutes"));
 app.use(require("./routes/googleAuthRoutes"));
-app.use("/admin", require("./routes/adminRoutes"));
+app.use("/admin", require("./routes/adminRoutes"));   // keep
+app.use(require("./routes/registrationRoutes"));
 
 app.get('/', (req, res)=>{
   return res.redirect('/login');
@@ -85,9 +90,6 @@ app.get("/students/help", (req, res) => {
   res.render("students/help", { currentPage: "help" });
 });
 
-app.get("/register", (req, res) => {
-  res.render("students/register");
-});
 
 app.listen(3000, () => {
   console.log("server is listening on 3000");
