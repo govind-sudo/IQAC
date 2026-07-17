@@ -1,0 +1,195 @@
+/* ==========================================================================
+   CONTACT AND ADDRESS STYLESHEET
+   ========================================================================== */
+
+.personal-info-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.info-section-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+/* Header Config */
+.section-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+}
+
+.section-title-icon {
+    color: var(--primary) !important;
+    font-size: 24px !important;
+}
+
+.section-card-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* Grid & Structure */
+.academic-sub-section {
+    margin-bottom: 28px;
+}
+
+.academic-section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.academic-fields-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.academic-fields-grid.split-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.academic-row-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: #F8FAFC;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: transform 0.2s ease;
+}
+
+.academic-row-item.span-full {
+    grid-column: 1 / -1;
+}
+
+.academic-icon-wrapper {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* Specialized Icon Profiles */
+.whatsapp-icon {
+    color: #25D366;
+    border-color: #DCFCE7;
+}
+
+.emergency-icon {
+    color: var(--danger);
+    background: var(--danger-bg);
+    border-color: #FEE2E2;
+}
+
+.emergency-alert-card {
+    background: #FFFDFD;
+    border-color: #FEE2E2;
+}
+
+.academic-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.academic-label {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.text-danger-light {
+    color: #EF4444;
+}
+
+.academic-value {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Nested Text Components for Family & Emergency */
+.parent-sub-info {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-top: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.parent-sub-info i {
+    font-size: 11px;
+    width: 12px;
+}
+
+.emergency-phone {
+    font-size: 14px;
+    color: var(--danger);
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.academic-divider {
+    border: 0;
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+}
+
+/* ==========================================================================
+   HOVER LIFTS & ELASTIC TRANSITIONS
+   ========================================================================== */
+.contact-card {
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                border-color 0.3s ease;
+    will-change: transform, box-shadow;
+}
+
+.contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(79, 70, 229, 0.06), 
+                0 4px 20px -2px rgba(0, 0, 0, 0.03);
+    border-color: rgba(79, 70, 229, 0.15);
+}
+
+.contact-card:hover .academic-row-item:hover {
+    transform: translateX(4px);
+}
+
+/* ==========================================================================
+   RESPONSIVE COMPRESSION (MOBILE VIEWS)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .academic-fields-grid.split-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-section-card {
+        padding: 20px;
+    }
+}

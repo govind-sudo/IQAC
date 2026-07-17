@@ -1,0 +1,384 @@
+/* ==========================================================================
+   DOCUMENTS INFORMATION VIEW STYLESHEET
+   ========================================================================== */
+
+.documents-info-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.documents-card {
+    background: var(--surface, #ffffff);
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid var(--border, #e5e7eb);
+    box-shadow: var(--shadow);
+}
+
+/* Header UI Elements */
+.section-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border, #e5e7eb);
+    padding-bottom: 20px;
+}
+
+.section-title-icon {
+    color: var(--primary, #4f46e5) !important;
+    font-size: 24px !important;
+}
+
+.section-card-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text, #1f2937);
+}
+
+/* Sub-sections layout details */
+.academic-sub-section {
+    margin-bottom: 28px;
+}
+
+.academic-section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-light, #6b7280);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Document List Grid */
+.documents-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.document-item-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    background: #F8FAFC;
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 14px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.document-item-box:hover {
+    transform: translateX(6px);
+    background: #F1F5F9;
+    border-color: rgba(79, 70, 229, 0.2);
+}
+
+/* Structural Components */
+.document-meta-side {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.doc-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.doc-icon-wrapper.identification {
+    background: #EEF2FF;
+    color: #4F46E5;
+    border: 1px solid #E0E7FF;
+}
+
+.doc-icon-wrapper.media {
+    background: #ECFDF5;
+    color: #10B981;
+    border: 1px solid #D1FAE5;
+}
+
+.doc-text-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.doc-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-light, #6b7280);
+}
+
+.doc-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text, #1f2937);
+}
+
+.doc-value-status {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748B;
+}
+
+.font-monospace {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    letter-spacing: 0.5px;
+}
+
+/* Badges for File Upload States */
+.file-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.file-status-badge.uploaded {
+    background: #E0F2FE;
+    color: #0369A1;
+    border: 1px solid #BAE6FD;
+}
+
+.file-status-badge.uploaded:hover {
+    background: #0369A1;
+    color: #FFFFFF;
+}
+
+.file-status-badge.missing {
+    background: #FFF1F2;
+    color: #E11D48;
+    border: 1px solid #FFE4E6;
+    cursor: default;
+}
+
+.academic-divider {
+    border: 0;
+    height: 1px;
+    background: var(--border, #e5e7eb);
+    margin: 28px 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT RESPONSES
+   ========================================================================== */
+@media (max-width: 768px) {
+    .document-item-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .document-file-side {
+        width: 100%;
+    }
+
+    .file-status-badge {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Custom Document Categorizations */
+.text-fields-only {
+    display: flex;
+    gap: 24px;
+    background: #F8FAFC;
+    padding: 16px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border, #e5e7eb);
+}
+
+.detail-text-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 150px;
+}
+
+.detail-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-light, #6b7280);
+    letter-spacing: 0.5px;
+}
+
+.detail-val {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text, #1f2937);
+}
+
+.doc-icon-wrapper.validation {
+    background: #FEF3C7;
+    color: #D97706;
+    border: 1px solid #FCD34D;
+}
+
+.conditional-required {
+    border-left: 4px solid #EF4444;
+}
+
+/* Link Box styling elements */
+.link-box {
+    background: #F0FDF4;
+    border-color: #DCFCE7;
+}
+
+.forward-link {
+    background: var(--primary, #4f46e5);
+    color: #FFFFFF !important;
+    border: 1px solid transparent;
+}
+
+.forward-link:hover {
+    background: #4338ca;
+    transform: scale(1.02);
+}
+
+/* ==========================================================================
+   POPUP MODAL ANIMATED CONTAINER STYLES
+   ========================================================================== */
+
+.doc-popup-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999; /* Ensure it floats above sidebars and headers */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s, opacity 0.3s ease-in-out;
+}
+
+.doc-popup-modal.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.doc-popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* Translucent dark backdrop blurring */
+    backdrop-filter: blur(4px);
+}
+
+.doc-popup-wrapper {
+    position: relative;
+    background: #FFFFFF;
+    width: 85%;
+    max-width: 950px;
+    height: 85vh;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.doc-popup-modal.active .doc-popup-wrapper {
+    transform: scale(1);
+}
+
+/* Modal Internal Headers */
+.doc-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--primary, #4F46E5);
+}
+
+.header-left i {
+    font-size: 18px;
+}
+
+.header-left h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text, #1F2937);
+    margin: 0;
+}
+
+.doc-popup-close-btn {
+    background: #F1F5F9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.doc-popup-close-btn:hover {
+    background: #E2E8F0;
+    color: #0F172A;
+}
+
+/* Modal Frame body layout */
+.doc-popup-body {
+    flex-grow: 1;
+    background: #64748B; /* Neutral desktop document backdrop color */
+    position: relative;
+}
+
+#modalDocFrame {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #FFFFFF;
+}
+
+/* Standardize trigger button behavior instead of raw anchors */
+button.file-status-badge.uploaded {
+    border: 1px solid #BAE6FD;
+    cursor: pointer;
+    background: #E0F2FE;
+    color: #0369A1;
+    font-family: inherit;
+    outline: none;
+}
+
+button.file-status-badge.uploaded:hover {
+    background: #0369A1;
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}

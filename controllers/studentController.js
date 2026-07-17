@@ -60,3 +60,38 @@ exports.getAcademicPage = async (req, res, next) => {
     next(err);
   }
 };
+
+// GET /students/contact
+exports.getContactPage = async (req, res, next) => {
+  try {
+    // Retrieve the student database document using the working session ID
+    const student = await Student.findById(req.session.userId);
+    
+    if (!student) {
+      return res.redirect('/login');
+    }
+
+    // Render the contact view, passing down the live database object
+    res.render("students/contact", { 
+        student, 
+        currentPage: "contact" 
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// GET /students/documents
+exports.getDocumentsPage = async (req, res, next) => {
+  try {
+    const student = await Student.findById(req.session.userId);
+    if (!student) return res.redirect('/login');
+
+    res.render("students/documents", { 
+        student, 
+        currentPage: "documents" 
+    });
+  } catch (err) {
+    next(err);
+  }
+};

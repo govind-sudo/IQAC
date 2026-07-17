@@ -84,18 +84,18 @@ app.use("/students", require("./routes/studentRoutes"));
 //   res.render("students/academic", { currentPage: "academic" });
 // });
 
-app.get("/students/documents", (req, res) => {
-  res.render("students/documents", { currentPage: "documents" });
-});
+// app.get("/students/documents", (req, res) => {
+//   res.render("students/documents", { currentPage: "documents" });
+// });
 
-app.get("/students/addresses", (req, res) => {
-  res.render("students/addresses", { currentPage: "addresses" });
-});
+// app.get("/students/addresses", (req, res) => {
+//   res.render("students/addresses", { currentPage: "addresses" });
+// });
 
 
-app.get("/students/contact", (req, res) => {
-  res.render("students/contact", { currentPage: "contact" });
-});
+// app.get("/students/contact", (req, res) => {
+//   res.render("students/contact", { currentPage: "contact" });
+// });
 
 
 app.get("/students/help", (req, res) => {

@@ -1,2 +1,146 @@
-<% layout("layout/studentsBoilerPlate") %>
-contact
+<% layout('layout/studentsBoilerPlate') %>
+
+<link rel="stylesheet" href="/css/students/studentsContact.css">
+
+<div class="personal-info-container">
+    <!-- Main Content Card Wrapper -->
+    <div class="info-section-card contact-card">
+        
+        <div class="section-card-header">
+            <div class="section-title-icon">
+                <i class="fa-solid fa-address-book"></i>
+            </div>
+            <h3>Contact & Family Details</h3>
+        </div>
+
+        <div class="academic-card-body">
+            
+            <!-- SECTION 1: Personal Communication -->
+            <div class="academic-sub-section">
+                <h4 class="academic-section-title">Communication Details</h4>
+                
+                <div class="academic-fields-grid split-2">
+                    <!-- Mobile Number -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Mobile Number</span>
+                            <span class="academic-value">
+                                <%= student.phone ? ((student.phoneCode || '+91') + ' ' + student.phone) : 'Not Given' %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Number -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper whatsapp-icon">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">WhatsApp Number</span>
+                            <span class="academic-value">
+                                <%= student.whatsapp ? ((student.phoneCode || '+91') + ' ' + student.whatsapp) : 'Not Given' %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Primary Email -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Primary Email</span>
+                            <span class="academic-value"><%= student.email || 'Not Given' %></span>
+                        </div>
+                    </div>
+
+                    <!-- Alternate Email -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-regular fa-envelope"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Alternate Email</span>
+                            <span class="academic-value"><%= student.alternateEmail || 'Not Given' %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="academic-divider">
+
+            <!-- SECTION 2: Parents Information -->
+            <div class="academic-sub-section">
+                <h4 class="academic-section-title">Parents Information</h4>
+                
+                <div class="academic-fields-grid split-2">
+                    <!-- Father's Details -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Father's Name</span>
+                            <span class="academic-value"><%= (student.father && student.father.name) ? student.father.name : 'Not Given' %></span>
+                            <% if (student.father && student.father.phone) { %>
+                                <span class="parent-sub-info"><i class="fa-solid fa-phone-flip"></i> <%= student.father.phoneCode || '+91' %> <%= student.father.phone %></span>
+                            <% } %>
+                            <% if (student.father && student.father.email) { %>
+                                <span class="parent-sub-info"><i class="fa-solid fa-envelope"></i> <%= student.father.email %></span>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Mother's Details -->
+                   <!-- Mother's Details -->
+<div class="academic-row-item">
+    <div class="academic-icon-wrapper" style="color: #EC4899; border-color: #FCE7F3;">
+        <i class="fa-solid fa-user"></i>
+    </div>
+    <div class="academic-details">
+        <span class="academic-label">Mother's Name</span>
+        <span class="academic-value"><%= (student.mother && student.mother.name) ? student.mother.name : 'Not Given' %></span>
+        <% if (student.mother && student.mother.phone) { %>
+            <span class="parent-sub-info"><i class="fa-solid fa-phone-flip"></i> <%= student.mother.phoneCode || '+91' %> <%= student.mother.phone %></span>
+        <% } %>
+        <% if (student.mother && student.mother.email) { %>
+            <span class="parent-sub-info"><i class="fa-solid fa-envelope"></i> <%= student.mother.email %></span>
+        <% } %>
+    </div>
+</div>
+                </div>
+            </div>
+
+            <hr class="academic-divider">
+
+            <!-- SECTION 3: Emergency Contact -->
+            <div class="academic-sub-section">
+                <h4 class="academic-section-title">Emergency Contact</h4>
+                
+                <div class="academic-fields-grid">
+                    <!-- Emergency Person -->
+                    <div class="academic-row-item span-full emergency-alert-card">
+                        <div class="academic-icon-wrapper emergency-icon">
+                            <i class="fa-solid fa-shield-heart"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label text-danger-light">Emergency Contact Person</span>
+                            <span class="academic-value">
+                                <%= (student.emergencyContact && student.emergencyContact.name) ? student.emergencyContact.name : 'Not Given' %>
+                            </span>
+                            <% if (student.emergencyContact && student.emergencyContact.phone) { %>
+                                <span class="emergency-phone">
+                                    <i class="fa-solid fa-phone"></i> <%= student.emergencyContact.phoneCode || '+91' %> <%= student.emergencyContact.phone %>
+                                </span>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

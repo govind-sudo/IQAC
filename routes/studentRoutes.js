@@ -8,7 +8,13 @@ router.get('/dashboard', requireAuth, requireRole('student'), studentController.
 // Personal Information Route
 router.get('/personal', requireAuth, requireRole('student'), studentController.getPersonalPage);
 
-// Academic Information Route (New Setup)
+// Academic Information Route
 router.get('/academic', requireAuth, requireRole('student'), studentController.getAcademicPage);
+
+// Contact & Address Information Route
+router.get('/contact', requireAuth, requireRole('student'), studentController.getContactPage);
+
+//documents information
+router.get('/documents', requireAuth, requireRole('student'), studentController.getDocumentsPage);
 
 module.exports = router;
