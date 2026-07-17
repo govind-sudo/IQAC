@@ -18,48 +18,11 @@ const greeting =
         ? "Good Afternoon"
         : "Good Evening";
 
-	/* =========================
-   PROFILE COMPLETION
-========================= */
-
 function filled(value) {
     return value !== undefined &&
            value !== null &&
            value !== "";
 }
-
-
-
-const fields = [
-    studentInfo.firstName,
-    studentInfo.lastName,
-    studentInfo.gender,
-    studentInfo.dob,
-    studentInfo.bloodGroup,
-    studentInfo.category,
-    studentInfo.email,
-    studentInfo.phone,
-    studentInfo.whatsapp,
-    studentInfo.course,
-    studentInfo.branch,
-    studentInfo.institute,
-    studentInfo.admissionYear,
-    studentInfo.enrollmentNo,
-    studentInfo.ugNumber,
-    studentInfo.presentAddress?.city,
-    studentInfo.presentAddress?.state,
-    studentInfo.permanentAddress?.city,
-    studentInfo.father?.name,
-    studentInfo.mother?.name,
-    studentInfo.emergencyContact?.name
-];
-
-const completedFields = fields.filter(filled).length;
-
-const profilePercent = Math.round(
-    (completedFields / fields.length) * 100
-);
-
 
 /* =====================================
    SECTIONAL COMPLETION TRACKING
@@ -108,6 +71,12 @@ const sectionsList = [
     { label: "Emergency & Parents", pct: emergencyPct }
 ];
 
+/* =====================================
+   UNIFIED GLOBAL PROFILE COMPLETION
+====================================== */
+const profilePercent = Math.round(
+    (personalPct + academicPct + contactPct + documentsPct + emergencyPct) / 5
+);
 %>
 
 <div class="dashboard">

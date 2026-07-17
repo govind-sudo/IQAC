@@ -2105,3 +2105,86 @@
     transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+@media (max-width: 768px) {
+    /* 1. Adds explicit vertical spacing between each document item card */
+    .documents-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px; 
+    }
+
+    /* 2. Forces the elements to align horizontally on the exact same row */
+    .document-item {
+        display: flex !important;
+        flex-direction: row !important; 
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 14px 16px !important; /* Adjusts inner padding for cleaner mobile tap areas */
+        width: 100%;
+    }
+
+    /* 3. Ensures the left section (icon + name) behaves cleanly */
+    .document-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        flex-shrink: 1;
+        min-width: 0; /* Prevents long titles from pushing the status badge off-screen */
+    }
+
+    /* 4. Keeps the status block locked to the right margin without linebreaks */
+    .document-right {
+        flex-shrink: 0; 
+        margin-top: 0 !important; /* Removes any top margin that was pushing it downward */
+        display: flex;
+        align-items: center;
+    }
+
+    /* 5. Clean sizing adjust for text containment */
+    .doc-name {
+        font-size: 14px;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Forces the side-by-side container to stack vertically */
+    .academic-row {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px; /* Matches the vertical spacing of the other items */
+    }
+
+    /* Adjusts the individual small cards to take full width when stacked */
+    .academic-small {
+        width: 100% !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+}
+
+/* Universal fix for Card Headers to align icon and text on a single row */
+.card-header .title {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    white-space: nowrap !important; /* Prevents text from breaking into multiple lines */
+    gap: 12px !important;           /* Clean, consistent spacing between icon box and text */
+    width: 100%;
+}
+
+/* Ensure title icons do not shrink when headings expand */
+.title-icon {
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Base adjustment for heading tags inside the title group */
+.card-header .title h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+}
