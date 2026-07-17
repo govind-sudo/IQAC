@@ -2188,3 +2188,35 @@
     padding: 0 !important;
     line-height: 1.2 !important;
 }
+
+/* Apply layout spacing for document item rows on PC/Desktop */
+.documents-body {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important; /* Creates clear vertical gaps between each card background */
+}
+
+/* Base formatting for row styling alignment on desktop */
+.document-item {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 14px 16px !important;
+    width: 100%;
+}
+
+/* Ensure the card header spaces its components in a single row */
+.card-header {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100%;
+}
+
+/* Force the 'View All' link text to stay on a single line */
+.card-header a {
+    white-space: nowrap !important; /* Forces text onto a single row */
+    flex-shrink: 0 !important;      /* Prevents the text block from squishing */
+}
