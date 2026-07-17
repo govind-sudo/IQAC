@@ -25,6 +25,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Session + Passport — must come BEFORE any route that uses
 // req.session or passport.authenticate()
+
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'change-this-in-production',
@@ -74,17 +76,27 @@ app.use("/students", require("./routes/studentRoutes"));
 // REMOVED here on purpose — it's now handled by studentRoutes.js
 // with real database data instead of a blank render.
 
-app.get("/students/forms", (req, res) => {
-  res.render("students/forms", { currentPage: "forms" });
-});
+// app.get("/students/personal", (req, res) => {
+//   res.render("students/personal", { currentPage: "personal" });
+// });
+
+// app.get("/students/academic", (req, res) => {
+//   res.render("students/academic", { currentPage: "academic" });
+// });
 
 app.get("/students/documents", (req, res) => {
   res.render("students/documents", { currentPage: "documents" });
 });
 
-app.get("/students/notices", (req, res) => {
-  res.render("students/notices", { currentPage: "notices" });
+app.get("/students/addresses", (req, res) => {
+  res.render("students/addresses", { currentPage: "addresses" });
 });
+
+
+app.get("/students/contact", (req, res) => {
+  res.render("students/contact", { currentPage: "contact" });
+});
+
 
 app.get("/students/help", (req, res) => {
   res.render("students/help", { currentPage: "help" });

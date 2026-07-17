@@ -1,63 +1,122 @@
 <aside class="sidebar">
-  <div class="sidebar-top">
-    <div class="sidebar-logo">
-      <i class="fa-solid fa-graduation-cap logo-icon"></i>
-      <div class="logo-text">
-        <h1>IQAC</h1>
-        <p>Internal Quality Assurance for Students</p>
-      </div>
+
+    <!-- ===================== -->
+    <!-- Logo -->
+    <!-- ===================== -->
+
+    <div class="sidebar-top">
+
+        <div class="sidebar-logo">
+
+            <div class="logo-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+
+            <div class="logo-text">
+                <h2>IQAC</h2>
+                <p>Internal Quality</p>
+                <p>Assurance for Students</p>
+            </div>
+
+        </div>
+
+        <!-- ===================== -->
+        <!-- Navigation -->
+        <!-- ===================== -->
+
+        <nav class="sidebar-nav">
+
+            <ul>
+
+                <li class="<%= currentPage === 'dashboard' ? 'active' : '' %>">
+                    <a href="/students/dashboard">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="<%= currentPage === 'personal' ? 'active' : '' %>">
+                    <a href="/students/personal">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Personal Information</span>
+                    </a>
+                </li>
+
+                <li class="<%= currentPage === 'academic' ? 'active' : '' %>">
+                    <a href="/students/academic">
+                        <i class="fa-regular fa-building"></i>
+                        <span>Academic Details</span>
+                    </a>
+                </li>
+
+                <li class="<%= currentPage === 'documents' ? 'active' : '' %>">
+                    <a href="/students/documents">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <span>Documents</span>
+                    </a>
+                </li>
+
+                <li class="<%= currentPage === 'addresses' ? 'active' : '' %>">
+                    <a href="/students/addresses">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>My Addresses</span>
+                    </a>
+                </li>
+
+                <li class="<%= currentPage === 'contact' ? 'active' : '' %>">
+                    <a href="/students/contact">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Emergency & Parents</span>
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+
     </div>
 
-    <nav class="sidebar-nav">
-      <ul>
-        <li class="<%= currentPage === 'dashboard' ? 'active' : '' %>">
-          <a href="/students/dashboard">
-            <!-- <a href="/students/6a464a4f451fbabc3618ad2c/dashboard"> -->
-              <i class="fa-solid fa-house"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-        <li class="<%= currentPage === 'forms' ? 'active' : '' %>">
-          <a href="/students/forms">
-            <i class="fa-solid fa-file-lines"></i>
-            <span>Forms</span>
-          </a>
-        </li>
-        <li class="<%= currentPage === 'documents' ? 'active' : '' %>">
-          <a href="/students/documents">
-            <i class="fa-solid fa-folder"></i>
-            <span>Documents</span>
-          </a>
-        </li>
-        <li class="<%= currentPage === 'notices' ? 'active' : '' %>">
-          <a href="/students/notices">
-            <i class="fa-solid fa-bullhorn"></i>
-            <span>Notices</span>
-          </a>
-        </li>
-        <!-- <li class="<%= currentPage === 'help' ? 'active' : '' %>">
-          <a href="/students/help">
-            <i class="fa-regular fa-circle-question"></i>
-            <span>Help & Support</span>
-          </a>
-        </li> -->
-      </ul>
-    </nav>
-  </div>
 
-  <div class="sidebar-bottom">
-    <div class="help-card">
-      <p class="help-title">Need Help?</p>
-      <p class="help-text">If you face any issues, please contact your department.</p>
-      <a href="/students/help"><button class="contact-support-btn">
-        <i class="fa-regular fa-comment-dots"></i>
-        Contact Support
-      </button></a>
+
+    <!-- ===================== -->
+    <!-- Bottom -->
+    <!-- ===================== -->
+
+    <div class="sidebar-bottom">
+
+        <div class="help-card">
+
+            <div class="help-icon">
+                <i class="fa-solid fa-headset"></i>
+            </div>
+
+            <div class="help-content">
+
+                <h4>Need Help?</h4>
+
+                <p>
+                    If you face any issues,
+                    please contact your department.
+                </p>
+
+                <a href="/students/help" class="support-link">
+                    Contact Support
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <a href="/logout" class="logout-link">
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+            <span>Logout</span>
+
+        </a>
+
     </div>
 
-    <a href="/logout" class="logout-link">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      <span>Logout</span>
-    </a>
-  </div>
 </aside>

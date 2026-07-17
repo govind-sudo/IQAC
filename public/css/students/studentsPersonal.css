@@ -1,0 +1,470 @@
+/* ==========================================================================
+   1. GLOBAL LAYOUT & BASE CONTAINER ALIGNMENT
+   ========================================================================== */
+.personal-info-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 40px 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 2.1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.info-column-main, .info-column-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ==========================================================================
+   2. HERO HEADER BANNER
+   ========================================================================== */
+.profile-hero-card {
+    width: 100%;
+    background: #4F46E5;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.15);
+    position: relative;
+    box-sizing: border-box;
+}
+
+.profile-hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #5c54f2 0%, #4f46e5 100%);
+    z-index: 1;
+}
+
+.bg-abstract-blobs {
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    background: 
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 55%),
+        radial-gradient(circle at 95% 80%, rgba(255, 255, 255, 0.3) 0%, transparent 45%);
+}
+
+.profile-hero-content {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px;
+    gap: 32px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* --- Left Side Content --- */
+.profile-hero-left {
+    flex: 1.3;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-welcome-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.welcome-label {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+}
+
+.profile-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.profile-hero-left h2 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    text-transform: capitalize;
+}
+
+/* --- Status Badges --- */
+.status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.status-indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.status-incomplete { background: #FFF7ED; color: #EA580C; }
+.status-incomplete .status-indicator-dot { background: #EA580C; }
+
+.status-pending { background: #EFF6FF; color: #2563EB; }
+.status-pending .status-indicator-dot { background: #2563EB; }
+
+.status-verified { background: #ECFDF5; color: #059669; }
+.status-verified .status-indicator-dot { background: #059669; }
+
+/* --- Horizontal Info Badges --- */
+.profile-meta-tags {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.meta-tag {
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.meta-tag i {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 12px;
+    font-size: 13px;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.tag-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    padding: 0 6px 0 12px;
+}
+
+.tag-value {
+    color: #FFFFFF;
+    font-weight: 700;
+    padding-right: 14px;
+}
+
+/* --- Right Side Workspace Graphic & Avatar --- */
+.profile-hero-right {
+    flex: 0.7;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+}
+
+.illustration-workspace {
+    position: relative;
+    width: 220px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-glass-card {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 6px;
+    backdrop-filter: blur(16px);
+    z-index: 10;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    animation: float 2s ease-in-out infinite;
+}
+
+.profile-avatar-main {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    color: #4F46E5;
+    font-size: 24px;
+    font-weight: 800;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+}
+
+/* Graphic Shapes */
+.illustrator-backdrop-circle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    z-index: 2;
+}
+
+.illustrator-desk {
+    position: absolute;
+    bottom: 10px;
+    right: 0;
+    width: 120px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    z-index: 4;
+}
+
+.illustrator-laptop {
+    position: absolute;
+    bottom: 13px;
+    right: 25px;
+    width: 50px;
+    height: 35px;
+    z-index: 5;
+}
+
+.laptop-screen {
+    width: 100%;
+    height: 90%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.laptop-keyboard {
+    width: 110%;
+    height: 10%;
+    margin-left: -5%;
+    background: rgba(255, 255, 255, 0.45);
+    border-radius: 2px;
+}
+
+.illustrator-plant {
+    position: absolute;
+    bottom: 13px;
+    right: 85px;
+    width: 20px;
+    height: 30px;
+    z-index: 5;
+}
+
+.leaf {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50% 50% 0 50%;
+    transform-origin: bottom right;
+}
+.leaf-1 { width: 10px; height: 16px; bottom: 0; left: 5px; transform: rotate(15deg); }
+.leaf-2 { width: 8px; height: 13px; bottom: 3px; left: 0; transform: rotate(-25deg); border-radius: 50% 50% 50% 0; }
+.leaf-3 { width: 7px; height: 10px; bottom: 10px; left: 8px; transform: rotate(45deg); }
+
+@keyframes float {
+    0%, 100% { transform: translateY(-50%) translateX(0px); }
+    50% { transform: translateY(-56%) translateX(1px); }
+}
+
+/* ==========================================================================
+   3. INFORMATION SECTION CARDS & DATA FIELDS
+   ========================================================================== */
+.info-section-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+}
+
+.section-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #F1F5F9;
+    padding-bottom: 16px;
+}
+
+.section-title-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #EEF2FF;
+    color: #4F46E5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+}
+
+.section-card-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+.section-card-body {
+    display: grid;
+    gap: 20px;
+}
+
+.fields-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.fields-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.fields-grid-1 { grid-template-columns: 1fr; }
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748B;
+    text-transform: capitalize;
+}
+
+.form-control-static {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.secure-placeholder {
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   4. MEDIA RESPONSIVENESS (MUST REMAIN AT THE BOTTOM)
+   ========================================================================== */
+@media (max-width: 1100px) {
+    .info-grid {
+        grid-template-columns: 1fr; /* Collapses side-by-side columns cleanly */
+    }
+}
+
+@media (max-width: 768px) {
+    .personal-info-container {
+        padding: 0 16px 24px 16px; /* Optimized mobile padding */
+    }
+
+    /* Hero Banner Stacking Layout */
+    .profile-hero-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 32px 20px;
+        gap: 24px;
+    }
+
+    .profile-hero-left {
+        width: 100%;
+        align-items: center;
+    }
+
+    .profile-title-row {
+        justify-content: center;
+    }
+
+    .profile-meta-tags {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .meta-tag {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .meta-tag i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .profile-hero-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Form Fields Auto Collapse */
+    .fields-grid-3, .fields-grid-2 {
+        grid-template-columns: 1fr; /* All grids drop into simple, easy-to-read vertical rows */
+    }
+}
+
+/* ==========================================================================
+   INTERACTIVE CARD HOVER EFFECTS (PERSONAL INFO)
+   ========================================================================== */
+
+/* Target the core layout cards and the main hero banner */
+.profile-hero-card,
+.info-section-card {
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                border-color 0.3s ease;
+    will-change: transform, box-shadow;
+}
+
+/* Apply clean elevation lift and subtle brand glow on hover */
+.info-section-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(79, 70, 229, 0.06), 
+                0 4px 20px -2px rgba(0, 0, 0, 0.03);
+    border-color: rgba(79, 70, 229, 0.15);
+}
+
+/* Distinct interaction behavior for the decorative top hero banner */
+.profile-hero-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px -12px rgba(79, 70, 229, 0.15), 
+                0 4px 24px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* Micro-interaction to smoothly isolate and color header icons on card hover */
+.info-section-card:hover .section-title-icon {
+    background-color: #EEF2FF !important;
+    color: #4F46E5 !important;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}

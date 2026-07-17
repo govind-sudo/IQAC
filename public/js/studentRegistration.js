@@ -203,13 +203,13 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("twelfthPercentage").required = educationRequired;
       internationalEducation.style.display = isIndian ? "none" : "block";
       document.getElementById("aoLevelCertificate").required = !isIndian;
-      document.getElementById("aadhaarProof").required = isIndian;
+      document.getElementById("aadhaarProof").required = false;
 
-      document.getElementById("leavingCertificate").required = isIndian;
+      document.getElementById("leavingCertificate").required = false;
 
-      document.getElementById("passportUpload").required = !isIndian;
+      document.getElementById("passportUpload").required = false;
 
-      document.getElementById("puAdmissionLetter").required = !isIndian;
+      document.getElementById("puAdmissionLetter").required = false;
       // ---------------------------
       // Documents
       // ---------------------------

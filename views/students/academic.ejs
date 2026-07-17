@@ -1,0 +1,184 @@
+<% layout('layout/studentsBoilerPlate') %>
+
+<link rel="stylesheet" href="/css/students/studentsAcademic.css">
+
+<div class="personal-info-container">
+    <!-- Main Content Card Wrapper -->
+    <div class="info-section-card academic-card">
+        
+        <div class="section-card-header">
+            <div class="section-title-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h3>Academic Information</h3>
+        </div>
+
+        <div class="academic-card-body">
+            
+            <!-- SECTION 1: Program Details -->
+            <div class="academic-sub-section">
+                <h4 class="academic-section-title">Program Details</h4>
+                
+                <div class="academic-fields-grid split-2">
+                    <!-- Faculty -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Faculty</span>
+                            <span class="academic-value"><%= student.faculty || 'FET' %></span>
+                        </div>
+                    </div>
+
+                    <!-- Course -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Course</span>
+                            <span class="academic-value"><%= student.course || 'Bachelor of Technology' %></span>
+                        </div>
+                    </div>
+
+                    <!-- Institute -->
+                    <div class="academic-row-item span-full">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-building-columns"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Institute</span>
+                            <span class="academic-value"><%= student.institute || 'Parul Institute of Engineering & Technology' %></span>
+                        </div>
+                    </div>
+
+                    <!-- Branch & Specialization -->
+                    <div class="academic-row-item span-full">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-code-branch"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Branch & Specialization</span>
+                            <span class="academic-value">
+                                <%= student.branch || 'CSE' %>
+                                <% if (student.specialization) { %>
+                                    <span class="specialization-pill">(<%= student.specialization %>)</span>
+                                <% } else { %>
+                                    <span class="specialization-pill text-muted">(General)</span>
+                                <% } %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="academic-divider">
+
+            <!-- SECTION 2: University Identifiers -->
+            <div class="academic-sub-section">
+                <h4 class="academic-section-title">University Identifiers</h4>
+                
+                <div class="academic-fields-grid split-2">
+                    <!-- Enrollment Number -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Enrollment Number</span>
+                            <span class="academic-value font-mono"><%= student.enrollmentNo || 'Pending Verification' %></span>
+                        </div>
+                    </div>
+
+                    <!-- UG Number -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-hashtag"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">UG Number</span>
+                            <span class="academic-value font-mono text-uppercase"><%= student.ugNumber %></span>
+                        </div>
+                    </div>
+
+                    <!-- Parul Email ID -->
+                    <div class="academic-row-item span-full">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Official University Email</span>
+                            <div class="email-status-container">
+                                <span class="academic-value font-mono"><%= student.parulEmailId || 'Not Generated' %></span>
+                                <% if (student.parulEmailId) { %>
+                                    <span class="email-badge <%= student.parulEmailActive ? 'email-active' : 'email-inactive' %>">
+                                        <%= student.parulEmailActive ? 'Active' : 'Inactive' %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="academic-divider">
+
+            <!-- SECTION 3: Admission & Lifecycle -->
+            <div class="academic-sub-section">
+                <h4 class="academic-section-title">Admission & Status</h4>
+                
+                <div class="academic-fields-grid split-2">
+                    <!-- Admission Year -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-regular fa-calendar-days"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Admission Year</span>
+                            <span class="academic-value"><%= student.admissionYear || 'N/A' %></span>
+                        </div>
+                    </div>
+
+                    <!-- Joining Date -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-regular fa-calendar-check"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Joining Date</span>
+                            <span class="academic-value">
+                                <%= student.joiningDate ? new Date(student.joiningDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A' %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Admission Type -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-right-to-bracket"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Admission Type</span>
+                            <span class="academic-value"><%= student.admissionType || 'Regular' %></span>
+                        </div>
+                    </div>
+
+                    <!-- Student Status -->
+                    <div class="academic-row-item">
+                        <div class="academic-icon-wrapper">
+                            <i class="fa-solid fa-user-gear"></i>
+                        </div>
+                        <div class="academic-details">
+                            <span class="academic-label">Student Status</span>
+                            <div class="academic-status-pill status-<%= student.studentStatus || 'active' %>">
+                                <%= student.studentStatus || 'active' %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

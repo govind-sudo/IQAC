@@ -1,0 +1,191 @@
+<% layout('layout/studentsBoilerPlate') %>
+
+<!-- Inject the CSS into the boilerplate head block -->
+<link rel="stylesheet" href="/css/students/studentsPersonal.css">
+
+<div class="personal-info-container">
+    <!-- Header Banner Card -->
+  <!-- Redesigned Decorative Hero Card Banner -->
+<div class="profile-hero-card">
+    <!-- Ambient Background Layer -->
+    <div class="profile-hero-bg">
+        <div class="bg-gradient-overlay"></div>
+        <div class="bg-abstract-blobs"></div>
+    </div>
+    
+    <div class="profile-hero-content">
+        <!-- Left Column: Content & Metadata -->
+        <div class="profile-hero-left">
+            <div class="profile-welcome-row">
+                <span class="welcome-label">Welcome back,</span>
+                <div class="profile-title-row">
+                    <h2><%= student.fullName %></h2>
+                    <span class="status-badge status-<%= student.profileStatus %>">
+                        <span class="status-indicator-dot"></span>
+                        <%= student.profileStatus.toUpperCase() %>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="profile-meta-tags">
+                <span class="meta-tag">
+                    <i class="fas fa-id-card"></i> 
+                    <span class="tag-label">ID Number:</span>
+                    <span class="tag-value"><%= student.ugNumber %></span>
+                </span>
+                <span class="meta-tag">
+                    <i class="fas fa-graduation-cap"></i> 
+                    <span class="tag-label">Department:</span>
+                    <span class="tag-value"><%= student.branch %> (<%= student.admissionYear %>)</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Right Column: Interactive Illustration & Floating Avatar -->
+        <div class="profile-hero-right">
+            <div class="illustration-workspace">
+                <!-- Floating Profile Initials Card -->
+                <div class="avatar-glass-card">
+                    <div class="profile-avatar-main">
+                        <%= (student && student.firstName) ? student.firstName.charAt(0) : '' %><%= (student && student.lastName) ? student.lastName.charAt(0) : '' %>
+                    </div>
+                </div>
+                
+                <!-- Modern CSS Illustration Shapes -->
+                <div class="illustrator-desk"></div>
+                <div class="illustrator-laptop">
+                    <div class="laptop-screen"></div>
+                    <div class="laptop-keyboard"></div>
+                </div>
+                <div class="illustrator-plant">
+                    <span class="leaf leaf-1"></span>
+                    <span class="leaf leaf-2"></span>
+                    <span class="leaf leaf-3"></span>
+                </div>
+                <div class="illustrator-backdrop-circle"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Main Content Details Grid (Read-Only Display) -->
+    <div class="info-grid">
+        
+        <!-- LEFT COLUMN: Demographics & Core Info -->
+        <div class="info-column-main">
+            
+            <!-- Section 1: Primary Personal Details -->
+            <div class="info-section-card">
+                <div class="section-card-header">
+                    <div class="section-title-icon"><i class="fas fa-user"></i></div>
+                    <h3>Primary Information</h3>
+                </div>
+                <div class="section-card-body fields-grid-3">
+                    <div class="input-group">
+                        <label>Title</label>
+                        <div class="form-control-static"><%= student.title || 'N/A' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>First Name</label>
+                        <div class="form-control-static"><%= student.firstName %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Middle Name</label>
+                        <div class="form-control-static"><%= student.middleName || '—' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Last Name</label>
+                        <div class="form-control-static"><%= student.lastName %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Gender</label>
+                        <div class="form-control-static"><%= student.gender || 'N/A' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Date of Birth</label>
+                        <div class="form-control-static"><%= student.dob ? student.dob.toDateString() : 'N/A' %></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Identity & National Registry -->
+            <div class="info-section-card">
+                <div class="section-card-header">
+                    <div class="section-title-icon"><i class="fas fa-fingerprint"></i></div>
+                    <h3>Identity & Registry Documents</h3>
+                </div>
+                <div class="section-card-body fields-grid-2">
+                    <div class="input-group">
+                        <label>Aadhaar Number</label>
+                        <div class="form-control-static secure-placeholder"><%= student.aadhaarNumber ? '[Aadhaar Redacted]' : 'Not Provided' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Passport Number</label>
+                        <div class="form-control-static"><%= student.passportNumber || 'N/A' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>ABC ID (Academic Bank of Credits)</label>
+                        <div class="form-control-static"><%= student.abcId || 'Not Generated' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Enrollment Number</label>
+                        <div class="form-control-static"><%= student.enrollmentNo || 'Awaiting Verification' %></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Demographics & Hostels -->
+        <div class="info-column-sidebar">
+            
+            <!-- Section 3: Socio-Demographics -->
+            <div class="info-section-card">
+                <div class="section-card-header">
+                    <div class="section-title-icon"><i class="fas fa-globe"></i></div>
+                    <h3>Social & Demographics</h3>
+                </div>
+                <div class="section-card-body fields-grid-1">
+                    <div class="input-group">
+                        <label>Category</label>
+                        <div class="form-control-static"><%= student.category || 'N/A' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Blood Group</label>
+                        <div class="form-control-static"><%= student.bloodGroup || 'N/A' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Religion</label>
+                        <div class="form-control-static"><%= student.religion || 'N/A' %></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Nationality</label>
+                        <div class="form-control-static"><%= student.nationality || 'N/A' %></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Residential / Hostel Status -->
+            <div class="info-section-card">
+                <div class="section-card-header">
+                    <div class="section-title-icon"><i class="fas fa-hotel"></i></div>
+                    <h3>Hostel Accommodation</h3>
+                </div>
+                <div class="section-card-body fields-grid-1">
+                    <div class="input-group">
+                        <label>Resides in Hostel?</label>
+                        <div class="form-control-static"><%= student.residesInHostel ? 'Yes' : 'No' %></div>
+                    </div>
+                    <% if(student.residesInHostel) { %>
+                    <div class="input-group">
+                        <label>Hostel Name</label>
+                        <div class="form-control-static"><%= student.hostelName %></div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

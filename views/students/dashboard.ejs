@@ -1,293 +1,851 @@
 <% layout("layout/studentsBoilerPlate") %>
+
 <%
-	// `student` is the Mongoose Student document passed from the route
-	// (e.g. res.render("students/dashboard", { student, ... })).
-	// Guarded with a differently-named local so a missing `student` doesn't
-	// crash the page - but no fields are ever faked here, only left blank.
-	const studentInfo = (typeof student !== 'undefined' && student) ? student : {};
+const studentInfo = student || {};
 
-	// ---- Derived display values (all read straight from studentInfo) ----
-	const studentName = studentInfo.fullName
-		|| [studentInfo.firstName, studentInfo.lastName].filter(Boolean).join(' ')
-		|| 'Student';
+const studentName =
+    studentInfo.fullName ||
+    [studentInfo.firstName, studentInfo.lastName].filter(Boolean).join(" ");
 
-	const studentInitials = studentName
-		.split(' ')
-		.filter(Boolean)
-		.slice(0, 2)
-		.map((part) => part.charAt(0))
-		.join('')
-		.toUpperCase() || 'S';
+const initials = studentName
+    ? studentName.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase()
+    : "S";
 
-	// No photo field exists on the Student schema yet - this stays ready
-	// for whenever one is added (e.g. studentInfo.profilePhoto).
-	const studentPhoto = studentInfo.profilePhoto || studentInfo.photoUrl || null;
+const greeting =
+    new Date().getHours() < 12
+        ? "Good Morning"
+        : new Date().getHours() < 17
+        ? "Good Afternoon"
+        : "Good Evening";
 
-	const studentDepartment = studentInfo.department || studentInfo.program || studentInfo.course || 'Not set';
+	/* =========================
+   PROFILE COMPLETION
+========================= */
 
-	// ---- Profile completion, computed from actual schema fields ----
-	// Grouped to match the section labels shown in the progress list below.
-	// profileStatus-based "Documents" score is a placeholder proxy until a
-	// real Documents collection exists.
-	function sectionPercent(fields) {
-		if (!fields.length) return 0;
-		const filled = fields.filter((v) => v !== undefined && v !== null && v !== '').length;
-		return Math.round((filled / fields.length) * 100);
-	}
+function filled(value) {
+    return value !== undefined &&
+           value !== null &&
+           value !== "";
+}
 
-	const personalInfoPercent = sectionPercent([
-		studentInfo.title, studentInfo.firstName, studentInfo.lastName,
-		studentInfo.gender, studentInfo.dob, studentInfo.bloodGroup,
-		studentInfo.category, studentInfo.religion, studentInfo.caste,
-	]);
 
-	const academicInfoPercent = sectionPercent([
-		studentInfo.institute, studentInfo.course, studentInfo.program,
-		studentInfo.department, studentInfo.admissionYear,
-		studentInfo.admissionType, studentInfo.admissionQuota, studentInfo.enrollmentNo,
-	]);
 
-	const contactInfoPercent = sectionPercent([
-		studentInfo.phone, studentInfo.whatsapp, studentInfo.alternateEmail,
-		studentInfo.presentAddress && studentInfo.presentAddress.city,
-		studentInfo.permanentAddress && studentInfo.permanentAddress.city,
-	]);
+const fields = [
+    studentInfo.firstName,
+    studentInfo.lastName,
+    studentInfo.gender,
+    studentInfo.dob,
+    studentInfo.bloodGroup,
+    studentInfo.category,
+    studentInfo.email,
+    studentInfo.phone,
+    studentInfo.whatsapp,
+    studentInfo.course,
+    studentInfo.branch,
+    studentInfo.institute,
+    studentInfo.admissionYear,
+    studentInfo.enrollmentNo,
+    studentInfo.ugNumber,
+    studentInfo.presentAddress?.city,
+    studentInfo.presentAddress?.state,
+    studentInfo.permanentAddress?.city,
+    studentInfo.father?.name,
+    studentInfo.mother?.name,
+    studentInfo.emergencyContact?.name
+];
 
-	const additionalInfoPercent = sectionPercent([
-		studentInfo.father && studentInfo.father.name,
-		studentInfo.mother && studentInfo.mother.name,
-		studentInfo.emergencyContact && studentInfo.emergencyContact.name,
-		studentInfo.emergencyContact && studentInfo.emergencyContact.phone,
-		studentInfo.aadhaarNumber,
-	]);
+const completedFields = fields.filter(filled).length;
 
-	const documentsPercentMap = { verified: 100, pending: 50, rejected: 25, incomplete: 0 };
-	const documentsPercent = documentsPercentMap[studentInfo.profileStatus] ?? 0;
+const profilePercent = Math.round(
+    (completedFields / fields.length) * 100
+);
 
-	const normalizedProfileItems = [
-		{ label: 'Personal Info', value: personalInfoPercent },
-		{ label: 'Academic Info', value: academicInfoPercent },
-		{ label: 'Contact Info', value: contactInfoPercent },
-		{ label: 'Additional Info', value: additionalInfoPercent },
-		{ label: 'Documents', value: documentsPercent },
-	];
 
-	const profilePercent = Math.round(
-		normalizedProfileItems.reduce((sum, item) => sum + item.value, 0) / normalizedProfileItems.length
-	);
+/* =====================================
+   SECTIONAL COMPLETION TRACKING
+====================================== */
+const checkFields = (arr) => arr.filter(filled).length;
 
-	const totalFields = 30; // personal(9) + academic(8) + contact(5) + additional(5) + documents(1, via profileStatus... kept coarse on purpose
-	const completedFields = Math.round((profilePercent / 100) * totalFields);
+// 1. Personal Info (8 fields)
+const personalFields = [
+    studentInfo.firstName, studentInfo.lastName, studentInfo.gender, 
+    studentInfo.dob, studentInfo.bloodGroup, studentInfo.category, 
+    studentInfo.email, studentInfo.phone
+];
+const personalPct = Math.round((checkFields(personalFields) / personalFields.length) * 100);
 
-	// ---- Everything below this line is NOT part of the Student model yet ----
-	// (forms, deadlines, messages/notifications, quick actions). These need
-	// their own collections/routes; until then they come through as optional
-	// locals from the controller, and render an empty state if absent -
-	// nothing here is invented/faked.
-	const stats = typeof dashboardStats !== 'undefined' ? dashboardStats : {};
-	const deadlineItems = typeof upcomingDeadlines !== 'undefined' && Array.isArray(upcomingDeadlines) ? upcomingDeadlines : [];
-	const notificationItems = typeof notificationsData !== 'undefined' && Array.isArray(notificationsData) ? notificationsData : [];
+// 2. Academic Info (5 fields)
+const academicFields = [
+    studentInfo.faculty, studentInfo.institute, studentInfo.course, 
+    studentInfo.branch, studentInfo.admissionYear
+];
+const academicPct = Math.round((checkFields(academicFields) / academicFields.length) * 100);
 
-	// Quick Actions are static in-app navigation shortcuts, not student data,
-	// so these stay fixed rather than coming from an API.
-	const actionItems = [
-		{ href: '/students/profile', icon: 'fa-user-pen', title: 'Update Profile', text: 'Edit personal and academic details' },
-		{ href: '/students/documents', icon: 'fa-folder-open', title: 'View Documents', text: 'Check uploaded files and records' },
-		{ href: '/students/messages', icon: 'fa-message', title: 'Send Message', text: 'Contact faculty or admin' },
-		{ href: '/students/notices', icon: 'fa-calendar-check', title: 'Check Deadlines', text: 'Review the latest submission dates' },
-	];
+// 3. Contact & Address (5 fields)
+const contactFields = [
+    studentInfo.presentAddress?.addressLine, studentInfo.presentAddress?.city, studentInfo.presentAddress?.state,
+    studentInfo.permanentAddress?.addressLine, studentInfo.permanentAddress?.city
+];
+const contactPct = Math.round((checkFields(contactFields) / contactFields.length) * 100);
 
-	const statCards = [
-		{ label: 'Profile Completion', value: profilePercent + '%', tone: 'green', icon: 'fa-user-check', note: profilePercent >= 100 ? 'All set!' : 'Keep going!' },
-		{ label: 'Forms Completed', value: stats.formsCompleted ?? '—', tone: 'blue', icon: 'fa-file-lines', note: 'View all forms' },
-		{ label: 'Pending Forms', value: stats.pendingForms ?? '—', tone: 'orange', icon: 'fa-file-circle-exclamation', note: 'Complete now' },
-		{ label: 'Messages', value: stats.messages ?? '—', tone: 'purple', icon: 'fa-envelope', note: 'New replies' },
-	];
+// 4. Documents (5 items)
+const docKeys = ['aadhaarCard', 'tenthMarksheet', 'twelfthMarksheet', 'passportPhoto', 'otherDocuments'];
+const uploadedDocs = docKeys.filter(k => studentInfo.documents?.[k] && studentInfo.documents[k].toLowerCase() === 'uploaded').length;
+const documentsPct = Math.round((uploadedDocs / docKeys.length) * 100);
+
+// 5. Emergency & Parents (5 fields)
+const legacyFields = [
+    studentInfo.father?.name, studentInfo.mother?.name, 
+    studentInfo.emergencyContact?.name, studentInfo.emergencyContact?.phone, studentInfo.emergencyContact?.relation
+];
+const emergencyPct = Math.round((checkFields(legacyFields) / legacyFields.length) * 100);
+
+const sectionsList = [
+    { label: "Personal Information", pct: personalPct },
+    { label: "Academic Information", pct: academicPct },
+    { label: "Contact & Address", pct: contactPct },
+    { label: "Documents", pct: documentsPct },
+    { label: "Emergency & Parents", pct: emergencyPct }
+];
+
 %>
 
-<section class="student-dashboard">
-	<header class="dashboard-hero">
-		<div class="hero-copy">
-			<p class="eyebrow">Student Dashboard</p>
-			<h1>Welcome back, <span><%= studentName %></span>!</h1>
-			<p class="hero-subtitle">Here's a quick look at your profile status, pending work, and upcoming deadlines.</p>
-		</div>
+<div class="dashboard">
 
-		<div class="hero-meta">
-			<div class="meta-card meta-card-profile">
-				<div class="student-avatar">
-					<% if (studentPhoto) { %>
-						<img src="<%= studentPhoto %>" alt="<%= studentName %> profile photo" />
-					<% } else { %>
-						<span><%= studentInitials %></span>
-					<% } %>
-				</div>
-				<div class="student-meta-text">
-					<span class="meta-label">Signed in as</span>
-					<strong><%= studentName %></strong>
-					<small><%= studentDepartment %></small>
-				</div>
-			</div>
-			<a class="meta-card meta-card-icon meta-card-message" href="/students/messages" aria-label="Open messages">
-				<i class="fa-solid fa-message"></i>
-				<span>Messages</span>
-			</a>
-			<div class="meta-card meta-card-icon meta-card-bell">
-				<button type="button" class="bell-toggle" aria-label="Show notifications" aria-expanded="false">
-					<i class="fa-regular fa-bell"></i>
-					<% if (notificationItems.length) { %>
-						<span class="bell-badge"><%= notificationItems.length %></span>
-					<% } %>
-				</button>
-				<div class="notification-popover" hidden>
-					<div class="notification-popover__head">
-						<strong>Notifications</strong>
-						<a href="/students/messages">View messages</a>
-					</div>
-					<div class="notification-popover__list">
-						<% if (notificationItems.length) { %>
-							<% notificationItems.forEach((notification) => { %>
-								<div class="notification-item notification-<%= notification.tone || 'blue' %>">
-									<span class="notification-item__icon"><i class="fa-solid <%= notification.icon %>"></i></span>
-									<div>
-										<p><%= notification.title %></p>
-										<small><%= notification.meta %></small>
-									</div>
-								</div>
-							<% }) %>
-						<% } else { %>
-							<div class="notification-item">
-								<div><p>You're all caught up. No new notifications.</p></div>
-							</div>
-						<% } %>
-					</div>
-				</div>
-			</div>
-		</div>
-	</header>
+    <!-- ================= HEADER ================= -->
+<!-- ================= HEADER ================= -->
+<section class="dashboard-header">
 
-	<section class="stats-grid" aria-label="Dashboard summary">
-		<% statCards.forEach((stat) => { %>
-			<article class="stat-card stat-<%= stat.tone %>">
-				<div class="stat-icon"><i class="fa-solid <%= stat.icon %>"></i></div>
-				<div class="stat-content">
-					<span><%= stat.label %></span>
-					<strong><%= stat.value %></strong>
-					<small><%= stat.note %></small>
-				</div>
-			</article>
-		<% }) %>
-	</section>
+    <!-- LEFT COLUMN: Campus ID Card Layout -->
+<div class="header-left">
+    <div class="campus-card">
+        <div class="campus-card-top">
+            <!-- Group container isolates avatar and details away from badge text -->
+            <div class="campus-identity-group">
+                <div class="campus-avatar">
+                    <%= initials %>
+                </div>
+                <div class="campus-details">
+                    <h3><%= studentName %></h3>
+                    <p><%= studentInfo.course || "B.Tech" %> · <%= studentInfo.branch || "CSE" %> · <%= studentInfo.admissionYear || "2026" %></p>
+                </div>
+            </div>
+            <span class="campus-badge-text">CAMPUS ID</span>
+        </div>
+        
+        <div class="campus-barcode-container">
+            <div class="barcode-lines"></div>
+            <div class="barcode-number"><%= studentInfo.ugNumber || "24UG123456" %></div>
+        </div>
+    </div>
+</div>
 
-	<section class="dashboard-grid">
-		<article class="card profile-card">
-			<div class="card-heading">
-				<div>
-					<p class="card-kicker">Profile Completion</p>
-					<h2>Profile Completion</h2>
-				</div>
-				<a href="/students/profile">Update Profile</a>
-			</div>
+    <!-- RIGHT COLUMN: Metrics Row & Completion Tracker Panel -->
+    <div class="header-right">
+        
+        <!-- Top Container: Horizontal Metrics Panel Row -->
+        <div class="mini-info">
+            <div class="mini-item">
+                <div class="mini-icon-wrapper mini-blue">
+                    <i class="fa-regular fa-id-card"></i>
+                </div>
+                <div class="mini-content">
+                    <span>UG Number</span>
+                    <strong><%= studentInfo.ugNumber || "-" %></strong>
+                </div>
+            </div>
 
-			<div class="profile-wrap">
-				<div class="progress-ring" style="<%= '--progress: ' + profilePercent + ';' %>">
-					<div class="progress-ring__inner">
-						<strong><%= profilePercent %>%</strong>
-						<span>Complete</span>
-					</div>
-				</div>
+            <div class="mini-divider"></div>
 
-				<div class="progress-list">
-					<p class="profile-note">You have completed <%= completedFields %> of <%= totalFields %> fields.</p>
-					<% normalizedProfileItems.forEach((item) => { %>
-						<div class="progress-item">
-							<div class="progress-item__top">
-								<span><%= item.label %></span>
-								<strong><%= item.value %>%</strong>
-							</div>
-							<div class="progress-bar"><span style="<%= 'width: ' + item.value + '%;' %>"></span></div>
-						</div>
-					<% }) %>
-				</div>
-			</div>
-		</article>
+            <div class="mini-item">
+                <div class="mini-icon-wrapper mini-indigo">
+                    <i class="fa-regular fa-calendar"></i>
+                </div>
+                <div class="mini-content">
+                    <span>Admission Year</span>
+                    <strong><%= studentInfo.admissionYear || "-" %></strong>
+                </div>
+            </div>
 
-		<article class="card deadline-card">
-			<div class="card-heading">
-				<div>
-					<p class="card-kicker">Upcoming Deadlines</p>
-					<h2>Keep track of what's next</h2>
-				</div>
-				<a href="/students/notices">View All</a>
-			</div>
+            <div class="mini-divider"></div>
 
-			<div class="deadline-list">
-				<% if (deadlineItems.length) { %>
-					<% deadlineItems.forEach((deadline) => { %>
-						<div class="deadline-item <%= deadline.urgent ? 'urgent' : '' %>">
-							<div class="deadline-date">
-								<strong><%= deadline.day %></strong>
-								<span><%= deadline.month %></span>
-							</div>
-							<div class="deadline-copy">
-								<h3><%= deadline.title %></h3>
-								<p><%= deadline.description %></p>
-							</div>
-							<div class="deadline-flag"><%= deadline.left %></div>
-						</div>
-					<% }) %>
-				<% } else { %>
-					<p class="profile-note">No upcoming deadlines right now.</p>
-				<% } %>
-			</div>
-		</article>
-	</section>
+            <div class="mini-item">
+                <% 
+                    const isPending = (studentInfo.profileStatus || "").toLowerCase() === "pending" || (studentInfo.profileStatus || "").toLowerCase() === "incomplete";
+                    const statusClass = isPending ? "status-dot-pending" : "status-dot-active";
+                    const labelClass = isPending ? "status-label-pending" : "status-label-active";
+                %>
+                <div class="mini-icon-wrapper <%= statusClass %>">
+                    <span class="status-inner-dot"></span>
+                </div>
+                <div class="mini-content">
+                    <span>Profile Status</span>
+                    <strong class="<%= labelClass %>"><%= studentInfo.profileStatus || "Active" %></strong>
+                </div>
+            </div>
+        </div>
 
-	<section class="card actions-card">
-		<div class="card-heading">
-			<div>
-				<p class="card-kicker">Quick Actions</p>
-				<h2>Shortcuts for common tasks</h2>
-			</div>
-		</div>
+        <!-- Bottom Container: Linear Progress Tracker Panel -->
+        <div class="completion-card">
+            <div class="completion-icon">
+                <i class="fa-regular fa-clipboard"></i>
+            </div>
+            <div class="completion-body">
+                <div class="completion-text-row">
+                    <h3>Complete your profile</h3>
+                    <i class="fa-solid fa-chevron-right arrow-link"></i>
+                </div>
+                <p>Your profile is <%= profilePercent || 0 %>% complete</p>
+                <div class="progress-container">
+                    <div class="progress-bar-wrapper">
+                        <span class="progress-fill" style="width: <%= profilePercent || 0 %>%"></span>
+                    </div>
+                    <strong class="progress-pct-text"><%= profilePercent || 0 %>%</strong>
+                </div>
+            </div>
+        </div>
 
-		<div class="actions-grid">
-			<% actionItems.forEach((action) => { %>
-				<a class="action-card" href="<%= action.href %>">
-					<span class="action-icon"><i class="fa-solid <%= action.icon %>"></i></span>
-					<strong><%= action.title %></strong>
-					<p><%= action.text %></p>
-				</a>
-			<% }) %>
-		</div>
-	</section>
+    </div>
 
-	<script>
-		(function () {
-			const bellCard = document.querySelector('.meta-card-bell');
-			if (!bellCard) return;
-
-			const button = bellCard.querySelector('.bell-toggle');
-			const popover = bellCard.querySelector('.notification-popover');
-
-			const closePopover = () => {
-				bellCard.classList.remove('is-open');
-				button.setAttribute('aria-expanded', 'false');
-				popover.hidden = true;
-			};
-
-			button.addEventListener('click', function (event) {
-				event.stopPropagation();
-				const isOpen = bellCard.classList.toggle('is-open');
-				button.setAttribute('aria-expanded', String(isOpen));
-				popover.hidden = !isOpen;
-			});
-
-			document.addEventListener('click', function (event) {
-				if (!bellCard.contains(event.target)) {
-					closePopover();
-				}
-			});
-		})();
-	</script>
 </section>
+
+
+    <!-- ================= MAIN GRID ================= -->
+
+    <section class="dashboard-grid">
+
+        <!-- LEFT COLUMN -->
+
+        <div class="left-column">
+
+<div class="card personal-card">
+
+    <div class="card-header">
+
+        <div class="title">
+
+            <div class="title-icon">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <h2>Personal Information</h2>
+
+        </div>
+
+    </div>
+
+    <div class="card-body personal-body">
+
+        <div class="personal-avatar">
+
+            <div class="avatar-circle">
+                <%= initials %>
+            </div>
+
+        </div>
+
+
+        <div class="personal-grid">
+
+            <div class="info-item">
+                <i class="fa-solid fa-user"></i>
+
+                <div>
+                    <span>Full Name : </span>
+                    <strong><%= studentName || "-" %></strong>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i class="fa-solid fa-flag"></i>
+
+                <div>
+                    <span>Nationality : </span>
+                    <strong><%= studentInfo.nationality || "-" %></strong>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i class="fa-regular fa-calendar"></i>
+
+                <div>
+                    <span>Date of Birth : </span>
+
+                    <strong>
+                        <%= studentInfo.dob
+                        ? new Date(studentInfo.dob).toLocaleDateString("en-GB",{
+                            day:"2-digit",
+                            month:"short",
+                            year:"numeric"
+                        })
+                        : "-" %>
+                    </strong>
+
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <div>
+                    <span>Category : </span>
+                    <strong><%= studentInfo.category || "-" %></strong>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i class="fa-solid fa-mars"></i>
+
+                <div>
+                    <span>Gender : </span>
+                    <strong><%= studentInfo.gender || "-" %></strong>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i class="fa-regular fa-envelope"></i>
+
+                <div>
+                    <span>Email : </span>
+                    <strong><%= studentInfo.email || "-" %></strong>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i class="fa-solid fa-droplet"></i>
+
+                <div>
+                    <span>Blood Group : </span>
+                    <strong><%= studentInfo.bloodGroup || "-" %></strong>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <i class="fa-solid fa-phone"></i>
+
+                <div>
+                    <span>Phone : </span>
+                    <strong><%= studentInfo.phone || "-" %></strong>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+            <div class="card contact-card">
+
+    <div class="card-header">
+
+        <div class="title">
+
+            <div class="title-icon">
+                <i class="fa-solid fa-location-dot"></i>
+            </div>
+
+            <h2>
+                Contact & Address
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="card-body contact-body">
+
+
+        <!-- Present Address -->
+
+        <div class="contact-item">
+
+            <div class="contact-icon">
+                <i class="fa-solid fa-house"></i>
+            </div>
+
+
+            <div class="contact-content">
+
+                <span>
+                    Present Address
+                </span>
+
+
+                <strong>
+                    <%= studentInfo.presentAddress?.addressLine || "-" %>
+                </strong>
+
+                <p>
+                    <%= studentInfo.presentAddress?.city || "-" %>,
+                    <%= studentInfo.presentAddress?.district || "-" %>,
+                    <%= studentInfo.presentAddress?.state || "-" %>
+                    -
+                    <%= studentInfo.presentAddress?.pincode || "" %>
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+        <!-- Emergency Contact -->
+
+
+        <div class="contact-item">
+
+
+            <div class="contact-icon">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+
+
+            <div class="contact-content">
+
+                <span>
+                    Emergency Contact
+                </span>
+
+
+                <strong>
+                    <%= studentInfo.emergencyContact?.name || "-" %>
+                </strong>
+
+
+                <p>
+                    <%= studentInfo.emergencyContact?.phone || "-" %>
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+        <!-- Permanent Address -->
+
+
+        <div class="contact-item">
+
+
+            <div class="contact-icon home-green">
+                <i class="fa-solid fa-house"></i>
+            </div>
+
+
+            <div class="contact-content">
+
+                <span>
+                    Permanent Address
+                </span>
+
+
+                <strong>
+                    <%= studentInfo.permanentAddress?.addressLine || "-" %>
+                </strong>
+
+
+                <p>
+                    <%= studentInfo.permanentAddress?.city || "-" %>,
+                    <%= studentInfo.permanentAddress?.district || "-" %>,
+                    <%= studentInfo.permanentAddress?.state || "-" %>
+                    -
+                    <%= studentInfo.permanentAddress?.pincode || "" %>
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+        <!-- Emergency Person -->
+
+
+        <div class="contact-item">
+
+
+            <div class="contact-icon shield">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+
+
+            <div class="contact-content">
+
+                <span>
+                    Emergency Person
+                </span>
+
+
+                <strong>
+                    <%= studentInfo.emergencyContact?.relation || "-" %>
+                </strong>
+
+
+                <p>
+                    <%= studentInfo.emergencyContact?.phone || "-" %>
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+
+
+    </div>
+
+
+</div>
+
+        </div>
+
+
+        <!-- CENTER COLUMN -->
+
+        <div class="center-column">
+
+            <div class="card academic-card">
+
+    <div class="card-header">
+
+        <div class="title">
+
+            <div class="title-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+
+            <h2>
+                Academic Information
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="card-body academic-body">
+
+
+        <div class="academic-item">
+
+            <i class="fa-solid fa-bullseye"></i>
+
+            <div>
+                <span>
+                    Faculty
+                </span>
+
+                <strong>
+                    <%= studentInfo.faculty || "-" %>
+                </strong>
+            </div>
+
+        </div>
+
+
+
+        <div class="academic-item">
+
+            <i class="fa-solid fa-building-columns"></i>
+
+            <div>
+
+                <span>
+                    Institute
+                </span>
+
+                <strong>
+                    <%= studentInfo.institute || "-" %>
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+
+        <div class="academic-item">
+
+            <i class="fa-solid fa-user-graduate"></i>
+
+            <div>
+
+                <span>
+                    Course
+                </span>
+
+                <strong>
+                    <%= studentInfo.course || "-" %>
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+
+
+        <div class="academic-item">
+
+            <i class="fa-solid fa-building-columns"></i>
+
+            <div>
+
+                <span>
+                    Branch
+                </span>
+
+                <strong>
+                    <%= studentInfo.branch || "-" %>
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+
+        <div class="academic-row">
+
+
+            <div class="academic-small">
+
+                <i class="fa-regular fa-calendar"></i>
+
+                <div>
+
+                    <span>
+                        Admission Year
+                    </span>
+
+                    <strong>
+                        <%= studentInfo.admissionYear || "-" %>
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+
+            <div class="academic-small">
+
+                <i class="fa-solid fa-list-check"></i>
+
+                <div>
+
+                    <span>
+                        Admission Type
+                    </span>
+
+                    <strong>
+                        <%= studentInfo.admissionType || "-" %>
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+        <div class="academic-item">
+
+            <i class="fa-solid fa-circle-check"></i>
+
+            <div>
+
+                <span>
+                    Student Status
+                </span>
+
+
+                <strong class="status-active">
+                    <%= studentInfo.studentStatus || "Active" %>
+                </strong>
+
+
+            </div>
+
+
+        </div>
+
+
+
+    </div>
+
+
+</div>
+
+
+           <div class="card documents-card">
+    <div class="card-header">
+        <div class="title">
+            <div class="title-icon doc-main-icon">
+                <i class="fa-regular fa-folder-open"></i>
+            </div>
+            <h2>Documents</h2>
+        </div>
+        <a href="/students/documents">View All</a>
+    </div>
+
+    <div class="card-body documents-body">
+        <% 
+        const docList = [
+            { name: "Aadhaar Card", key: "aadhaarCard", iconClass: "doc-red", icon: "fa-solid fa-file-pdf" },
+            { name: "10th Marksheet", key: "tenthMarksheet", iconClass: "doc-purple", icon: "fa-solid fa-file-invoice" },
+            { name: "12th Marksheet", key: "twelfthMarksheet", iconClass: "doc-orange", icon: "fa-solid fa-file-lines" },
+            { name: "Passport Photo", key: "passportPhoto", iconClass: "doc-blue", icon: "fa-solid fa-file-image" },
+            { name: "Other Documents", key: "otherDocuments", iconClass: "doc-darkblue", icon: "fa-solid fa-file-zipper" }
+        ];
+        
+        docList.forEach(doc => {
+            // Evaluates to 'Uploaded' if dynamic data matches, default checks simulate typical backend status
+            const status = (studentInfo.documents && studentInfo.documents[doc.key]) || "Pending";
+            const isUploaded = status.toLowerCase() === "uploaded";
+        %>
+            <div class="document-item">
+                <div class="document-left">
+                    <div class="doc-icon <%= doc.iconClass %>">
+                        <i class="<%= doc.icon %>"></i>
+                    </div>
+                    <span class="doc-name"><%= doc.name %></span>
+                </div>
+                
+                <div class="document-right">
+                    <% if (isUploaded) { %>
+                        <span class="doc-status status-uploaded">
+                            <i class="fa-regular fa-circle-check"></i> Uploaded
+                        </span>
+                    <% } else { %>
+                        <span class="doc-status status-pending">
+                            <i class="fa-regular fa-circle-dot"></i> Pending
+                        </span>
+                    <% } %>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+
+        <div class="right-column">
+
+           <div class="card overview-card">
+    <div class="overview-header">
+        <h2>Profile Overview</h2>
+    </div>
+
+    <!-- Inline style mapping allows dynamic injection into the CSS background conic-gradient properties -->
+    <div class="profile-circle" style="--progress: <%= profilePercent || 0 %>;">
+        <div class="circle-inner">
+            <h1><%= profilePercent || 0 %>%</h1>
+            <span>Complete</span>
+        </div>
+    </div>
+
+    <div class="overview-list">
+        <% sectionsList.forEach(sec => { %>
+            <div class="overview-item">
+                <div class="overview-item-left">
+                    <% if(sec.pct === 100) { %>
+                        <i class="fa-solid fa-circle-check icon-complete"></i>
+                    <% } else { %>
+                        <i class="fa-regular fa-circle icon-incomplete"></i>
+                    <% } %>
+                    <span class="section-label"><%= sec.label %></span>
+                </div>
+                <strong class="section-value"><%= sec.pct %>%</strong>
+            </div>
+        <% }) %>
+    </div>
+
+    <a href="/students/profile" class="update-btn">
+        <i class="fa-solid fa-pen icon-btn"></i> Update Profile
+    </a>
+</div>
+
+
+          <div class="card quick-card">
+    <div class="card-header quick-header">
+        <div class="title">
+            <div class="title-icon quick-main-icon" style="background-color: white;">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h2>Quick Info</h2>
+        </div>
+    </div>
+
+    <div class="card-body quick-body">
+        <% 
+        // Build Hostel display string dynamically based on the schema boolean and name values
+        let hostelStatus = "No";
+        if (studentInfo.residesInHostel) {
+            hostelStatus = `Yes (${studentInfo.hostelName || 'Assigned'})`;
+        }
+
+        // Format joining date if available
+        let formattedJoiningDate = "-";
+        if (studentInfo.joiningDate) {
+            formattedJoiningDate = new Date(studentInfo.joiningDate).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+        }
+
+        const quickItems = [
+            { label: "Enrollment No", value: studentInfo.enrollmentNo || "-", icon: "fa-regular fa-address-card" },
+            { label: "UG Number", value: studentInfo.ugNumber || "-", icon: "fa-solid fa-briefcase" },
+            { label: "Joining Date", value: formattedJoiningDate, icon: "fa-regular fa-calendar-days" },
+            { label: "Hostel", value: hostelStatus, icon: "fa-solid fa-hotel" },
+            { label: "ABC ID", value: studentInfo.abcId || "Not Generated", icon: "fa-regular fa-id-badge" }
+        ];
+
+        quickItems.forEach(item => {
+        %>
+            <div class="quick-row-item">
+                <div class="quick-item-left">
+                    <div class="quick-icon-box">
+                        <i class="<%= item.icon %>"></i>
+                    </div>
+                    <span class="quick-label"><%= item.label %></span>
+                </div>
+                <strong class="quick-value"><%= item.value %></strong>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+        </div>
+
+    </section>
+
+</div>

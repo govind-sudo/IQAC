@@ -1141,7 +1141,7 @@
 //   branch: "CSE",
 //   specialization: "AIML",
 
-//   joiningDate: new Date("2024-08-01"),
+//   joiningDate: nraghav024-08-01"),
 //   admissionYear: 2024,
 //   admissionType: "Regular",
 //   admissionQuota: "Other",
@@ -1530,6 +1530,123 @@ module.exports = [
   },
 
   abcId: "ABC24000001",
+
+  role: "student",
+  isActive: true,
+  profileStatus: "verified",
+},
+{
+  title: "Mr",
+  firstName: "Safiya",
+  middleName: "",
+  lastName: "Munshi",
+
+  gender: "Female",
+  dob: new Date("2004-08-15"),
+  bloodGroup: "B+",
+
+  category: "General",
+  religion: "Islam",
+  caste: "",
+
+  nationality: "Indian",
+  aadhaarNumber: "458712363374",
+
+  residesInHostel: true,
+  hostelName: "Azad Bhawan - A",
+
+  email: "safiyamunshi009@gmail.com",
+  password: "TEMP",
+
+  parulEmailId: "",
+  parulEmailActive: false,
+
+  googleId: undefined,
+
+  enrollmentNo: "24UG123456",
+  ugNumber: "24UG123456",
+
+  faculty: "FET",
+  institute: "Parul Institute of Engineering & Technology (First Shift)",
+  course: "B.Tech",
+  branch: "CSE",
+  specialization: "AIML",
+
+  joiningDate: new Date("2024-08-01"),
+  admissionYear: 2024,
+  admissionType: "Regular",
+  studentStatus: "active",
+
+  phoneCode: "+91",
+  phone: "9876543210",
+
+  whatsapp: "9876543210",
+  alternateEmail: "govind.personal@gmail.com",
+
+  emergencyContact: {
+    name: "Rakesh Bhadoriya",
+    phoneCode: "+91",
+    phone: "9876500001",
+  },
+
+  father: {
+    name: "Rakesh Singh Bhadoriya",
+    phoneCode: "+91",
+    phone: "9876500001",
+    email: "rakesh@gmail.com",
+  },
+
+  mother: {
+    name: "Sunita Bhadoriya",
+    phoneCode: "+91",
+    phone: "9876500002",
+    email: "sunita@gmail.com",
+  },
+
+  presentAddress: {
+    address1: "Boys Hostel A Room 205",
+    address2: "",
+    address3: "",
+    city: "Vadodara",
+    district: "Vadodara",
+    state: "Gujarat",
+    country: "India",
+    pincode: "391760",
+  },
+
+  permanentAddress: {
+    address1: "Shiv Nagar",
+    address2: "",
+    address3: "",
+    city: "Gwalior",
+    district: "Gwalior",
+    state: "Madhya Pradesh",
+    country: "India",
+    pincode: "474001",
+  },
+
+  education: {
+    tenth: {
+      schoolName: "Kendriya Vidyalaya Gwalior",
+      percentage: 89.6,
+      marksheet: "uploads/10th/govind.pdf",
+    },
+
+    twelfth: {
+      schoolName: "Kendriya Vidyalaya Gwalior",
+      percentage: 86.2,
+      marksheet: "uploads/12th/govind.pdf",
+    },
+  },
+
+  documents: {
+    aadhaarProof: "uploads/docs/govind_aadhaar.pdf",
+    abcIdProof: "uploads/docs/govind_abc.pdf",
+    casteProof: "uploads/docs/govind_caste.pdf",
+    leavingCertificate: "uploads/docs/govind_lc.pdf",
+  },
+
+  abcId: "ABC24002002",
 
   role: "student",
   isActive: true,
