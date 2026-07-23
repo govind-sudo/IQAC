@@ -1,0 +1,114 @@
+<% layout('layout/adminBoilerPlate') %>
+
+<div class="form-page-container">
+    <div class="form-header">
+        <a href="/admin/subadmins" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Sub-Admins
+        </a>
+        <h1>Add New Sub-Admin</h1>
+        <p>Create a new sub-administrator account with managed access permissions.</p>
+    </div>
+
+    <div class="card form-card">
+
+        <!-- Error Popup Banner -->
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+            <div class="alert-popup error">
+                <div class="alert-icon">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+                <div class="alert-content">
+                    <strong>Action Failed</strong>
+                    <p><%= errorMessage %></p>
+                </div>
+                <button type="button" class="close-alert-btn" onclick="this.parentElement.remove();">&times;</button>
+            </div>
+        <% } %>
+
+        <form action="/admin/subadmins" method="POST" class="subadmin-form">
+            
+            <div class="form-row">
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="fullName">Full Name <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        name="fullName" 
+                        value="<%= typeof formData !== 'undefined' && formData.fullName ? formData.fullName : '' %>"
+                        placeholder="e.g., Jane Doe" 
+                        required 
+                        autocomplete="off"
+                    />
+                </div>
+
+                <!-- MIS Code -->
+                <div class="form-group">
+                    <label for="misCode">MIS Code <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        id="misCode" 
+                        name="misCode" 
+                        value="<%= typeof formData !== 'undefined' && formData.misCode ? formData.misCode : '' %>"
+                        placeholder="e.g., MIS10293" 
+                        required 
+                        style="text-transform: uppercase;"
+                        autocomplete="off"
+                    />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email Address <span class="required">*</span></label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        value="<%= typeof formData !== 'undefined' && formData.email ? formData.email : '' %>"
+                        placeholder="e.g., subadmin@university.ac.in" 
+                        required 
+                        autocomplete="off"
+                    />
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group">
+                    <label for="phone">Phone Number <span class="required">*</span></label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>"
+                        placeholder="e.g., +91 9876543210" 
+                        autocomplete="off"
+                        required
+                    />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Active Status -->
+                <div class="form-group checkbox-group">
+                    <label class="switch-label">
+                        <input 
+                            type="checkbox" 
+                            name="isActive" 
+                            value="true" 
+                            <%= (typeof formData === 'undefined' || formData.isActive !== false) ? 'checked' : '' %> 
+                        />
+                        <span class="label-text">Account Active Immediately</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="/admin/subadmins" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-user-plus"></i> Create Sub-Admin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

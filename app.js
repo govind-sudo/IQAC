@@ -183,12 +183,53 @@ app.get('/', (req, res) => {
   return res.redirect('/login');
 });
 
+<<<<<<< Updated upstream
+=======
+
+// Example Router setup in your controllers:
+
+
+
+>>>>>>> Stashed changes
 // ---------------- Student routes ----------------
 // Handles GET /students/dashboard with REAL data + auth check.
 // This must be mounted BEFORE the leftover static routes below,
 // so it wins the /students/dashboard match instead of the old one.
 app.use("/students", require("./routes/studentRoutes"));
 
+<<<<<<< Updated upstream
+=======
+
+
+
+// ---------------- Remaining static pages (not yet wired to real data) ----------------
+// NOTE: the old app.get("/students/dashboard", ...) line has been
+// REMOVED here on purpose — it's now handled by studentRoutes.js
+// with real database data instead of a blank render.
+
+// app.get("/students/personal", (req, res) => {
+//   res.render("students/personal", { currentPage: "personal" });
+// });
+
+// app.get("/students/academic", (req, res) => {
+//   res.render("students/academic", { currentPage: "academic" });
+// });
+
+// app.get("/students/documents", (req, res) => {
+//   res.render("students/documents", { currentPage: "documents" });
+// });
+
+// app.get("/students/addresses", (req, res) => {
+//   res.render("students/addresses", { currentPage: "addresses" });
+// });
+
+
+// app.get("/students/contact", (req, res) => {
+//   res.render("students/contact", { currentPage: "contact" });
+// });
+
+
+>>>>>>> Stashed changes
 app.get("/students/help", (req, res) => {
   res.render("students/help", { currentPage: "help" });
 });
