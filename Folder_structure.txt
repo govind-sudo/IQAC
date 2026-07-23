@@ -1,48 +1,114 @@
-D:.
-│   .env
-│   .gitignore
-│   app.js
-│   package-lock.json
-│   package.json
-│   USED.text
-│
-├───init
-│       data.js
-│       index.js
-│
-├───models
-│       addressSchema.js
-│       emergencyContactSchema.js
-│       parentSchema.js
-│       student.js
-│
-|
-├───public
-│   ├───css
-│   │   ├───students
-│   │   │       studentsDashboard.css
-│   │   │       studentsProfile.css
-│   │   │       studentsSidebar.css
-│   │   │
-│   │   └───teacher
-│   └───js
-└───views
-    ├───include
-    │       studentsSidebar.ejs
-    │
-    ├───layout
-    │       adminBoilerPlate.ejs
-    │       studentsBoilerPlate.ejs
-    │       teacherBoilerPlate.ejs
-    │
-    └───students
-            dashboard.ejs
-            documents.ejs
-            forms.ejs
-            help.ejs
-            messages.ejs
-            notices.ejs
-            profile.ejs
-            settings.ejs
-
-PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Porta
+PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
+├── config
+│   ├── passport.js
+│   ├── redisClient.js
+├── controllers
+│   ├── authController.js
+│   ├── fileVerificationController.js
+│   ├── old_registrationController.js
+│   ├── registrationController.js
+│   ├── studentController.js
+├── init
+│   ├── admin.js
+│   ├── admininit.js
+│   ├── data.js
+│   ├── index.js
+├── middleware
+│   ├── auth.js
+│   ├── rateLimiter.js
+│   ├── uploadMiddleware.js
+│   ├── validateFileSignatures.js
+├── models
+│   ├── addressSchema.js
+│   ├── admin.js
+│   ├── documentsSchema.js
+│   ├── educationSchema.js
+│   ├── emergencyContactSchema.js
+│   ├── parentSchema.js
+│   ├── Student.js
+├── providers
+│   ├── GeminiProvider.js
+├── public
+│   ├── css
+│   │   ├── students
+│   │   │   ├── studentRegistration.css
+│   │   │   ├── studentsAcademic.css
+│   │   │   ├── studentsContact.css
+│   │   │   ├── studentsDashboard.css
+│   │   │   ├── studentsDocuments.css
+│   │   │   ├── studentsLogin.css
+│   │   │   ├── studentsMessages.css
+│   │   │   ├── studentsPersonal.css
+│   │   │   ├── studentsProfile.css
+│   │   │   ├── studentsSidebar.css
+│   │   ├── teacher
+│   ├── data
+│   │   ├── countryCodes.json
+│   │   ├── indiaDistricts.json
+│   │   ├── indiaStates.json
+│   ├── js
+│   │   ├── fileVerification.js
+│   │   ├── studentPersonal.js
+│   │   ├── studentRegistration.js
+│   │   ├── studentSidebar.js
+│   │   ├── studentsLogin.js
+│   ├── iqactodo.txt
+├── queue
+│   ├── ocrQueue.js
+├── routes
+│   ├── adminRoutes.js
+│   ├── authRoutes.js
+│   ├── googleAuthRoutes.js
+│   ├── old1_registrationRoutes.js
+│   ├── old_registrationRoutes.js
+│   ├── registrationRoutes.js
+│   ├── studentRoutes.js
+├── scripts
+│   ├── paddle_ocr.py
+│   ├── paddle_ocr_server.py
+│   ├── test_paddle.py
+├── services
+│   ├── AIService.js
+│   ├── storageService.js
+├── uploads
+├── utils
+│   ├── documentVerifier.js
+│   ├── fileSignatureValidator.js
+│   ├── ocrTextExtractor.js
+├── views
+│   ├── admin
+│   │   ├── dashboard.ejs
+│   ├── include
+│   │   ├── studentsSidebar.ejs
+│   ├── layout
+│   │   ├── adminBoilerPlate.ejs
+│   │   ├── studentsBoilerPlate.ejs
+│   │   ├── teacherBoilerPlate.ejs
+│   ├── students
+│   │   ├── academic.ejs
+│   │   ├── contact.ejs
+│   │   ├── dashboard.ejs
+│   │   ├── documents.ejs
+│   │   ├── forms.ejs
+│   │   ├── help.ejs
+│   │   ├── login.ejs
+│   │   ├── old_register.ejs
+│   │   ├── personal.ejs
+│   │   ├── register.ejs
+│   │   ├── registerSuccess.ejs
+├── workers
+│   ├── ocrProcessor.js
+├── .env
+├── .env.example
+├── .gitignore
+├── app.js
+├── autofill.py
+├── Folder_structure.txt
+├── package-lock.json
+├── package.json
+├── README.md
+├── requirements.txt
+├── setup.bat
+├── setup.sh
+├── test_output-1.jpg
+├── USED.text

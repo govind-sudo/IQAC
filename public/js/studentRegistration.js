@@ -266,11 +266,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (key === "diploma") {
         twelfthBlockTitle.textContent = "Diploma";
         twelfthSchoolLabel.innerHTML  = 'Diploma Institute Name<span class="req">*</span>';
-        twelfthMarksheetLabel.innerHTML = 'Upload Diploma Marksheet (PDF)<span class="req">*</span>';
+        twelfthMarksheetLabel.innerHTML = 'Upload Diploma Marksheet (PDF/JPG/PNG)<span class="req">*</span>';
       } else {
         twelfthBlockTitle.textContent = "12th Standard";
         twelfthSchoolLabel.innerHTML  = 'School / College Name<span class="req">*</span>';
-        twelfthMarksheetLabel.innerHTML = 'Upload 12th Marksheet (PDF)<span class="req">*</span>';
+        twelfthMarksheetLabel.innerHTML = 'Upload 12th Marksheet (PDF/JPG/PNG)<span class="req">*</span>';
       }
     });
   });
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     twelfthBlockTitle.textContent   = "12th Standard";
     twelfthSchoolLabel.innerHTML    = 'School / College Name<span class="req">*</span>';
-    twelfthMarksheetLabel.innerHTML = 'Upload 12th Marksheet (PDF)<span class="req">*</span>';
+    twelfthMarksheetLabel.innerHTML = 'Upload 12th Marksheet (PDF/JPG/PNG)<span class="req">*</span>';
     twelfthSchool.name              = "education[twelfth][schoolName]";
     // twelfthGradeTypeHidden.name     = "education[twelfth][gradeType]";
     // twelfthValueInput.name          = "education[twelfth][gradeValue]";

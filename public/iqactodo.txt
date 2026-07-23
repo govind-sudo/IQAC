@@ -31,8 +31,10 @@ change the google client ID and google client secret for university
 mongo url
 production level session secret
 Write "required" in the rejister.ejs file, where the documents are required
-
-
+ in .env file: change the OCR_QUEUE_CONCURRENCY and PADDLE_WORKERS to 16, both should be equal.
+PASTE:
+OCR_QUEUE_CONCURRENCY=14
+PADDLE_WORKERS=14
 
 
 Aadhar Upload
@@ -141,29 +143,88 @@ if it is drop down make down arow and up arrow
 change this //   enrollmentNo: undefined,
       enrollmentNo: ugNumber,
 
-
-
-
-UNCOMMENT AFTER MULTER
-
-1. // IN registrationController.js
-
-    if (body.nationality === 'Other') {
-      const missingIntlDocs = [];
-      if (!body.documents?.aoLevelCertificate) missingIntlDocs.push('A/O Level Certificate');
-      if (!body.documents?.puAdmissionLetter) missingIntlDocs.push('PU Offer Letter');
-      if (!body.documents?.passportUpload) missingIntlDocs.push('Passport');
-
-      if (missingIntlDocs.length) {
-        return res.status(400).render('students/register', {
-          error: `International students must upload: ${missingIntlDocs.join(', ')}.`,
-        });
-      }
-    }
- 
-
-
-
-
-
 added ngrok --> remove it at the end 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Every time you want to run it — open 4 terminal tabs/windows, one command each:
+
+bash
+# Terminal 1
+redis-server
+
+# Terminal 2
+source .venv/bin/activate
+python scripts/paddle_ocr_server.py
+
+# Terminal 3
+node workers/ocrProcessor.js
+
+# Terminal 4
+node app.js
+
+Then open http://localhost:3000 in your browser. Ctrl+C in any terminal to stop that piece; nothing auto-restarts on your laptop (that's fine — it's just for testing).
+
+wsl --install -d Ubuntu --location "D:\.DO_NOT_MOVE_FROM_HERE\WSL\Ubuntu"
+
+
+
+// COLLEGE SERVER:
+
+
+On the college server (one-time setup, then it should auto-run forever)
+
+One-time setup:
+
+bash
+# Clone/copy your project onto the server, then inside the project folder:
+npm install
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+deactivate
+
+sudo apt-get update
+sudo apt-get install -y redis-server poppler-utils
+
+Create .env on the server (same as before, but with server paths and PADDLE_WORKERS=12):
+
+dotenv
+NODE_ENV=production
+MONGO_URL=mongodb://your-real-connection-string
+SESSION_SECRET=some-long-random-string
+GEMINI_API_KEY=your-actual-gemini-key
+GEMINI_MODEL=gemini-2.5-flash
+AI_PROVIDER=gemini
+PADDLE_OCR_PYTHON_BIN=/full/path/to/.venv/bin/python3
+PADDLE_OCR_PORT=8000
+REDIS_URL=redis://127.0.0.1:6379
+OCR_SERVER_URL=http://127.0.0.1:8000
+OCR_QUEUE_CONCURRENCY=12
+PADDLE_WORKERS=12
+OCR_CACHE_TTL_SECONDS=3600
+OCR_JOB_WAIT_TIMEOUT_MS=90000
+
+To just get it running right now (manual, same as your laptop):
+
+bash
+sudo systemctl enable --now redis-server   # Redis as a system service, auto-starts
+
+# then, in separate terminals or with & to background them:
+source .venv/bin/activate && python scripts/paddle_ocr_server.py &
+node workers/ocrProcessor.js &
+node app.js &
+
+This works immediately but won't survive a server reboot or a crash — that's the gap I flagged earlier. To actually make it permanent (auto-start on boot, auto-restart if it crashes, so you truly never touch it again), you need systemd service files for the 3 Node/Python processes (Redis already auto-manages itself via systemctl enable).

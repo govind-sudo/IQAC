@@ -577,3 +577,31 @@ select:disabled {
 .phone-group input::placeholder{
     color:#9ca3af;
 }
+
+.file-verify-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.spin {
+    animation: statusSpin 1s linear infinite;
+}
+
+@keyframes statusSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
