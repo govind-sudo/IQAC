@@ -7,6 +7,14 @@ module.exports = [
     role: "admin",
     isActive: true,
   },
+  {
+    fullName: "Safiya Munshi",
+    misCode: "MIS9999",
+    email: "safiyamunshi009@gmail.com",
+    phone: "9876543210",
+    role: "admin",
+    isActive: true,
+  },
 
   {
     fullName: "Raghav",
