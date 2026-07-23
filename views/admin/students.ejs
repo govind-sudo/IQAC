@@ -1,0 +1,140 @@
+<% layout('layout/adminBoilerPlate') %>
+
+<div class="students-page-container">
+    <!-- Header Section -->
+    <header class="page-header">
+        <div class="header-text">
+            <h1>Student Management</h1>
+            <p>View, search, edit, and manage all registered student profiles.</p>
+        </div>
+    </header>
+
+    <!-- Toolbar: Live Search Filter -->
+    <div class="table-toolbar">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input 
+                type="text" 
+                id="studentSearchInput" 
+                placeholder="Search by student name, enrollment no, or contact..." 
+                autocomplete="off"
+            />
+        </div>
+        <div class="record-counter">
+            Total Students: <strong id="studentCount"><%= (typeof students !== 'undefined' && students) ? students.length : 0 %></strong>
+        </div>
+    </div>
+
+    <!-- Students Table Card -->
+    <div class="card table-card">
+        <div class="table-responsive">
+            <table class="students-table" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Student Name</th>
+                        <th>Enrollment / UG No.</th>
+                        <th>Contact Number</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof students !== 'undefined' && students && students.length > 0) { %>
+                        <% students.forEach((student, index) => { %>
+                            <tr class="student-row" data-search="<%= (student.fullName || (student.firstName + ' ' + student.lastName)).toLowerCase() %> <%= (student.enrollmentNo || '').toLowerCase() %> <%= (student.ugNumber || '').toLowerCase() %> <%= (student.phone || '').toLowerCase() %>">
+                                <td><%= index + 1 %></td>
+                                <td class="student-name-cell">
+                                    <a href="/admin/students/<%= student._id %>/inDetail" class="student-profile-link">
+                                        <div class="avatar-placeholder">
+                                            <%= (student.firstName ? student.firstName[0] : 'S').toUpperCase() %>
+                                        </div>
+                                        <div class="name-info">
+                                            <span class="full-name"><%= student.fullName || (student.firstName + ' ' + student.lastName) %></span>
+                                            <span class="email-sub"><%= student.email %></span>
+                                        </div>
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="id-badge-container">
+                                        <span class="ug-badge"><%= student.ugNumber %></span>
+                                        <% if (student.enrollmentNo) { %>
+                                            <span class="enrollment-sub"><%= student.enrollmentNo %></span>
+                                        <% } else { %>
+                                            <span class="enrollment-sub missing">No Enrollment</span>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <% if (student.phone) { %>
+                                        <a href="tel:<%= student.phoneCode || '+91' %><%= student.phone %>" class="phone-link">
+                                            <i class="fa-solid fa-phone"></i> <%= student.phoneCode || '+91' %> <%= student.phone %>
+                                        </a>
+                                    <% } else { %>
+                                        <span class="text-muted">N/A</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <span class="status-pill status-<%= (student.studentStatus || 'active').toLowerCase() %>">
+                                        <%= (student.studentStatus || 'active').toUpperCase() %>
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <!-- Edit Link -->
+                                        <a href="/admin/students/<%= student._id %>/edit" class="btn-action edit" title="Edit Student Details">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </a>
+
+                                        <!-- Delete Button Trigger -->
+                                        <button 
+                                            type="button" 
+                                            class="btn-action delete btn-delete-trigger" 
+                                            data-id="<%= student._id %>" 
+                                            data-name="<%= student.fullName || (student.firstName + ' ' + student.lastName) %>"
+                                            title="Delete Student"
+                                        >
+                                            <i class="fa-solid fa-trash-can"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr id="noDataRow">
+                            <td colspan="6" class="empty-state">
+                                <i class="fa-solid fa-user-slash empty-icon"></i>
+                                <p>No students found in the database.</p>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Delete Confirmation -->
+<div class="modal-overlay" id="deleteConfirmModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="warning-icon-wrapper">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3>Confirm Student Deletion</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete student <strong id="deleteStudentName"></strong>?</p>
+            <p class="warning-text">This action is permanent and cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+            <form id="deleteStudentForm" method="POST" action="">
+                <button type="submit" class="btn-danger">Delete Student</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Page Scripts -->
+<script src="/js/admin/students.js"></script>

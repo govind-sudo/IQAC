@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IQAC Admin Portal</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="/css/admin/adminSidebar.css">
+    <link rel="stylesheet" href="/css/admin/dashboard.css">
+    <link rel="stylesheet" href="/css/admin/students.css">
+    <link rel="stylesheet" href="/css/admin/studentDetail.css">
+</head>
+
+<body>
+
+    <!-- ========================= -->
+    <!-- Mobile Overlay -->
+    <!-- ========================= -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <div class="layout">
+
+        <!-- ========================= -->
+        <!-- Sidebar (Includes its own toggle button) -->
+        <!-- ========================= -->
+        <%- include("../include/adminSidebar") %>
+
+        <!-- ========================= -->
+        <!-- Main Content -->
+        <!-- ========================= -->
+        <main class="main-content">
+            <!-- Duplicate mobile button removed from here -->
+            <%- body %>
+        </main>
+
+    </div>
+
+    <!-- Sidebar JS -->
+    <script src="/js/adminSidebar.js"></script>
+
+</body>
+</html>

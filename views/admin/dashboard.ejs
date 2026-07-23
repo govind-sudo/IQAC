@@ -1,3 +1,235 @@
-<h1>Hello admin</h1>
+<% layout('layout/adminBoilerPlate') %>
 
+<!-- Top Header Banner -->
+<header class="dashboard-header">
+    <div class="welcome-text">
+        <span class="greeting">Good Day 👋</span>
+        <h1>Welcome back, <%= admin.fullName %></h1>
+        <p class="role-badge">Role: <strong><%= admin.role.toUpperCase() %></strong> | IQAC Administration</p>
+    </div>
+</header>
 
+<!-- Stat Cards Row -->
+<section class="stats-grid">
+    <div class="stat-card blue">
+        <div class="stat-icon">
+            <i class="fa-solid fa-user-graduate"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-title">Total Students</span>
+            <h2 class="stat-value"><%= metrics.totalStudents.toLocaleString() %></h2>
+        </div>
+    </div>
+
+    <div class="stat-card purple">
+        <div class="stat-icon">
+            <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-title">Total Admins</span>
+            <h2 class="stat-value"><%= metrics.totalAdmins.toLocaleString() %></h2>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content Grid (Chart + Quick Actions) -->
+<section class="dashboard-body-grid">
+    
+    <!-- Left: Monthly Student Visit / Registration Graph -->
+    <div class="card graph-card">
+        <div class="card-header">
+            <h3>Campus Registrations / Visits Trend</h3>
+            <span class="year-pill">This Year</span>
+        </div>
+        <div class="chart-container" style="height: 300px; position: relative;">
+            <canvas id="studentTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Right: Quick Options -->
+    <div class="card actions-card">
+        <div class="card-header">
+            <h3>Quick Options</h3>
+        </div>
+        <div class="quick-actions-grid">
+            
+            <!-- Manage Students -->
+            <a href="/admin/students" class="action-btn action-students">
+                <div class="action-icon"><i class="fa-solid fa-users"></i></div>
+                <span>Manage Students</span>
+            </a>
+
+            <!-- View All Sub-Admins -->
+            <a href="/admin/subadmins" class="action-btn action-subadmins">
+                <div class="action-icon"><i class="fa-solid fa-user-gear"></i></div>
+                <span>View Sub-Admins</span>
+            </a>
+
+            <!-- View Profile -->
+            <a href="/admin/profile" class="action-btn action-profile">
+                <div class="action-icon"><i class="fa-regular fa-id-card"></i></div>
+                <span>View Profile</span>
+            </a>
+
+            <!-- Export Students Data -->
+            <a href="/admin/export-students" class="action-btn action-export">
+                <div class="action-icon"><i class="fa-solid fa-file-csv"></i></div>
+                <span>Export Students Data</span>
+            </a>
+
+        </div>
+    </div>
+</section>
+
+<!-- Analytics Grid Row (Pie Chart + Bar Chart) -->
+<section class="dashboard-body-grid" style="margin-top: 1.5rem;">
+    
+    <!-- District Distribution Pie Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h3>District Distribution</h3>
+            <span class="year-pill">Demographics</span>
+        </div>
+        <div class="chart-container" style="height: 280px; position: relative;">
+            <canvas id="districtPieChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 12th Marks Distribution Bar Chart -->
+    <div class="card">
+        <div class="card-header">
+            <h3>12th Marks (%) Spread</h3>
+            <span class="year-pill">Academic</span>
+        </div>
+        <div class="chart-container" style="height: 280px; position: relative;">
+            <canvas id="marksBarChart"></canvas>
+        </div>
+    </div>
+
+</section>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Data from Backend
+    const chartData = <%- chartData %>;
+    const districtLabels = <%- districtLabels %>;
+    const districtData = <%- districtData %>;
+    const marksLabels = <%- marksLabels %>;
+    const marksData = <%- marksData %>;
+
+    // 1. Line Chart: Registration Trend
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const ctxTrend = document.getElementById('studentTrendChart').getContext('2d');
+    
+    const gradient = ctxTrend.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.35)');
+    gradient.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Student Registrations',
+                data: chartData,
+                borderColor: '#4f46e5',
+                borderWidth: 3,
+                fill: true,
+                backgroundColor: gradient,
+                tension: 0.4,
+                pointBackgroundColor: '#4f46e5',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+// 2. Pie Chart: District Distribution
+// Pie Chart: District Distribution (Present Address)
+const ctxDistrict = document.getElementById('districtPieChart').getContext('2d');
+
+new Chart(ctxDistrict, {
+    type: 'pie',
+    data: {
+        labels: districtLabels.length ? districtLabels : ['No Data'],
+        datasets: [{
+            data: districtData.length ? districtData : [1],
+            backgroundColor: [
+                '#6366f1', // Indigo
+                '#a855f7', // Purple
+                '#ec4899', // Pink
+                '#f97316', // Orange
+                '#10b981', // Emerald
+                '#64748b'  // Slate (Others)
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'right', // Displays district names alongside pie chart
+                labels: {
+                    boxWidth: 14,
+                    padding: 12,
+                    font: {
+                        size: 13,
+                        family: 'Inter, sans-serif',
+                        weight: '500'
+                    },
+                    color: '#334155'
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+                        return ` ${label}: ${value} student${value === 1 ? '' : 's'}`;
+                    }
+                }
+            }
+        }
+    }
+});
+
+    // 3. Bar Chart: 12th Percentage Range
+    const ctxMarks = document.getElementById('marksBarChart').getContext('2d');
+    new Chart(ctxMarks, {
+        type: 'bar',
+        data: {
+            labels: marksLabels,
+            datasets: [{
+                label: 'Students',
+                data: marksData,
+                backgroundColor: '#3b82f6',
+                borderRadius: 6,
+                maxBarThickness: 40
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>

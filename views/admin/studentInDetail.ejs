@@ -1,0 +1,270 @@
+<% layout('layout/adminBoilerPlate') %>
+
+<link rel="stylesheet" href="/css/admin/studentDetail.css">
+
+<div class="student-detail-container">
+    
+    <!-- Top Action Bar -->
+    <div class="detail-top-bar">
+        <a href="/admin/students" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Students
+        </a>
+        <div class="action-buttons">
+            <a href="/admin/students/<%= student._id %>/edit" class="btn-action edit">
+                <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+            </a>
+            <button type="button" class="btn-action delete btn-delete-trigger" data-id="<%= student._id %>" data-name="<%= student.fullName %>">
+                <i class="fa-solid fa-trash-can"></i> Delete
+            </button>
+        </div>
+    </div>
+
+    <!-- Student Header Banner -->
+    <div class="card student-banner-card">
+        <div class="banner-avatar">
+            <%= (student.firstName ? student.firstName[0] : 'S').toUpperCase() %>
+        </div>
+        <div class="banner-info">
+            <div class="banner-title-row">
+                <h2><%= student.title ? student.title + ' ' : '' %><%= student.fullName || (student.firstName + ' ' + student.lastName) %></h2>
+                <span class="status-pill status-<%= (student.studentStatus || 'active').toLowerCase() %>">
+                    <%= (student.studentStatus || 'active').toUpperCase() %>
+                </span>
+                <span class="verification-pill status-<%= (student.profileStatus || 'incomplete').toLowerCase() %>">
+                    <i class="fa-solid fa-shield-check"></i> <%= (student.profileStatus || 'incomplete').toUpperCase() %>
+                </span>
+            </div>
+            <div class="banner-meta">
+                <span><i class="fa-solid fa-id-card"></i> UG No: <strong><%= student.ugNumber %></strong></span>
+                <span><i class="fa-solid fa-hashtag"></i> Enrollment: <strong><%= student.enrollmentNo || 'Not Assigned' %></strong></span>
+                <span><i class="fa-solid fa-graduation-cap"></i> <%= student.course || 'B.Tech' %> - <%= student.branch || 'CSE' %></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Details Grid -->
+    <div class="detail-grid">
+
+        <!-- Column 1: Academic & Contact Details -->
+        <div class="detail-column">
+            
+            <!-- Academic Information -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-university header-icon"></i> Academic Information</h3>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Faculty</span>
+                        <span class="info-value"><%= student.faculty || 'FET' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Institute</span>
+                        <span class="info-value"><%= student.institute || 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Course & Branch</span>
+                        <span class="info-value"><%= student.course || 'N/A' %> (<%= student.branch || 'N/A' %>)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Specialization</span>
+                        <span class="info-value"><%= student.specialization || 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Admission Type</span>
+                        <span class="info-value"><%= student.admissionType || 'Regular' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Admission Year</span>
+                        <span class="info-value"><%= student.admissionYear || 'N/A' %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Details -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-address-book header-icon"></i> Contact Information</h3>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Primary Email</span>
+                        <span class="info-value"><a href="mailto:<%= student.email %>"><%= student.email %></a></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Alternate Email</span>
+                        <span class="info-value"><%= student.alternateEmail || 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Parul Email</span>
+                        <span class="info-value">
+                            <%= student.parulEmailId || 'N/A' %>
+                            <% if (student.parulEmailActive) { %>
+                                <span class="badge active">Active</span>
+                            <% } %>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone Number</span>
+                        <span class="info-value">
+                            <% if (student.phone) { %>
+                                <a href="tel:<%= student.phoneCode || '+91' %><%= student.phone %>"><%= student.phoneCode || '+91' %> <%= student.phone %></a>
+                            <% } else { %> N/A <% } %>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">WhatsApp Number</span>
+                        <span class="info-value"><%= student.whatsapp ? (student.phoneCode || '+91') + ' ' + student.whatsapp : 'N/A' %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-location-dot header-icon"></i> Address Details</h3>
+                </div>
+                <div class="address-section">
+                    <div class="address-box">
+                        <span class="address-title">Present Address</span>
+                        <% if (student.presentAddress && (student.presentAddress.street || student.presentAddress.city)) { %>
+                            <p><%= student.presentAddress.street %></p>
+                            <p><%= student.presentAddress.city %>, <%= student.presentAddress.district %></p>
+                            <p><%= student.presentAddress.state %>, <%= student.presentAddress.country %> - <%= student.presentAddress.pincode %></p>
+                        <% } else { %>
+                            <p class="text-muted">No present address details updated.</p>
+                        <% } %>
+                    </div>
+                    <div class="address-box">
+                        <span class="address-title">Permanent Address</span>
+                        <% if (student.permanentAddress && (student.permanentAddress.street || student.permanentAddress.city)) { %>
+                            <p><%= student.permanentAddress.street %></p>
+                            <p><%= student.permanentAddress.city %>, <%= student.permanentAddress.district %></p>
+                            <p><%= student.permanentAddress.state %>, <%= student.permanentAddress.country %> - <%= student.permanentAddress.pincode %></p>
+                        <% } else { %>
+                            <p class="text-muted">No permanent address details updated.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Column 2: Personal, Family & Emergency -->
+        <div class="detail-column">
+            
+            <!-- Personal Details -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-user header-icon"></i> Personal Details</h3>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Gender</span>
+                        <span class="info-value"><%= student.gender ? student.gender.toUpperCase() : 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date of Birth</span>
+                        <span class="info-value"><%= student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Blood Group</span>
+                        <span class="info-value"><%= student.bloodGroup || 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Category</span>
+                        <span class="info-value"><%= student.category || 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Nationality</span>
+                        <span class="info-value"><%= student.nationality || 'Indian' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">ABC ID</span>
+                        <span class="info-value"><%= student.abcId || 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Hostel Resident</span>
+                        <span class="info-value"><%= student.residesInHostel ? 'Yes (' + (student.hostelName || 'Hostel') + ')' : 'No' %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parents Information -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-people-roof header-icon"></i> Family Information</h3>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Father's Name</span>
+                        <span class="info-value"><%= student.father ? student.father.name || 'N/A' : 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Father's Phone</span>
+                        <span class="info-value"><%= student.father && student.father.phone ? student.father.phone : 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mother's Name</span>
+                        <span class="info-value"><%= student.mother ? student.mother.name || 'N/A' : 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mother's Phone</span>
+                        <span class="info-value"><%= student.mother && student.mother.phone ? student.mother.phone : 'N/A' %></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="card detail-card">
+                <div class="card-header">
+                    <h3><i class="fa-solid fa-phone-volume header-icon"></i> Emergency Contact</h3>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Contact Person</span>
+                        <span class="info-value"><%= student.emergencyContact ? student.emergencyContact.name || 'N/A' : 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Relation</span>
+                        <span class="info-value"><%= student.emergencyContact ? student.emergencyContact.relation || 'N/A' : 'N/A' %></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone Number</span>
+                        <span class="info-value">
+                            <% if (student.emergencyContact && student.emergencyContact.phone) { %>
+                                <a href="tel:<%= student.emergencyContact.phone %>"><%= student.emergencyContact.phone %></a>
+                            <% } else { %> N/A <% } %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal: Delete Confirmation -->
+<div class="modal-overlay" id="deleteConfirmModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="warning-icon-wrapper">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3>Confirm Student Deletion</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete student <strong><%= student.fullName %></strong>?</p>
+            <p class="warning-text">This action is permanent and cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+            <form action="/admin/students/<%= student._id %>?_method=DELETE" method="POST">
+                <button type="submit" class="btn-danger">Delete Student</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="/js/admin/students.js"></script>

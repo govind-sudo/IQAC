@@ -1,0 +1,101 @@
+<button class="menu-btn" id="menuToggleBtn" aria-label="Toggle Navigation Menu">
+    <i class="fa-solid fa-bars"></i>
+</button>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<aside class="sidebar" id="adminSidebar">
+
+    <!-- ==========================================
+         Logo Header Group
+         ========================================== -->
+    <div class="sidebar-top">
+        <div class="sidebar-logo">
+            <div class="logo-icon">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="logo-text">
+                <h2>IQAC</h2>
+                <p>Internal Quality</p>
+                <p>Assurance Administration</p>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             Navigation Panel
+             ========================================== -->
+        <nav class="sidebar-nav">
+            <ul>
+                <!-- Dashboard (Admin & Subadmin) -->
+                <li class="<%= currentPage === 'dashboard' ? 'active' : '' %>">
+                    <a href="/admin/dashboard">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <!-- Students (Admin & Subadmin) -->
+                <li class="<%= currentPage === 'students' ? 'active' : '' %>">
+                    <a href="/admin/students">
+                        <i class="fa-solid fa-user-graduate"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+
+                <!-- Sub Admins (Visible to both Admin & Subadmin) -->
+                <li class="<%= currentPage === 'subadmins' ? 'active' : '' %>">
+                    <a href="/admin/subadmins">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Sub Admins</span>
+                    </a>
+                </li>
+
+                <!-- Profile (Admin & Subadmin) -->
+                <li class="<%= currentPage === 'profile' ? 'active' : '' %>">
+                    <a href="/admin/profile">
+                        <i class="fa-regular fa-user"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+
+                 <!-- Settings (ONLY Root Admin) -->
+                <% if (typeof admin !== 'undefined' && admin && admin.role === 'admin') { %>
+                    <li class="<%= currentPage === 'settings' ? 'active' : '' %>">
+                        <a href="/admin/settings">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                <% } %>
+
+            </ul>
+        </nav>
+    </div>
+
+    <!-- ==========================================
+         Bottom Action & Support Section
+         ========================================== -->
+    <div class="sidebar-bottom">
+        <div class="help-card">
+            <div class="help-icon">
+                <i class="fa-solid fa-headset"></i>
+            </div>
+            <div class="help-content">
+                <h4>Need Help?</h4>
+                <p>Contact the System Administrator for technical assistance.</p>
+                <a href="/admin/help" class="support-link">
+                    Contact Support
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <a href="/logout" class="logout-link">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</aside>
+
+<!-- External Client JS Handler -->
+<script src="/js/adminSidebar.js"></script>
