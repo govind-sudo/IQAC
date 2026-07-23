@@ -2,6 +2,7 @@
 
 <%
 const studentInfo = student || {};
+const isIndian = (studentInfo.nationality || '').toLowerCase() === 'indian';
 
 const studentName =
     studentInfo.fullName ||
@@ -19,47 +20,51 @@ const greeting =
         : "Good Evening";
 
 function filled(value) {
-    return value !== undefined &&
-           value !== null &&
-           value !== "";
+    return value !== undefined && value !== null && value !== "";
 }
-
-/* =====================================
-   SECTIONAL COMPLETION TRACKING
-====================================== */
 const checkFields = (arr) => arr.filter(filled).length;
 
-// 1. Personal Info (8 fields)
-const personalFields = [
-    studentInfo.firstName, studentInfo.lastName, studentInfo.gender, 
-    studentInfo.dob, studentInfo.bloodGroup, studentInfo.category, 
-    studentInfo.email, studentInfo.phone
-];
+// 1. Personal Info
+const personalFields = isIndian
+    ? [studentInfo.firstName, studentInfo.lastName, studentInfo.gender, studentInfo.dob, studentInfo.bloodGroup, studentInfo.category, studentInfo.email, studentInfo.phone]
+    : [studentInfo.firstName, studentInfo.lastName, studentInfo.gender, studentInfo.dob, studentInfo.bloodGroup, studentInfo.email, studentInfo.phone];
 const personalPct = Math.round((checkFields(personalFields) / personalFields.length) * 100);
 
-// 2. Academic Info (5 fields)
+// 2. Academic Info
 const academicFields = [
-    studentInfo.faculty, studentInfo.institute, studentInfo.course, 
+    studentInfo.faculty, studentInfo.institute, studentInfo.course,
     studentInfo.branch, studentInfo.admissionYear
 ];
 const academicPct = Math.round((checkFields(academicFields) / academicFields.length) * 100);
 
-// 3. Contact & Address (5 fields)
+// 3. Contact & Address — FIXED: address1 (real schema field), not addressLine
 const contactFields = [
-    studentInfo.presentAddress?.addressLine, studentInfo.presentAddress?.city, studentInfo.presentAddress?.state,
-    studentInfo.permanentAddress?.addressLine, studentInfo.permanentAddress?.city
+    studentInfo.presentAddress?.address1, studentInfo.presentAddress?.city, studentInfo.presentAddress?.state,
+    studentInfo.permanentAddress?.address1, studentInfo.permanentAddress?.city
 ];
 const contactPct = Math.round((checkFields(contactFields) / contactFields.length) * 100);
 
-// 4. Documents (5 items)
-const docKeys = ['aadhaarCard', 'tenthMarksheet', 'twelfthMarksheet', 'passportPhoto', 'otherDocuments'];
-const uploadedDocs = docKeys.filter(k => studentInfo.documents?.[k] && studentInfo.documents[k].toLowerCase() === 'uploaded').length;
-const documentsPct = Math.round((uploadedDocs / docKeys.length) * 100);
+// 4. Documents — FIXED: real schema paths, real field names, nationality-aware,
+// checked by "does a path exist" not "does the string equal 'uploaded'"
+const indianDocChecks = [
+    !!studentInfo.documents?.aadhaarProof,
+    !!studentInfo.education?.tenth?.marksheet,
+    !!(studentInfo.education?.twelfth?.marksheet || studentInfo.education?.diploma?.marksheet),
+    !!studentInfo.documents?.leavingCertificate,
+    !!studentInfo.documents?.abcIdProof,
+];
+const intlDocChecks = [
+    !!studentInfo.documents?.passportUpload,
+    !!studentInfo.documents?.aoLevelCertificate,
+    !!studentInfo.documents?.puAdmissionLetter,
+];
+const docChecks = isIndian ? indianDocChecks : intlDocChecks;
+const documentsPct = Math.round((docChecks.filter(Boolean).length / docChecks.length) * 100);
 
-// 5. Emergency & Parents (5 fields)
+// 5. Emergency & Parents
 const legacyFields = [
-    studentInfo.father?.name, studentInfo.mother?.name, 
-    studentInfo.emergencyContact?.name, studentInfo.emergencyContact?.phone, studentInfo.emergencyContact?.relation
+    studentInfo.father?.name, studentInfo.mother?.name,
+    studentInfo.emergencyContact?.name, studentInfo.emergencyContact?.phone
 ];
 const emergencyPct = Math.round((checkFields(legacyFields) / legacyFields.length) * 100);
 
@@ -71,9 +76,6 @@ const sectionsList = [
     { label: "Emergency & Parents", pct: emergencyPct }
 ];
 
-/* =====================================
-   UNIFIED GLOBAL PROFILE COMPLETION
-====================================== */
 const profilePercent = Math.round(
     (personalPct + academicPct + contactPct + documentsPct + emergencyPct) / 5
 );
@@ -343,7 +345,7 @@ const profilePercent = Math.round(
 
 
                 <strong>
-                    <%= studentInfo.presentAddress?.addressLine || "-" %>
+                    <%= studentInfo.presentAddress?.address1 || "-" %>
                 </strong>
 
                 <p>
@@ -419,7 +421,7 @@ const profilePercent = Math.round(
 
 
                 <strong>
-                    <%= studentInfo.permanentAddress?.addressLine || "-" %>
+                    <%= studentInfo.permanentAddress?.address1 || "-" %>
                 </strong>
 
 
@@ -682,20 +684,22 @@ const profilePercent = Math.round(
     </div>
 
     <div class="card-body documents-body">
-        <% 
-        const docList = [
-            { name: "Aadhaar Card", key: "aadhaarCard", iconClass: "doc-red", icon: "fa-solid fa-file-pdf" },
-            { name: "10th Marksheet", key: "tenthMarksheet", iconClass: "doc-purple", icon: "fa-solid fa-file-invoice" },
-            { name: "12th Marksheet", key: "twelfthMarksheet", iconClass: "doc-orange", icon: "fa-solid fa-file-lines" },
-            { name: "Passport Photo", key: "passportPhoto", iconClass: "doc-blue", icon: "fa-solid fa-file-image" },
-            { name: "Other Documents", key: "otherDocuments", iconClass: "doc-darkblue", icon: "fa-solid fa-file-zipper" }
-        ];
-        
-        docList.forEach(doc => {
-            // Evaluates to 'Uploaded' if dynamic data matches, default checks simulate typical backend status
-            const status = (studentInfo.documents && studentInfo.documents[doc.key]) || "Pending";
-            const isUploaded = status.toLowerCase() === "uploaded";
-        %>
+        <%
+        const docList = isIndian
+          ? [
+              { name: "Aadhaar Card", uploaded: !!studentInfo.documents?.aadhaarProof, iconClass: "doc-red", icon: "fa-solid fa-file-pdf" },
+              { name: "10th Marksheet", uploaded: !!studentInfo.education?.tenth?.marksheet, iconClass: "doc-purple", icon: "fa-solid fa-file-invoice" },
+              { name: (studentInfo.education?.diploma ? "Diploma Marksheet" : "12th Marksheet"), uploaded: !!(studentInfo.education?.twelfth?.marksheet || studentInfo.education?.diploma?.marksheet), iconClass: "doc-orange", icon: "fa-solid fa-file-lines" },
+              { name: "Leaving Certificate", uploaded: !!studentInfo.documents?.leavingCertificate, iconClass: "doc-blue", icon: "fa-solid fa-file-image" },
+              { name: "ABC/APAAR ID Proof", uploaded: !!studentInfo.documents?.abcIdProof, iconClass: "doc-darkblue", icon: "fa-solid fa-file-zipper" }
+            ]
+          : [
+              { name: "Passport", uploaded: !!studentInfo.documents?.passportUpload, iconClass: "doc-red", icon: "fa-solid fa-passport" },
+              { name: "A/O Level Certificate", uploaded: !!studentInfo.documents?.aoLevelCertificate, iconClass: "doc-purple", icon: "fa-solid fa-file-invoice" },
+              { name: "PU Admission Letter", uploaded: !!studentInfo.documents?.puAdmissionLetter, iconClass: "doc-orange", icon: "fa-solid fa-file-lines" }
+            ];
+
+        docList.forEach(doc => { %>
             <div class="document-item">
                 <div class="document-left">
                     <div class="doc-icon <%= doc.iconClass %>">
@@ -703,15 +707,14 @@ const profilePercent = Math.round(
                     </div>
                     <span class="doc-name"><%= doc.name %></span>
                 </div>
-                
                 <div class="document-right">
-                    <% if (isUploaded) { %>
+                    <% if (doc.uploaded) { %>
                         <span class="doc-status status-uploaded">
                             <i class="fa-regular fa-circle-check"></i> Uploaded
                         </span>
                     <% } else { %>
                         <span class="doc-status status-pending">
-                            <i class="fa-regular fa-circle-dot"></i> Pending
+                            <i class="fa-regular fa-circle-dot"></i> Not Uploaded
                         </span>
                     <% } %>
                 </div>
@@ -756,9 +759,7 @@ const profilePercent = Math.round(
         <% }) %>
     </div>
 
-    <a href="/students/profile" class="update-btn">
-        <i class="fa-solid fa-pen icon-btn"></i> Update Profile
-    </a>
+    
 </div>
 
 

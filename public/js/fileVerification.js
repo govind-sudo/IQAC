@@ -190,12 +190,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const requiredInputs = fileInputs.filter((i) => isRequiredNow(i) && i.files.length);
     const stillRequiredButEmpty = fileInputs.some((i) => isRequiredNow(i) && !i.files.length);
 
-    const allVerified =
+    const allFilesVerified =
       !stillRequiredButEmpty &&
       requiredInputs.every((i) => fileState.get(fieldNameFor(i))?.status === "verified");
 
-    if (submitBtn) submitBtn.disabled = !allVerified;
-  }
+    const anyFileInFlight = fileInputs.some((i) => {
+      const status = fileState.get(fieldNameFor(i))?.status;
+      return status === "scanning" || status === "verifying";
+    });
+
+    const allFieldsValid = form.checkValidity();
+    const formReady = allFilesVerified && allFieldsValid;
+
+    if (submitBtn) {
+      // Only truly disable (blocking clicks) while a file check is
+      // actively in progress — clicking during that window genuinely
+      // shouldn't submit. Otherwise, keep the button clickable even
+      // when the form isn't ready yet, so clicking it still triggers
+      // the browser's native validity warnings (registerSubmit.js
+      // calls checkValidity()/reportValidity() on click) instead of
+      // silently doing nothing.
+      submitBtn.disabled = anyFileInFlight;
+      submitBtn.classList.toggle("btn-not-ready", !formReady && !anyFileInFlight);
+    }
+}
 
   function abortInFlight(fieldName) {
     const state = fileState.get(fieldName);
@@ -313,6 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // waiting on a field that's no longer required, or stay enabled once a
   // newly-required field appears.
   form.addEventListener("change", updateSubmitState);
+  form.addEventListener("input", updateSubmitState);
 
   // ---------- Cancel everything on Reset ----------
   resetButtons.forEach((btn) => {

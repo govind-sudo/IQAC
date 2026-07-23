@@ -48,7 +48,7 @@
                         student.education?.diploma?.marksheet
                       );
                     %>
-                                    
+
                     <% if (!hasAnyDoc) { %>
                         <div class="documents-empty-state">
                             <i class="fa-solid fa-folder-open empty-state-icon"></i>
@@ -56,100 +56,23 @@
                         </div>
                     <% } else { %>
                         <div class="documents-grid">
-                            <!-- ... all the existing document-item-box blocks go here, unchanged ... -->
-                        </div>
-                    <% } %>
-                    <div class="documents-grid">
                         
-                        <!-- Aadhaar Card -->
-                        <div class="document-item-box">
-                            <div class="document-meta-side">
-                                <div class="doc-icon-wrapper identification">
-                                    <i class="fa-solid fa-id-card"></i>
-                                </div>
-                                <div class="doc-text-details">
-                                    <span class="doc-label">Aadhaar Card Number</span>
-                                    <span class="doc-value font-monospace">
-                                        <%= student.aadhaarNumber ? 'XXXXXXXX' + student.aadhaarNumber.slice(-4) : 'Not Given' %>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="document-file-side">
-                                <% if (student.documents && student.documents.aadhaarProof) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Aadhaar Card" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.aadhaarProof) %>">
-                                        <i class="fa-solid fa-eye"></i> View Document
-                                    </button>
-                                <% } else { %>
-                                    <span class="file-status-badge missing">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
-                                    </span>
-                                <% } %>
-                            </div>
-                        </div>
-
-                        <!-- ABC / APAAR ID -->
-                        <div class="document-item-box">
-                            <div class="document-meta-side">
-                                <div class="doc-icon-wrapper identification">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                </div>
-                                <div class="doc-text-details">
-                                    <span class="doc-label">ABC / APAAR Identity</span>
-                                    <span class="doc-value font-monospace"><%= student.abcId || 'Not Given' %></span>
-                                </div>
-                            </div>
-                            <div class="document-file-side">
-                                <% if (student.documents && student.documents.abcIdProof) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="ABC / APAAR ID Proof" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.abcIdProof) %>">
-                                        <i class="fa-solid fa-eye"></i> View Document
-                                    </button>
-                                <% } else { %>
-                                    <span class="file-status-badge missing">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
-                                    </span>
-                                <% } %>
-                            </div>
-                        </div>
-
-                        <!-- Leaving Certificate -->
-                        <div class="document-item-box">
-                            <div class="document-meta-side">
-                                <div class="doc-icon-wrapper media">
-                                    <i class="fa-solid fa-file-invoice"></i>
-                                </div>
-                                <div class="doc-text-details">
-                                    <span class="doc-label">School Leaving Certificate (LC)</span>
-                                    <span class="doc-value-status">Verification Certificate</span>
-                                </div>
-                            </div>
-                            <div class="document-file-side">
-                                <% if (student.documents && student.documents.leavingCertificate) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="School Leaving Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.leavingCertificate) %>">
-                                        <i class="fa-solid fa-eye"></i> View Document
-                                    </button>
-                                <% } else { %>
-                                    <span class="file-status-badge missing">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
-                                    </span>
-                                <% } %>
-                            </div>
-                        </div>
-
-                        <!-- Caste Certificate -->
-                        <% if (student.category && student.category !== 'General') { %>
-                            <div class="document-item-box conditional-required">
+                            <!-- Aadhaar Card -->
+                            <div class="document-item-box">
                                 <div class="document-meta-side">
-                                    <div class="doc-icon-wrapper validation">
-                                        <i class="fa-solid fa-award"></i>
+                                    <div class="doc-icon-wrapper identification">
+                                        <i class="fa-solid fa-id-card"></i>
                                     </div>
                                     <div class="doc-text-details">
-                                        <span class="doc-label">Caste Certificate</span>
-                                        <span class="doc-value-status text-danger-light">Mandatory for <%= student.category %> category</span>
+                                        <span class="doc-label">Aadhaar Card Number</span>
+                                        <span class="doc-value font-monospace">
+                                            <%= student.aadhaarNumber ? 'XXXXXXXX' + student.aadhaarNumber.slice(-4) : 'Not Given' %>
+                                        </span>
                                     </div>
                                 </div>
                                 <div class="document-file-side">
-                                    <% if (student.documents && student.documents.casteProof) { %>
-                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Caste Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.casteProof) %>">
+                                    <% if (student.documents && student.documents.aadhaarProof) { %>
+                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Aadhaar Card" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.aadhaarProof) %>">
                                             <i class="fa-solid fa-eye"></i> View Document
                                         </button>
                                     <% } else { %>
@@ -159,9 +82,136 @@
                                     <% } %>
                                 </div>
                             </div>
-                        <% } %>
-
-                    </div>
+                        
+                            <!-- ABC / APAAR ID -->
+                            <div class="document-item-box">
+                                <div class="document-meta-side">
+                                    <div class="doc-icon-wrapper identification">
+                                        <i class="fa-solid fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="doc-text-details">
+                                        <span class="doc-label">ABC / APAAR Identity</span>
+                                        <span class="doc-value font-monospace"><%= student.abcId || 'Not Given' %></span>
+                                    </div>
+                                </div>
+                                <div class="document-file-side">
+                                    <% if (student.documents && student.documents.abcIdProof) { %>
+                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="ABC / APAAR ID Proof" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.abcIdProof) %>">
+                                            <i class="fa-solid fa-eye"></i> View Document
+                                        </button>
+                                    <% } else { %>
+                                        <span class="file-status-badge missing">
+                                            <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        
+                            <!-- 10th Marksheet -->
+                            <div class="document-item-box">
+                                <div class="document-meta-side">
+                                    <div class="doc-icon-wrapper media">
+                                        <i class="fa-solid fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="doc-text-details">
+                                        <span class="doc-label">10th Standard Marksheet</span>
+                                        <span class="doc-value-status"><%= student.education?.tenth?.schoolName || 'Not Given' %></span>
+                                    </div>
+                                </div>
+                                <div class="document-file-side">
+                                    <% if (student.education && student.education.tenth && student.education.tenth.marksheet) { %>
+                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="10th Marksheet" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.education.tenth.marksheet) %>">
+                                            <i class="fa-solid fa-eye"></i> View Document
+                                        </button>
+                                    <% } else { %>
+                                        <span class="file-status-badge missing">
+                                            <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        
+                            <!-- 12th / Diploma Marksheet -->
+                            <div class="document-item-box">
+                                <div class="document-meta-side">
+                                    <div class="doc-icon-wrapper media">
+                                        <i class="fa-solid fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="doc-text-details">
+                                        <span class="doc-label">
+                                            <%= student.education?.diploma ? 'Diploma Marksheet' : '12th Standard Marksheet' %>
+                                        </span>
+                                        <span class="doc-value-status">
+                                            <%= (student.education?.twelfth?.schoolName || student.education?.diploma?.schoolName) || 'Not Given' %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="document-file-side">
+                                    <% const qualMarksheetIndian = (student.education?.twelfth?.marksheet) || (student.education?.diploma?.marksheet); %>
+                                    <% if (qualMarksheetIndian) { %>
+                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="12th/Diploma Marksheet" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(qualMarksheetIndian) %>">
+                                            <i class="fa-solid fa-eye"></i> View Document
+                                        </button>
+                                    <% } else { %>
+                                        <span class="file-status-badge missing">
+                                            <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        
+                            <!-- Leaving Certificate -->
+                            <div class="document-item-box">
+                                <div class="document-meta-side">
+                                    <div class="doc-icon-wrapper media">
+                                        <i class="fa-solid fa-file-invoice"></i>
+                                    </div>
+                                    <div class="doc-text-details">
+                                        <span class="doc-label">School Leaving Certificate (LC)</span>
+                                        <span class="doc-value-status">Verification Certificate</span>
+                                    </div>
+                                </div>
+                                <div class="document-file-side">
+                                    <% if (student.documents && student.documents.leavingCertificate) { %>
+                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="School Leaving Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.leavingCertificate) %>">
+                                            <i class="fa-solid fa-eye"></i> View Document
+                                        </button>
+                                    <% } else { %>
+                                        <span class="file-status-badge missing">
+                                            <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        
+                            <!-- Caste Certificate -->
+                            <% if (student.category && student.category !== 'General') { %>
+                                <div class="document-item-box conditional-required">
+                                    <div class="document-meta-side">
+                                        <div class="doc-icon-wrapper validation">
+                                            <i class="fa-solid fa-award"></i>
+                                        </div>
+                                        <div class="doc-text-details">
+                                            <span class="doc-label">Caste Certificate</span>
+                                            <span class="doc-value-status text-danger-light">Mandatory for <%= student.category %> category</span>
+                                        </div>
+                                    </div>
+                                    <div class="document-file-side">
+                                        <% if (student.documents && student.documents.casteProof) { %>
+                                            <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Caste Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.casteProof) %>">
+                                                <i class="fa-solid fa-eye"></i> View Document
+                                            </button>
+                                        <% } else { %>
+                                            <span class="file-status-badge missing">
+                                                <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% } %>
+                            
+                        </div>
+                    <% } %>
                 </div>
 
             <% } else { %>
@@ -196,8 +246,8 @@
                                 </div>
                             </div>
                             <div class="document-file-side">
-                                <% if (student.documents && student.documents.passportFile) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Passport Document" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.passportFile) %>">
+                                <% if (student.documents && student.documents.passportUpload) { %>
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Passport Document" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.passportUpload) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
@@ -256,58 +306,6 @@
                             </div>
                         </div>
 
-                        <!-- 10th Marksheet -->
-                        <div class="document-item-box">
-                            <div class="document-meta-side">
-                                <div class="doc-icon-wrapper media">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                </div>
-                                <div class="doc-text-details">
-                                    <span class="doc-label">10th Standard Marksheet</span>
-                                    <span class="doc-value-status"><%= student.education?.tenth?.schoolName || 'Not Given' %></span>
-                                </div>
-                            </div>
-                            <div class="document-file-side">
-                                <% if (student.education && student.education.tenth && student.education.tenth.marksheet) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="10th Marksheet" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.education.tenth.marksheet) %>">
-                                        <i class="fa-solid fa-eye"></i> View Document
-                                    </button>
-                                <% } else { %>
-                                    <span class="file-status-badge missing">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
-                                    </span>
-                                <% } %>
-                            </div>
-                        </div>
-
-                        <!-- 12th / Diploma Marksheet -->
-                        <div class="document-item-box">
-                            <div class="document-meta-side">
-                                <div class="doc-icon-wrapper media">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                </div>
-                                <div class="doc-text-details">
-                                    <span class="doc-label">
-                                        <%= student.education?.diploma ? 'Diploma Marksheet' : '12th Standard Marksheet' %>
-                                    </span>
-                                    <span class="doc-value-status">
-                                        <%= (student.education?.twelfth?.schoolName || student.education?.diploma?.schoolName) || 'Not Given' %>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="document-file-side">
-                                <% const qualMarksheet = (student.education?.twelfth?.marksheet) || (student.education?.diploma?.marksheet); %>
-                                <% if (qualMarksheet) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="12th/Diploma Marksheet" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(qualMarksheet) %>">
-                                        <i class="fa-solid fa-eye"></i> View Document
-                                    </button>
-                                <% } else { %>
-                                    <span class="file-status-badge missing">
-                                        <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
-                                    </span>
-                                <% } %>
-                            </div>
-                        </div>
 
                     </div>
                 </div>
