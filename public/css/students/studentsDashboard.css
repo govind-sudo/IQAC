@@ -1898,6 +1898,7 @@
 .status-inner-dot {
     width: 8px;
     height: 8px;
+    transform: translateY(2px);
     border-radius: 50%;
     background: #F97316;
     flex-shrink: 0;

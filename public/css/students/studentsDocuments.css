@@ -230,9 +230,9 @@
     border: 1px solid #FCD34D;
 }
 
-.conditional-required {
+/* .conditional-required {
     border-left: 4px solid #EF4444;
-}
+} */
 
 /* Link Box styling elements */
 .link-box {
@@ -261,7 +261,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 9999; /* Ensure it floats above sidebars and headers */
+    z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -281,16 +281,17 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(15, 23, 42, 0.6); /* Translucent dark backdrop blurring */
+    background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(4px);
 }
 
 .doc-popup-wrapper {
     position: relative;
     background: #FFFFFF;
-    width: 85%;
-    max-width: 950px;
-    height: 85vh;
+    width: 90%;
+    max-width: 900px;
+    max-height: 80vh;
+    height: auto;
     border-radius: 16px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     display: flex;
@@ -304,7 +305,6 @@
     transform: scale(1);
 }
 
-/* Modal Internal Headers */
 .doc-popup-header {
     display: flex;
     align-items: center;
@@ -351,23 +351,104 @@
     color: #0F172A;
 }
 
-/* Modal Frame body layout */
 .doc-popup-body {
     flex-grow: 1;
-    background: #64748B; /* Neutral desktop document backdrop color */
+    background: #64748B;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 16px;
+    min-height: 300px;
 }
 
-#modalDocFrame {
+.doc-preview-img {
+    max-width: 100%;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    background: #fff;
+    display: block;
+    margin: 0 auto;
+}
+
+.doc-preview-frame {
     width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #FFFFFF;
+    height: 70vh;
+    max-width: 100%;
+    border: none;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* Standardize trigger button behavior instead of raw anchors */
+.doc-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: #ffffff;
+    text-align: center;
+    padding: 40px;
+}
+
+.doc-fallback-icon {
+    font-size: 48px;
+    opacity: 0.85;
+}
+
+.doc-fallback-text {
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.doc-fallback-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    color: #0369A1;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.doc-fallback-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.doc-open-new-tab {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.75);
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s ease;
+}
+
+.doc-open-new-tab:hover {
+    background: rgba(15, 23, 42, 0.9);
+}
+
 button.file-status-badge.uploaded {
     border: 1px solid #BAE6FD;
     cursor: pointer;
@@ -383,3 +464,39 @@ button.file-status-badge.uploaded:hover {
     transform: translateY(-1px);
 }
 
+@media (max-width: 640px) {
+    .doc-popup-wrapper {
+        width: 94%;
+        max-width: 94%;
+        max-height: 85vh;
+        border-radius: 12px;
+    }
+
+    .doc-popup-body {
+        padding: 10px;
+        min-height: 220px;
+    }
+
+    .doc-preview-img {
+        max-height: 65vh;
+    }
+
+    .doc-preview-frame {
+        height: 60vh;
+    }
+
+    .doc-open-new-tab {
+        bottom: 10px;
+        right: 10px;
+        padding: 7px 12px;
+        font-size: 11.5px;
+    }
+
+    .doc-fallback-icon {
+        font-size: 36px;
+    }
+
+    .doc-fallback-text {
+        font-size: 13.5px;
+    }
+}

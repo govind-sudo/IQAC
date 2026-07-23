@@ -54,7 +54,7 @@
                             </div>
                             <div class="document-file-side">
                                 <% if (student.documents && student.documents.aadhaarProof) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Aadhaar Card" data-doc-url="<%= student.documents.aadhaarProof.path || student.documents.aadhaarProof %>">
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Aadhaar Card" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.aadhaarProof) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
@@ -78,7 +78,7 @@
                             </div>
                             <div class="document-file-side">
                                 <% if (student.documents && student.documents.abcIdProof) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="ABC / APAAR ID Proof" data-doc-url="<%= student.documents.abcIdProof.path || student.documents.abcIdProof %>">
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="ABC / APAAR ID Proof" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.abcIdProof) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
@@ -102,7 +102,7 @@
                             </div>
                             <div class="document-file-side">
                                 <% if (student.documents && student.documents.leavingCertificate) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="School Leaving Certificate" data-doc-url="<%= student.documents.leavingCertificate.path || student.documents.leavingCertificate %>">
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="School Leaving Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.leavingCertificate) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
@@ -127,7 +127,7 @@
                                 </div>
                                 <div class="document-file-side">
                                     <% if (student.documents && student.documents.casteProof) { %>
-                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Caste Certificate" data-doc-url="<%= student.documents.casteProof.path || student.documents.casteProof %>">
+                                        <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Caste Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.casteProof) %>">
                                             <i class="fa-solid fa-eye"></i> View Document
                                         </button>
                                     <% } else { %>
@@ -175,7 +175,7 @@
                             </div>
                             <div class="document-file-side">
                                 <% if (student.documents && student.documents.passportFile) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Passport Document" data-doc-url="<%= student.documents.passportFile.path || student.documents.passportFile %>">
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="Passport Document" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.passportFile) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
@@ -199,7 +199,7 @@
                             </div>
                             <div class="document-file-side">
                                 <% if (student.documents && student.documents.aoLevelCertificate) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="A/O Level Certificate" data-doc-url="<%= student.documents.aoLevelCertificate.path || student.documents.aoLevelCertificate %>">
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="A/O Level Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.aoLevelCertificate) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
@@ -223,7 +223,7 @@
                             </div>
                             <div class="document-file-side">
                                 <% if (student.documents && student.documents.puAdmissionLetter) { %>
-                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="PU Admission Letter" data-doc-url="<%= student.documents.puAdmissionLetter.path || student.documents.puAdmissionLetter %>">
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="PU Admission Letter" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.puAdmissionLetter) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
@@ -257,44 +257,137 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="doc-popup-body">
-            <!-- Dynamic embedded viewer frame -->
-            <iframe id="modalDocFrame" src="" frameborder="0"></iframe>
-        </div>
+        <!-- Single body container — JS injects either an <img> or <iframe>
+             into this, always with id="modalDocFrame" so the CSS sizing
+             rule (#modalDocFrame { width:100%; height:100%; position:absolute; })
+             applies regardless of which element type gets created. -->
+        <div class="doc-popup-body" id="modalDocBody"></div>
     </div>
 </div>
 
 <!-- Client-side Document Modal Trigger Logic -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const modal = document.getElementById('documentViewModal');
-        const overlay = modal.querySelector('.doc-popup-overlay');
-        const closeBtn = document.getElementById('closeModalBtn');
-        const modalTitle = document.getElementById('modalDocTitle');
-        const modalFrame = document.getElementById('modalDocFrame');
-        const triggers = document.querySelectorAll('.view-doc-trigger');
+    const modal = document.getElementById('documentViewModal');
+    const overlay = modal.querySelector('.doc-popup-overlay');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const modalTitle = document.getElementById('modalDocTitle');
+    const modalBody = document.getElementById('modalDocBody');
+    const triggers = document.querySelectorAll('.view-doc-trigger');
 
-        triggers.forEach(trigger => {
-            trigger.addEventListener('click', () => {
-                const title = trigger.getAttribute('data-doc-title');
-                const url = trigger.getAttribute('data-doc-url');
+    function extensionOf(url) {
+        const clean = url.split('?')[0].split('#')[0];
+        return clean.split('.').pop().toLowerCase();
+    }
 
-                modalTitle.textContent = title;
-                modalFrame.src = url;
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Lock page background scroll
-            });
+    const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+
+    function buildFallback(url) {
+        const wrap = document.createElement('div');
+        wrap.className = 'doc-fallback';
+        wrap.innerHTML = `
+            <i class="fa-solid fa-file-circle-question doc-fallback-icon"></i>
+            <p class="doc-fallback-text">Preview isn't available in this browser.</p>
+            <a href="${url}" target="_blank" rel="noopener" class="doc-fallback-btn">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Document
+            </a>
+        `;
+        return wrap;
+    }
+
+    triggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const title = trigger.getAttribute('data-doc-title');
+            const url = trigger.getAttribute('data-doc-url');
+            const ext = extensionOf(url);
+
+            modalTitle.textContent = title;
+            modalBody.innerHTML = '';
+
+            // Always-available escape hatch, shown alongside the preview.
+            const openLink = document.createElement('a');
+            openLink.href = url;
+            openLink.target = '_blank';
+            openLink.rel = 'noopener';
+            openLink.className = 'doc-open-new-tab';
+            openLink.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Open in new tab';
+
+            if (IMAGE_EXTS.has(ext)) {
+                const img = document.createElement('img');
+                img.id = 'modalDocFrame';
+                img.className = 'doc-preview-img';
+                img.alt = title;
+
+                // Images either load or they don't — onerror is reliable here.
+                img.onerror = () => {
+                    modalBody.innerHTML = '';
+                    modalBody.appendChild(buildFallback(url));
+                };
+                img.src = url;
+                modalBody.appendChild(img);
+                modalBody.appendChild(openLink);
+            } else {
+                // PDFs (and anything else) — iframe as the primary attempt.
+                // Some browsers (mobile Safari quirks, in-app webviews with
+                // no PDF engine, locked-down corporate browsers) either
+                // fail silently or render a blank/broken frame with no
+                // error event at all, so we can't rely purely on onerror
+                // here. A short timeout checks whether the iframe actually
+                // produced usable content; if not, swap to the fallback.
+                const iframe = document.createElement('iframe');
+                iframe.id = 'modalDocFrame';
+                iframe.className = 'doc-preview-frame';
+                iframe.setAttribute('frameborder', '0');
+
+                let settled = false;
+
+                iframe.onerror = () => {
+                    if (settled) return;
+                    settled = true;
+                    modalBody.innerHTML = '';
+                    modalBody.appendChild(buildFallback(url));
+                };
+
+                iframe.onload = () => {
+                    settled = true;
+                };
+
+                iframe.src = url;
+                modalBody.appendChild(iframe);
+                modalBody.appendChild(openLink);
+
+                // Fallback safety net: if neither onload nor onerror fired
+                // within 4s (some browsers just hang on unsupported types),
+                // assume it failed and offer the direct-open fallback.
+                setTimeout(() => {
+                    if (!settled) {
+                        settled = true;
+                        modalBody.innerHTML = '';
+                        modalBody.appendChild(buildFallback(url));
+                    }
+                }, 4000);
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         });
-
-        const closeModal = () => {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-            setTimeout(() => {
-                modalFrame.src = ''; // Clean up source buffer after exit animation
-            }, 300);
-        };
-
-        closeBtn.addEventListener('click', closeModal);
-        overlay.addEventListener('click', closeModal);
     });
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => {
+            modalBody.innerHTML = '';
+        }, 300);
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+});
 </script>
