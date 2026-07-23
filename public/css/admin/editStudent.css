@@ -1,0 +1,189 @@
+/* ==========================================================================
+   EDIT STUDENT PAGE — scoped entirely to this file, no shared classes
+   reused from other admin pages, so nothing else can break.
+   ========================================================================== */
+
+.form-page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.form-page-container .form-header {
+    margin-bottom: 24px;
+}
+
+.form-page-container .form-header h1 {
+    font-size: 22px;
+    margin: 8px 0 4px;
+}
+
+.form-page-container .form-header p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.form-page-container .back-link {
+    color: #4f46e5;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-page-container .form-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px;
+    border: 1px solid #e5e7eb;
+}
+
+.form-page-container .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+}
+
+.form-page-container .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.form-page-container .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-page-container .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.form-page-container .form-group input[type="text"],
+.form-page-container .form-group input[type="email"],
+.form-page-container .form-group input[type="tel"],
+.form-page-container .form-group input[type="date"],
+.form-page-container .form-group input[type="number"],
+.form-page-container .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #f9fafb;
+    box-sizing: border-box;
+}
+
+.form-page-container .form-group input:focus,
+.form-page-container .form-group select:focus {
+    outline: none;
+    border-color: #4f46e5;
+    background: #fff;
+}
+
+.form-page-container .form-group input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.form-page-container .form-group small {
+    display: block;
+    margin-top: 4px;
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.form-page-container .phone-group {
+    display: flex;
+    gap: 8px;
+}
+
+.form-page-container .phone-group select {
+    flex: 0 0 130px;
+}
+
+.form-page-container .phone-group input {
+    flex: 1;
+    min-width: 0;
+}
+
+.form-page-container .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.form-page-container .btn-secondary {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.form-page-container .btn-primary {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    background: #4f46e5;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-page-container .btn-primary:hover {
+    background: #4338ca;
+}
+
+@media (max-width: 640px) {
+    .form-page-container .form-row {
+        grid-template-columns: 1fr;
+    }
+    .form-page-container .phone-group {
+        flex-direction: column;
+    }
+    .form-page-container .phone-group select {
+        flex: none;
+        width: 100%;
+    }
+}
+
+.form-page-container .form-group small a {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-page-container .form-group small a:hover {
+    text-decoration: underline;
+}
+
+.form-page-container .form-group small.no-doc {
+    color: #ef4444;
+    font-weight: 500;
+}

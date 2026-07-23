@@ -364,10 +364,19 @@ exports.getStudentInDetail = async (req, res) => {
             return res.status(404).render('errors/404', { message: 'Student not found' });
         }
 
+        const documentStatus = {
+            aadhaar: !!student.documents?.aadhaarProof,
+            tenthMarksheet: !!student.education?.tenth?.marksheet,
+            twelfthMarksheet: !!(student.education?.twelfth?.marksheet || student.education?.diploma?.marksheet),
+            leavingCertificate: !!student.documents?.leavingCertificate,
+            casteCertificate: !!student.documents?.casteProof,
+        };
+
         res.render('admin/studentInDetail', {
             currentPage: 'students',
             admin: req.admin,
-            student
+            student,
+            documentStatus,
         });
     } catch (err) {
         console.error("Error fetching detailed student view:", err);
@@ -375,6 +384,211 @@ exports.getStudentInDetail = async (req, res) => {
     }
 };
 
+
+const { storeUploadedFiles, applyStoredFilePaths, deleteStoredFiles } = require("../services/storageService");
+
+// GET /admin/students/:id/edit — Render full editable student form
+exports.renderEditStudentForm = async (req, res) => {
+    try {
+        const student = await Student.findById(req.params.id).lean();
+        if (!student) {
+            return res.status(404).render("errors/404", { message: "Student not found" });
+        }
+        res.render("admin/editStudent", {
+            currentPage: "students",
+            admin: req.admin,
+            student,
+            errorMessage: null
+        });
+    } catch (err) {
+        console.error("Error loading student edit form:", err);
+        res.status(500).render("errors/500");
+    }
+};
+
+// PUT /admin/students/:id — Update ALL student fields, including document
+// re-upload. Admin uploads bypass OCR/AI verification entirely — an
+// admin correcting/replacing a document is trusted at face value, only
+// the same signature/format check (real PDF/JPG/PNG, not corrupted)
+// still applies via handleUpload's fileFilter + Multer limits.
+exports.updateStudent = async (req, res) => {
+    const { id } = req.params;
+    const body = req.body || {};
+    let storedFilePaths = null;
+
+    try {
+        const student = await Student.findById(id);
+        if (!student) {
+            return res.status(404).render("errors/404", { message: "Student not found" });
+        }
+
+        const isIndian = (body.nationality || student.nationality) === "Indian";
+
+        // If any new documents were uploaded, store them and merge the
+        // resulting paths into body — same storage logic as
+        // registration, but with NO OCR/document verification call at
+        // all (that's the entire point: admin-trusted, instant).
+        if (req.files && Object.keys(req.files).length > 0) {
+            storedFilePaths = await storeUploadedFiles(req.files, {
+                ugNumber: body.ugNumber || student.ugNumber,
+                firstName: body.firstName || student.firstName,
+                lastName: body.lastName || student.lastName,
+            });
+            applyStoredFilePaths(body, storedFilePaths);
+        }
+
+        // ---------- Basic fields ----------
+        student.title = body.title || student.title;
+        student.firstName = body.firstName || student.firstName;
+        student.middleName = body.middleName || undefined;
+        student.lastName = body.lastName || student.lastName;
+        student.gender = body.gender || student.gender;
+        if (body.dob) student.dob = new Date(body.dob);
+        student.bloodGroup = body.bloodGroup || undefined;
+        student.category = isIndian ? (body.category || student.category) : undefined;
+        student.religion = body.religion || undefined;
+        student.caste = isIndian ? (body.caste || student.caste) : undefined;
+        student.nationality = body.nationality || student.nationality;
+        student.passportNumber = isIndian ? undefined : (body.passportNumber || student.passportNumber);
+        student.aadhaarNumber = isIndian ? (body.aadhaarNumber || student.aadhaarNumber) : undefined;
+        student.abcId = body.abcId || student.abcId;
+
+        student.residesInHostel = body.residesInHostel === "true";
+        student.hostelName = student.residesInHostel ? (body.hostelName || student.hostelName) : undefined;
+
+        if (body.email) student.email = body.email.trim().toLowerCase();
+        if (body.ugNumber) student.ugNumber = body.ugNumber.trim().toUpperCase();
+        student.enrollmentNo = body.enrollmentNo || student.enrollmentNo;
+
+        student.faculty = body.faculty || student.faculty;
+        student.institute = body.institute || student.institute;
+        student.course = body.course || student.course;
+        student.branch = body.branch || student.branch;
+        student.specialization = body.specialization || student.specialization;
+
+        if (body.joiningDate) {
+            student.joiningDate = new Date(body.joiningDate);
+            student.admissionYear = student.joiningDate.getFullYear();
+        }
+        student.admissionType = body.admissionType || student.admissionType;
+        student.studentStatus = body.studentStatus || student.studentStatus;
+        student.profileStatus = body.profileStatus || student.profileStatus;
+
+        student.phoneCode = body.phoneCode || student.phoneCode;
+        student.phone = body.phone || student.phone;
+        student.whatsapp = body.whatsapp || undefined;
+        student.alternateEmail = body.alternateEmail ? body.alternateEmail.toLowerCase() : undefined;
+
+        // ---------- Nested groups ----------
+        if (body.emergencyContact) {
+            student.emergencyContact = {
+                name: body.emergencyContact.name || student.emergencyContact?.name,
+                phoneCode: body.emergencyContact.phoneCode || student.emergencyContact?.phoneCode || "+91",
+                phone: body.emergencyContact.phone || student.emergencyContact?.phone,
+                relation: body.emergencyContact.relation || student.emergencyContact?.relation,
+            };
+        }
+        if (body.father) {
+            student.father = {
+                name: body.father.name || student.father?.name,
+                phoneCode: body.father.phoneCode || student.father?.phoneCode || "+91",
+                phone: body.father.phone || student.father?.phone,
+                email: body.father.email || student.father?.email,
+            };
+        }
+        if (body.mother) {
+            student.mother = {
+                name: body.mother.name || student.mother?.name,
+                phoneCode: body.mother.phoneCode || student.mother?.phoneCode || "+91",
+                phone: body.mother.phone || student.mother?.phone,
+                email: body.mother.email || student.mother?.email,
+            };
+        }
+        if (body.presentAddress) {
+            student.presentAddress = { ...student.presentAddress?.toObject?.(), ...body.presentAddress };
+        }
+        if (body.permanentAddress) {
+            student.permanentAddress = { ...student.permanentAddress?.toObject?.(), ...body.permanentAddress };
+        }
+
+        // ---------- Education ----------
+        if (body.education) {
+            const qualKey = body.qualificationType === "diploma" ? "diploma" : "twelfth";
+            const existingEdu = student.education?.toObject?.() || {};
+
+            if (body.education.tenth) {
+                existingEdu.tenth = {
+                    schoolName: body.education.tenth.schoolName || existingEdu.tenth?.schoolName,
+                    percentage: body.education.tenth.percentage !== undefined && body.education.tenth.percentage !== ""
+                        ? Number(body.education.tenth.percentage) : existingEdu.tenth?.percentage,
+                    marksheet: body.education.tenth.marksheet || existingEdu.tenth?.marksheet,
+                };
+            }
+            if (body.education[qualKey]) {
+                existingEdu[qualKey] = {
+                    schoolName: body.education[qualKey].schoolName || existingEdu[qualKey]?.schoolName,
+                    percentage: body.education[qualKey].percentage !== undefined && body.education[qualKey].percentage !== ""
+                        ? Number(body.education[qualKey].percentage) : existingEdu[qualKey]?.percentage,
+                    marksheet: body.education[qualKey].marksheet || existingEdu[qualKey]?.marksheet,
+                };
+            }
+            student.education = existingEdu;
+        }
+
+        // ---------- Documents ----------
+        if (body.documents) {
+            const existingDocs = student.documents?.toObject?.() || {};
+            student.documents = {
+                aadhaarProof: body.documents.aadhaarProof || existingDocs.aadhaarProof,
+                abcIdProof: body.documents.abcIdProof || existingDocs.abcIdProof,
+                casteProof: body.documents.casteProof || existingDocs.casteProof,
+                pwdProof: body.documents.pwdProof || existingDocs.pwdProof,
+                leavingCertificate: body.documents.leavingCertificate || existingDocs.leavingCertificate,
+                aoLevelCertificate: body.documents.aoLevelCertificate || existingDocs.aoLevelCertificate,
+                puAdmissionLetter: body.documents.puAdmissionLetter || existingDocs.puAdmissionLetter,
+                passportUpload: body.documents.passportUpload || existingDocs.passportUpload,
+            };
+        }
+
+        await student.save();
+        res.redirect(`/admin/students/${id}/inDetail`);
+    } catch (err) {
+        if (storedFilePaths) {
+            await deleteStoredFiles(storedFilePaths);
+        }
+        console.error("Error updating student:", err);
+
+        let errorMessage = "Something went wrong while updating the student.";
+        if (err.code === 11000) {
+            const field = Object.keys(err.keyPattern || {})[0] || "field";
+            errorMessage = `A student with this ${field} already exists.`;
+        } else if (err.name === "ValidationError") {
+            errorMessage = Object.values(err.errors).map((e) => e.message).join(" ");
+        }
+
+        const student = await Student.findById(id).lean();
+        return res.status(400).render("admin/editStudent", {
+            currentPage: "students",
+            admin: req.admin,
+            student,
+            errorMessage
+        });
+    }
+};
+
+// DELETE /admin/students/:id
+exports.deleteStudent = async (req, res) => {
+    try {
+        const deleted = await Student.findByIdAndDelete(req.params.id);
+        if (!deleted) {
+            console.error(`Student with ID ${req.params.id} not found.`);
+        }
+        res.redirect("/admin/students");
+    } catch (err) {
+        console.error("Error deleting student:", err);
+        res.status(500).render("errors/500");
+    }
+};
 
 // Fetch Sub-Admins List with Server-Side Pagination & Search Optimization
 // Fetch Sub-Admins List with Server-Side Pagination & Search Optimization

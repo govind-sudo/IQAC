@@ -1,0 +1,565 @@
+<% layout('layout/adminBoilerPlate') %>
+
+<link rel="stylesheet" href="/css/admin/editStudent.css">
+
+<div class="form-page-container">
+    <div class="form-header">
+        <a href="/admin/students/<%= student._id %>/inDetail" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Student Profile
+        </a>
+        <h1>Edit Student — <%= student.fullName || (student.firstName + ' ' + student.lastName) %></h1>
+        <p>Update this student's information and documents.</p>
+    </div>
+
+    <div class="card form-card">
+        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+            <div class="alert-popup error">
+                <div class="alert-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+                <div class="alert-content">
+                    <strong>Update Failed</strong>
+                    <p><%= errorMessage %></p>
+                </div>
+                <button type="button" class="close-alert-btn" onclick="this.parentElement.remove();">&times;</button>
+            </div>
+        <% } %>
+
+        <%
+        const isIndian = (student.nationality || '').toLowerCase() === 'indian';
+        const category = student.category || 'General';
+        const isPWD = category === 'PWD';
+        const isCasteCategory = isIndian && category !== 'General' && category !== 'PWD';
+        const qualKey = student.education?.diploma ? 'diploma' : 'twelfth';
+        %>
+
+        <form id="editStudentForm" action="/admin/students/<%= student._id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="subadmin-form">
+
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title</label>
+                    <select name="title" id="editTitle" data-current="<%= student.title || '' %>"></select>
+                </div>
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="firstName" value="<%= student.firstName || '' %>" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Middle Name</label>
+                    <input type="text" name="middleName" value="<%= student.middleName || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="lastName" value="<%= student.lastName || '' %>" required />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select name="gender" id="editGender" data-current="<%= student.gender || '' %>"></select>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob" value="<%= student.dob ? new Date(student.dob).toISOString().split('T')[0] : '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Blood Group</label>
+                    <select name="bloodGroup" id="editBloodGroup" data-current="<%= student.bloodGroup || '' %>"></select>
+                </div>
+                <div class="form-group">
+                    <label>Nationality</label>
+                    <select name="nationality" id="editNationality">
+                        <option value="Indian" <%= isIndian ? 'selected' : '' %>>Indian</option>
+                        <option value="Other" <%= !isIndian ? 'selected' : '' %>>Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="indianOnlyFields" style="<%= isIndian ? '' : 'display:none;' %>">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select name="category" id="editCategory" data-current="<%= category %>"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Caste</label>
+                        <input type="text" name="caste" value="<%= student.caste || '' %>" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Aadhaar Number</label>
+                        <input type="text" name="aadhaarNumber" value="<%= student.aadhaarNumber || '' %>" maxlength="12" />
+                    </div>
+                    <div class="form-group">
+                        <label>ABC ID</label>
+                        <input type="text" name="abcId" value="<%= student.abcId || '' %>" />
+                    </div>
+                </div>
+            </div>
+
+            <div id="internationalOnlyFields" style="<%= !isIndian ? '' : 'display:none;' %>">
+                <div class="form-group full-width">
+                    <label>Passport Number</label>
+                    <input type="text" name="passportNumber" value="<%= student.passportNumber || '' %>" />
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top:24px;">Contact</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" value="<%= student.email || '' %>" required />
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <div class="phone-group">
+                        <select name="phoneCode" id="studentPhoneCode" data-current="<%= student.phoneCode || '+91' %>"></select>
+                        <input type="tel" name="phone" value="<%= student.phone || '' %>" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="tel" name="whatsapp" value="<%= student.whatsapp || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>Alternate Email</label>
+                    <input type="email" name="alternateEmail" value="<%= student.alternateEmail || '' %>" />
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top:24px;">Present Address</h3>
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label>Address Line 1</label>
+                    <input type="text" name="presentAddress[address1]" value="<%= student.presentAddress?.address1 || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label>Address Line 2</label>
+                    <input type="text" name="presentAddress[address2]" value="<%= student.presentAddress?.address2 || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="presentAddress[city]" value="<%= student.presentAddress?.city || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <select name="presentAddress[state]" id="presentState" data-current="<%= student.presentAddress?.state || '' %>"></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>District</label>
+                    <select name="presentAddress[district]" id="presentDistrict" data-current="<%= student.presentAddress?.district || '' %>"></select>
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" name="presentAddress[country]" value="<%= student.presentAddress?.country || 'India' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Pincode</label>
+                    <input type="text" name="presentAddress[pincode]" value="<%= student.presentAddress?.pincode || '' %>" />
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top:24px;">Permanent Address</h3>
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label>Address Line 1</label>
+                    <input type="text" name="permanentAddress[address1]" value="<%= student.permanentAddress?.address1 || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label>Address Line 2</label>
+                    <input type="text" name="permanentAddress[address2]" value="<%= student.permanentAddress?.address2 || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" name="permanentAddress[city]" value="<%= student.permanentAddress?.city || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <select name="permanentAddress[state]" id="permanentState" data-current="<%= student.permanentAddress?.state || '' %>"></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>District</label>
+                    <select name="permanentAddress[district]" id="permanentDistrict" data-current="<%= student.permanentAddress?.district || '' %>"></select>
+                </div>
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" name="permanentAddress[country]" value="<%= student.permanentAddress?.country || 'India' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Pincode</label>
+                    <input type="text" name="permanentAddress[pincode]" value="<%= student.permanentAddress?.pincode || '' %>" />
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top:24px;">Parent / Guardian</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Father's Name</label>
+                    <input type="text" name="father[name]" value="<%= student.father?.name || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>Father's Phone</label>
+                    <div class="phone-group">
+                        <select name="father[phoneCode]" id="fatherPhoneCode" data-current="<%= student.father?.phoneCode || '+91' %>"></select>
+                        <input type="tel" name="father[phone]" value="<%= student.father?.phone || '' %>" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Father's Email</label>
+                    <input type="email" name="father[email]" value="<%= student.father?.email || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>Mother's Name</label>
+                    <input type="text" name="mother[name]" value="<%= student.mother?.name || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Mother's Phone</label>
+                    <div class="phone-group">
+                        <select name="mother[phoneCode]" id="motherPhoneCode" data-current="<%= student.mother?.phoneCode || '+91' %>"></select>
+                        <input type="tel" name="mother[phone]" value="<%= student.mother?.phone || '' %>" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mother's Email</label>
+                    <input type="email" name="mother[email]" value="<%= student.mother?.email || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Emergency Contact Name</label>
+                    <input type="text" name="emergencyContact[name]" value="<%= student.emergencyContact?.name || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>Emergency Contact Phone</label>
+                    <div class="phone-group">
+                        <select name="emergencyContact[phoneCode]" id="emergencyPhoneCode" data-current="<%= student.emergencyContact?.phoneCode || '+91' %>"></select>
+                        <input type="tel" name="emergencyContact[phone]" value="<%= student.emergencyContact?.phone || '' %>" />
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-title" style="margin-top:24px;">Academic</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>UG Number</label>
+                    <input type="text" name="ugNumber" value="<%= student.ugNumber || '' %>" required />
+                </div>
+                <div class="form-group">
+                    <label>Faculty</label>
+                    <input type="text" name="faculty" value="<%= student.faculty || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Institute</label>
+                    <input type="text" name="institute" value="<%= student.institute || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>Course</label>
+                    <input type="text" name="course" value="<%= student.course || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Branch</label>
+                    <input type="text" name="branch" value="<%= student.branch || '' %>" />
+                </div>
+                <div class="form-group">
+                    <label>Specialization</label>
+                    <input type="text" name="specialization" value="<%= student.specialization || '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Admission Type</label>
+                    <select name="admissionType" id="editAdmissionType" data-current="<%= student.admissionType || '' %>"></select>
+                </div>
+                <div class="form-group">
+                    <label>Joining Date</label>
+                    <input type="date" name="joiningDate" value="<%= student.joiningDate ? new Date(student.joiningDate).toISOString().split('T')[0] : '' %>" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Student Status</label>
+                    <select name="studentStatus" id="editStudentStatus" data-current="<%= student.studentStatus || '' %>"></select>
+                </div>
+                <div class="form-group">
+                    <label>Profile Status</label>
+                    <select name="profileStatus" id="editProfileStatus" data-current="<%= student.profileStatus || '' %>"></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Resides in Hostel?</label>
+                    <select name="residesInHostel" id="editResidesInHostel">
+                        <option value="true" <%= student.residesInHostel ? 'selected' : '' %>>Yes</option>
+                        <option value="false" <%= !student.residesInHostel ? 'selected' : '' %>>No</option>
+                    </select>
+                </div>
+                <div class="form-group" id="editHostelNameField" style="<%= student.residesInHostel ? '' : 'display:none;' %>">
+                    <label>Hostel Name</label>
+                    <input type="text" name="hostelName" value="<%= student.hostelName || '' %>" />
+                </div>
+            </div>
+
+            <!-- ============ INDIAN: EDUCATION + DOCUMENTS ============ -->
+            <div id="indianEducationDocs" style="<%= isIndian ? '' : 'display:none;' %>">
+
+                <h3 class="section-title" style="margin-top:24px;">10th Standard</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>School Name</label>
+                        <input type="text" name="education[tenth][schoolName]" value="<%= student.education?.tenth?.schoolName || '' %>" />
+                    </div>
+                    <div class="form-group">
+                        <label>Percentage</label>
+                        <input type="number" step="0.01" name="education[tenth][percentage]" value="<%= student.education?.tenth?.percentage || '' %>" />
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label>Replace 10th Marksheet (leave blank to keep existing)</label>
+                    <input type="file" name="education[tenth][marksheet]" accept="application/pdf,image/*" />
+                    <% if (student.education?.tenth?.marksheet) { %>
+                        <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.education.tenth.marksheet) %>" target="_blank" rel="noopener">View Document</a></small>
+                    <% } %>
+                </div>
+
+                <h3 class="section-title" style="margin-top:24px;">12th Standard / Diploma</h3>
+                <input type="hidden" name="qualificationType" value="<%= qualKey %>" />
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>School / College Name</label>
+                        <input type="text" name="education[<%= qualKey %>][schoolName]" value="<%= (student.education?.twelfth?.schoolName || student.education?.diploma?.schoolName) || '' %>" />
+                    </div>
+                    <div class="form-group">
+                        <label>Percentage</label>
+                        <input type="number" step="0.01" name="education[<%= qualKey %>][percentage]" value="<%= (student.education?.twelfth?.percentage || student.education?.diploma?.percentage) || '' %>" />
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label>Replace 12th/Diploma Marksheet (leave blank to keep existing)</label>
+                    <input type="file" name="education[<%= qualKey %>][marksheet]" accept="application/pdf,image/*" />
+                    <% const qualMarksheet = student.education?.twelfth?.marksheet || student.education?.diploma?.marksheet; %>
+                    <% if (qualMarksheet) { %>
+                        <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(qualMarksheet) %>" target="_blank" rel="noopener">View Document</a></small>
+                    <% } %>
+                </div>
+
+                <h3 class="section-title" style="margin-top:24px;">Documents</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Aadhaar Proof</label>
+                        <input type="file" name="documents[aadhaarProof]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.aadhaarProof) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.aadhaarProof) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                    <div class="form-group">
+                        <label>ABC ID Proof</label>
+                        <input type="file" name="documents[abcIdProof]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.abcIdProof) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.abcIdProof) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Leaving Certificate</label>
+                        <input type="file" name="documents[leavingCertificate]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.leavingCertificate) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.leavingCertificate) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                </div>
+
+                <div class="form-row" id="editCasteProofRow" style="<%= isCasteCategory ? '' : 'display:none;' %>">
+                    <div class="form-group full-width">
+                        <label>Caste Proof</label>
+                        <input type="file" name="documents[casteProof]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.casteProof) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.casteProof) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                </div>
+
+                <div class="form-row" id="editPwdProofRow" style="<%= isPWD ? '' : 'display:none;' %>">
+                    <div class="form-group full-width">
+                        <label>PWD Proof</label>
+                        <input type="file" name="documents[pwdProof]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.pwdProof) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.pwdProof) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ INTERNATIONAL: ONLY 3 DOCUMENTS ============ -->
+            <div id="internationalDocs" style="<%= !isIndian ? '' : 'display:none;' %>">
+                <h3 class="section-title" style="margin-top:24px;">International Documents</h3>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>Passport Upload</label>
+                        <input type="file" name="documents[passportUpload]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.passportUpload) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.passportUpload) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>A/O Level Certificate</label>
+                        <input type="file" name="documents[aoLevelCertificate]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.aoLevelCertificate) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.aoLevelCertificate) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>PU Admission Letter</label>
+                        <input type="file" name="documents[puAdmissionLetter]" accept="application/pdf,image/*" />
+                        <% if (student.documents?.puAdmissionLetter) { %>
+                            <small>Current: <a href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(student.documents.puAdmissionLetter) %>" target="_blank" rel="noopener">View Document</a></small>
+                       <% } else { %>
+    <small class="no-doc">No Document</small> <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="/admin/students/<%= student._id %>/inDetail" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/dropdownOptions.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    // ---------- Static dropdown lists (Title, Gender, Blood Group, etc.) ----------
+    renderDropdownOptions(document.getElementById('editTitle'), 'title', document.getElementById('editTitle').dataset.current);
+    renderDropdownOptions(document.getElementById('editGender'), 'gender', document.getElementById('editGender').dataset.current);
+    renderDropdownOptions(document.getElementById('editBloodGroup'), 'bloodGroup', document.getElementById('editBloodGroup').dataset.current, { includeBlank: true, blankLabel: 'Select Blood Group' });
+    renderDropdownOptions(document.getElementById('editCategory'), 'category', document.getElementById('editCategory').dataset.current);
+    renderDropdownOptions(document.getElementById('editAdmissionType'), 'admissionType', document.getElementById('editAdmissionType').dataset.current);
+    renderDropdownOptions(document.getElementById('editStudentStatus'), 'studentStatus', document.getElementById('editStudentStatus').dataset.current);
+    renderDropdownOptions(document.getElementById('editProfileStatus'), 'profileStatus', document.getElementById('editProfileStatus').dataset.current);
+
+    // ---------- Load State/District/Phone-Code reference JSON ----------
+    const [states, districts, codes] = await Promise.all([
+        fetch('/data/indiaStates.json').then(r => r.json()),
+        fetch('/data/indiaDistricts.json').then(r => r.json()),
+        fetch('/data/countryCodes.json').then(r => r.json()),
+    ]);
+
+    function populateStateSelect(select) {
+        const current = select.dataset.current;
+        select.innerHTML = '<option value="">Select State</option>' +
+            states.map(s => `<option value="${s}" ${s === current ? 'selected' : ''}>${s}</option>`).join('');
+    }
+
+    function populateDistrictSelect(select, state) {
+        const current = select.dataset.current;
+        const list = districts[state] || [];
+        select.innerHTML = '<option value="">Select District</option>' +
+            list.map(d => `<option value="${d}" ${d === current ? 'selected' : ''}>${d}</option>`).join('');
+    }
+
+    function populatePhoneCodeSelect(select) {
+        const current = select.dataset.current || '+91';
+        select.innerHTML = codes.map(c =>
+            `<option value="${c.dialCode}" ${c.dialCode === current ? 'selected' : ''}>${c.dialCode} (${c.name})</option>`
+        ).join('');
+    }
+
+    // Present Address
+    const presentState = document.getElementById('presentState');
+    const presentDistrict = document.getElementById('presentDistrict');
+    populateStateSelect(presentState);
+    populateDistrictSelect(presentDistrict, presentState.value);
+    presentState.addEventListener('change', () => populateDistrictSelect(presentDistrict, presentState.value));
+
+    // Permanent Address
+    const permanentState = document.getElementById('permanentState');
+    const permanentDistrict = document.getElementById('permanentDistrict');
+    populateStateSelect(permanentState);
+    populateDistrictSelect(permanentDistrict, permanentState.value);
+    permanentState.addEventListener('change', () => populateDistrictSelect(permanentDistrict, permanentState.value));
+
+    // All phone code selects
+    ['studentPhoneCode', 'fatherPhoneCode', 'motherPhoneCode', 'emergencyPhoneCode'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) populatePhoneCodeSelect(el);
+    });
+
+    // ---------- Nationality / Category conditional toggling ----------
+    const nationalitySelect = document.getElementById('editNationality');
+    const categorySelect = document.getElementById('editCategory');
+    const indianOnlyFields = document.getElementById('indianOnlyFields');
+    const internationalOnlyFields = document.getElementById('internationalOnlyFields');
+    const indianEducationDocs = document.getElementById('indianEducationDocs');
+    const internationalDocs = document.getElementById('internationalDocs');
+    const casteProofRow = document.getElementById('editCasteProofRow');
+    const pwdProofRow = document.getElementById('editPwdProofRow');
+    const residesSelect = document.getElementById('editResidesInHostel');
+    const hostelField = document.getElementById('editHostelNameField');
+
+    function updateNationalityUI() {
+        const isIndianNow = nationalitySelect.value === 'Indian';
+        indianOnlyFields.style.display = isIndianNow ? '' : 'none';
+        internationalOnlyFields.style.display = isIndianNow ? 'none' : '';
+        indianEducationDocs.style.display = isIndianNow ? '' : 'none';
+        internationalDocs.style.display = isIndianNow ? 'none' : '';
+    }
+
+    function updateCategoryUI() {
+        const cat = categorySelect.value;
+        casteProofRow.style.display = (cat !== 'General' && cat !== 'PWD') ? '' : 'none';
+        pwdProofRow.style.display = (cat === 'PWD') ? '' : 'none';
+    }
+
+    nationalitySelect.addEventListener('change', updateNationalityUI);
+    categorySelect.addEventListener('change', updateCategoryUI);
+
+    residesSelect.addEventListener('change', () => {
+        hostelField.style.display = residesSelect.value === 'true' ? '' : 'none';
+    });
+});
+</script>
