@@ -88,21 +88,6 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <!-- Active Status -->
-                <div class="form-group checkbox-group">
-                    <label class="switch-label">
-                        <input 
-                            type="checkbox" 
-                            name="isActive" 
-                            value="true" 
-                            <%= (typeof formData === 'undefined' || formData.isActive !== false) ? 'checked' : '' %> 
-                        />
-                        <span class="label-text">Account Active Immediately</span>
-                    </label>
-                </div>
-            </div>
-
             <div class="form-actions">
                 <a href="/admin/subadmins" class="btn-secondary">Cancel</a>
                 <button type="submit" class="btn-primary">

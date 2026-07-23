@@ -5,115 +5,95 @@
     <header class="page-header">
         <div class="header-text">
             <h1>Sub-Admin Management</h1>
-            <p>View and manage system sub-administrators and access permissions.</p>
+            <p>Manage administrator roles, system access, and credentials.</p>
         </div>
-
-        <!-- Add Sub-Admin Button (Visible ONLY to Admin) -->
-        <% if (admin.role === 'admin') { %>
-            <div class="header-actions">
-                <a href="/admin/subadmins/new" class="btn-primary">
-                    <i class="fa-solid fa-user-plus"></i> Add Sub-Admin
-                </a>
-            </div>
-        <% } %>
+        <div class="header-actions">
+            <a href="/admin/subadmins/new" class="btn-primary">
+                <i class="fa-solid fa-user-plus"></i> Add Sub-Admin
+            </a>
+        </div>
     </header>
 
-    <!-- Toolbar: Server-Side Search & Counter -->
+    <!-- Toolbar: Server-side Search Form -->
     <div class="table-toolbar">
-        <form id="searchForm" action="/admin/subadmins" method="GET" class="search-box">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input 
-                type="text" 
-                name="search" 
-                id="subadminSearchInput" 
-                value="<%= search || '' %>" 
-                placeholder="Search by name, MIS code, or email..." 
-                autocomplete="off"
-            />
-            <% if (search) { %>
-                <a href="/admin/subadmins" class="clear-search-btn" title="Clear Search"><i class="fa-solid fa-xmark"></i></a>
-            <% } %>
+        <form action="/admin/subadmins" method="GET" class="search-form" id="subadminSearchForm" style="display: flex; align-items: center; gap: 8px; max-width: 450px; width: 100%;">
+            <div class="search-box" style="position: relative; flex: 1;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    id="subadminSearchInput" 
+                    value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                    placeholder="Search by name, MIS code, or email..." 
+                    autocomplete="off"
+                />
+                <% if (typeof search !== 'undefined' && search) { %>
+                    <a href="/admin/subadmins" class="clear-search-btn" title="Clear Search">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                <% } %>
+            </div>
+            <button type="submit" class="btn-search" style="padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #2563eb; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">Search</button>
         </form>
-
+        
         <div class="record-counter">
-            Total Sub-Admins: <strong><%= totalSubAdmins %></strong>
+            Total Sub-Admins: <strong><%= typeof totalSubAdmins !== 'undefined' ? totalSubAdmins : 0 %></strong>
         </div>
     </div>
 
     <!-- Sub-Admins Table Card -->
     <div class="card table-card">
         <div class="table-responsive">
-            <table class="subadmins-table">
+            <table class="subadmins-table" id="subadminsTable">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Sub-Admin Name</th>
+                        <th>Name</th>
                         <th>MIS Code</th>
-                        <th>Contact Phone</th>
+                        <th>Email</th>
+                        <th>Phone</th>
                         <th>Status</th>
-                        <% if (admin.role === 'admin') { %>
-                            <th class="text-center">Actions</th>
-                        <% } %>
+                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <% if (subadmins && subadmins.length > 0) { %>
+                    <% if (typeof subadmins !== 'undefined' && subadmins && subadmins.length > 0) { %>
                         <% subadmins.forEach((subadmin, index) => { %>
-                            <tr>
+                            <tr class="subadmin-row">
                                 <td><%= (page - 1) * limit + index + 1 %></td>
-                                <td class="admin-name-cell">
-                                    <div class="avatar-placeholder">
-                                        <%= (subadmin.fullName ? subadmin.fullName[0] : 'A').toUpperCase() %>
-                                    </div>
-                                    <div class="name-info">
-                                        <span class="full-name"><%= subadmin.fullName %></span>
-                                        <span class="email-sub"><%= subadmin.email %></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="mis-badge"><%= subadmin.misCode %></span>
-                                </td>
-                                <td>
-                                    <% if (subadmin.phone) { %>
-                                        <a href="tel:<%= subadmin.phone %>" class="phone-link">
-                                            <i class="fa-solid fa-phone"></i> <%= subadmin.phone %>
-                                        </a>
-                                    <% } else { %>
-                                        <span class="text-muted">N/A</span>
-                                    <% } %>
-                                </td>
+                                <td><strong><%= subadmin.fullName %></strong></td>
+                                <td><span class="badge mis-badge"><%= subadmin.misCode %></span></td>
+                                <td><%= subadmin.email %></td>
+                                <td><%= subadmin.phone || 'N/A' %></td>
                                 <td>
                                     <span class="status-pill status-<%= subadmin.isActive ? 'active' : 'inactive' %>">
                                         <%= subadmin.isActive ? 'ACTIVE' : 'INACTIVE' %>
                                     </span>
                                 </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="/admin/subadmins/<%= subadmin._id %>/edit" class="btn-action edit" title="Edit Sub-Admin">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </a>
 
-                                <!-- Actions ONLY visible to main admin -->
-                                <% if (admin.role === 'admin') { %>
-                                    <td class="text-center">
-                                        <div class="action-buttons">
-                                            <a href="/admin/subadmins/<%= subadmin._id %>/edit" class="btn-action edit" title="Edit Sub-Admin">
-                                                <i class="fa-solid fa-pen-to-square"></i> Edit
-                                            </a>
-                                            <button 
-                                                type="button" 
-                                                class="btn-action delete btn-delete-trigger" 
-                                                data-id="<%= subadmin._id %>" 
-                                                data-name="<%= subadmin.fullName %>"
-                                                title="Delete Sub-Admin"
-                                            >
-                                                <i class="fa-solid fa-trash-can"></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                <% } %>
+                                        <button 
+                                            type="button" 
+                                            class="btn-action delete btn-delete-trigger" 
+                                            data-id="<%= subadmin._id %>" 
+                                            data-name="<%= subadmin.fullName %>"
+                                            title="Delete Sub-Admin"
+                                        >
+                                            <i class="fa-solid fa-trash-can"></i> Delete
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         <% }) %>
                     <% } else { %>
-                        <tr>
-                            <td colspan="<%= admin.role === 'admin' ? 6 : 5 %>" class="empty-state">
-                                <i class="fa-solid fa-user-shield empty-icon"></i>
-                                <p>No sub-administrators found.</p>
+                        <tr id="noDataRow">
+                            <td colspan="7" class="empty-state">
+                                <i class="fa-solid fa-user-slash empty-icon"></i>
+                                <p>No sub-administrators found matching your search.</p>
                             </td>
                         </tr>
                     <% } %>
@@ -121,27 +101,32 @@
             </table>
         </div>
 
-        <!-- Server-Side Pagination Bar -->
-        <% if (totalPages > 1) { %>
+        <!-- Pagination Controls -->
+        <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
             <div class="pagination-container">
                 <div class="pagination-info">
                     Showing Page <strong><%= page %></strong> of <strong><%= totalPages %></strong>
                 </div>
+
                 <div class="pagination-controls">
                     <% if (hasPrevPage) { %>
-                        <a href="/admin/subadmins?page=<%= prevPage %>&search=<%= search %>" class="pagination-btn">
+                        <a href="/admin/subadmins?page=<%= prevPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" class="pagination-btn prev">
                             <i class="fa-solid fa-chevron-left"></i> Previous
                         </a>
                     <% } else { %>
-                        <span class="pagination-btn disabled"><i class="fa-solid fa-chevron-left"></i> Previous</span>
+                        <button class="pagination-btn prev disabled" disabled>
+                            <i class="fa-solid fa-chevron-left"></i> Previous
+                        </button>
                     <% } %>
 
                     <% if (hasNextPage) { %>
-                        <a href="/admin/subadmins?page=<%= nextPage %>&search=<%= search %>" class="pagination-btn">
+                        <a href="/admin/subadmins?page=<%= nextPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" class="pagination-btn next">
                             Next <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     <% } else { %>
-                        <span class="pagination-btn disabled">Next <i class="fa-solid fa-chevron-right"></i></span>
+                        <button class="pagination-btn next disabled" disabled>
+                            Next <i class="fa-solid fa-chevron-right"></i>
+                        </button>
                     <% } %>
                 </div>
             </div>
@@ -149,28 +134,27 @@
     </div>
 </div>
 
-<!-- Modal: Delete Confirmation (Admin Only) -->
-<% if (admin.role === 'admin') { %>
-    <div class="modal-overlay" id="deleteConfirmModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <div class="warning-icon-wrapper">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-                <h3>Confirm Deletion</h3>
+<!-- Modal: Delete Confirmation -->
+<div class="modal-overlay" id="deleteConfirmModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="warning-icon-wrapper">
+                <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete sub-admin <strong id="deleteSubadminName"></strong>?</p>
-                <p class="warning-text">This will revoke all administrative access for this account.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
-                <form id="deleteSubadminForm" method="POST" action="">
-                    <button type="submit" class="btn-danger">Delete</button>
-                </form>
-            </div>
+            <h3>Confirm Sub-Admin Deletion</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete sub-admin <strong id="deleteSubadminName"></strong>?</p>
+            <p class="warning-text">This action is permanent and cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+            <form id="deleteSubadminForm" method="POST" action="">
+                <button type="submit" class="btn-danger">Delete Sub-Admin</button>
+            </form>
         </div>
     </div>
-<% } %>
+</div>
 
+<!-- Page Scripts -->
 <script src="/js/admin/subadmins.js"></script>

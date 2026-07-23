@@ -25,20 +25,14 @@ router.get("/dashboard", adminController.getDashboard);
 // Export Students CSV Endpoint
 router.get("/export-students", adminController.exportStudentsCSV);
 
-// Students Route — Handled by adminController to pass student data to views/admin/students.ejs
+// Students Route
 router.get("/students", adminController.getStudentsList);
 
 // View detailed student profile
 router.get("/students/:id/inDetail", adminController.getStudentInDetail);
 
-// Other admin routes...
+// Sub-Admins Management Routes
 router.get("/subadmins", adminController.getSubAdminsList);
-
-// Delete Sub-Admin Endpoint (Admin Only)
-router.delete("/subadmins/:id", requireRole("admin"), adminController.deleteSubAdmin);
-
-// Backup POST route (if method-override middleware is not configured)
-router.post("/subadmins/:id/delete", requireRole("admin"), adminController.deleteSubAdmin);
 
 // Render Add Sub-Admin Form (Admin Only)
 router.get("/subadmins/new", requireRole("admin"), adminController.renderAddSubAdminForm);
@@ -55,7 +49,18 @@ router.put("/subadmins/:id", requireRole("admin"), adminController.updateSubAdmi
 // Backup POST route if method-override isn't active
 router.post("/subadmins/:id/update", requireRole("admin"), adminController.updateSubAdmin);
 
-router.get("/profile", (req, res) => res.render("admin/profile", { currentPage: "profile" }));
-router.get("/settings", requireRole("admin"), (req, res) => res.render("admin/settings", { currentPage: "settings" }));
+// Delete Sub-Admin Endpoint (Admin Only)
+router.delete("/subadmins/:id", requireRole("admin"), adminController.deleteSubAdmin);
+
+// Backup POST route
+router.post("/subadmins/:id/delete", requireRole("admin"), adminController.deleteSubAdmin);
+
+// Read-Only Profile Route (Both Admin & Sub-Admin)
+router.get("/profile", adminController.getMyProfile);
+
+// Admin Self-Edit Profile Routes (Admin Only)
+router.get("/:id/edit", requireRole("admin"), adminController.renderEditProfileForm);
+router.put("/:id/edit", requireRole("admin"), adminController.updateAdminProfile);
+router.post("/:id/edit", requireRole("admin"), adminController.updateAdminProfile); // Backup POST
 
 module.exports = router;

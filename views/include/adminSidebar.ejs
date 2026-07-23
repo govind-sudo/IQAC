@@ -59,14 +59,15 @@
                 </li>
 
                  <!-- Settings (ONLY Root Admin) -->
-                <% if (typeof admin !== 'undefined' && admin && admin.role === 'admin') { %>
-                    <li class="<%= currentPage === 'settings' ? 'active' : '' %>">
-                        <a href="/admin/settings">
-                            <i class="fa-solid fa-gear"></i>
-                            <span>Settings</span>
-                        </a>
-                    </li>
-                <% } %>
+                <!-- Settings / Edit Profile (ONLY Root Admin) -->
+<% if (typeof admin !== 'undefined' && admin && admin.role === 'admin') { %>
+    <li class="<%= currentPage === 'editProfile' ? 'active' : '' %>">
+        <a href="/admin/<%= admin._id %>/edit">
+            <i class="fa-solid fa-gear"></i>
+            <span>Edit Profile</span>
+        </a>
+    </li>
+<% } %>
 
             </ul>
         </nav>

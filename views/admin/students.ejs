@@ -9,19 +9,30 @@
         </div>
     </header>
 
-    <!-- Toolbar: Live Search Filter -->
+    <!-- Toolbar: Search Form (Submits ONLY on click / Enter) -->
     <div class="table-toolbar">
-        <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input 
-                type="text" 
-                id="studentSearchInput" 
-                placeholder="Search by student name, enrollment no, or contact..." 
-                autocomplete="off"
-            />
-        </div>
+        <form action="/admin/students" method="GET" class="search-form" id="studentSearchForm" style="display: flex; align-items: center; gap: 8px; max-width: 450px; width: 100%;">
+            <div class="search-box" style="position: relative; flex: 1;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    id="studentSearchInput" 
+                    value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                    placeholder="Search by student name, enrollment no, or contact..." 
+                    autocomplete="off"
+                />
+                <% if (typeof search !== 'undefined' && search) { %>
+                    <a href="/admin/students" class="clear-search-btn" title="Clear Search">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                <% } %>
+            </div>
+            <button type="submit" class="btn-search" style="padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #2563eb; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">Search</button>
+        </form>
+        
         <div class="record-counter">
-            Total Students: <strong id="studentCount"><%= (typeof students !== 'undefined' && students) ? students.length : 0 %></strong>
+            Total Students: <strong><%= typeof totalStudents !== 'undefined' ? totalStudents : 0 %></strong>
         </div>
     </div>
 
@@ -42,8 +53,8 @@
                 <tbody>
                     <% if (typeof students !== 'undefined' && students && students.length > 0) { %>
                         <% students.forEach((student, index) => { %>
-                            <tr class="student-row" data-search="<%= (student.fullName || (student.firstName + ' ' + student.lastName)).toLowerCase() %> <%= (student.enrollmentNo || '').toLowerCase() %> <%= (student.ugNumber || '').toLowerCase() %> <%= (student.phone || '').toLowerCase() %>">
-                                <td><%= index + 1 %></td>
+                            <tr class="student-row">
+                                <td><%= (page - 1) * limit + index + 1 %></td>
                                 <td class="student-name-cell">
                                     <a href="/admin/students/<%= student._id %>/inDetail" class="student-profile-link">
                                         <div class="avatar-placeholder">
@@ -81,12 +92,10 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="action-buttons">
-                                        <!-- Edit Link -->
                                         <a href="/admin/students/<%= student._id %>/edit" class="btn-action edit" title="Edit Student Details">
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </a>
 
-                                        <!-- Delete Button Trigger -->
                                         <button 
                                             type="button" 
                                             class="btn-action delete btn-delete-trigger" 
@@ -104,13 +113,44 @@
                         <tr id="noDataRow">
                             <td colspan="6" class="empty-state">
                                 <i class="fa-solid fa-user-slash empty-icon"></i>
-                                <p>No students found in the database.</p>
+                                <p>No students found matching your search.</p>
                             </td>
                         </tr>
                     <% } %>
                 </tbody>
             </table>
         </div>
+
+        <!-- Next / Previous Only Pagination Toolbar -->
+        <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing Page <strong><%= page %></strong> of <strong><%= totalPages %></strong>
+                </div>
+
+                <div class="pagination-controls">
+                    <% if (hasPrevPage) { %>
+                        <a href="/admin/students?page=<%= prevPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" class="pagination-btn prev">
+                            <i class="fa-solid fa-chevron-left"></i> Previous
+                        </a>
+                    <% } else { %>
+                        <button class="pagination-btn prev disabled" disabled>
+                            <i class="fa-solid fa-chevron-left"></i> Previous
+                        </button>
+                    <% } %>
+
+                    <% if (hasNextPage) { %>
+                        <a href="/admin/students?page=<%= nextPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" class="pagination-btn next">
+                            Next <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } else { %>
+                        <button class="pagination-btn next disabled" disabled>
+                            Next <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
     </div>
 </div>
 

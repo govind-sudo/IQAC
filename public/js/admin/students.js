@@ -1,28 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Live Client-Side Search Filter
+    // 1. Set cursor at the end of search input on page load (No live input request listeners)
     const searchInput = document.getElementById('studentSearchInput');
-    const studentRows = document.querySelectorAll('.student-row');
-    const studentCountEl = document.getElementById('studentCount');
-
     if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            let visibleCount = 0;
-
-            studentRows.forEach(row => {
-                const searchData = row.getAttribute('data-search') || '';
-                if (searchData.includes(query)) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            if (studentCountEl) {
-                studentCountEl.textContent = visibleCount;
-            }
-        });
+        const val = searchInput.value;
+        searchInput.value = '';
+        searchInput.value = val;
+        if (val) searchInput.focus();
     }
 
     // 2. Modal Confirmation for Deletion
@@ -32,34 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteStudentForm = document.getElementById('deleteStudentForm');
     const deleteStudentName = document.getElementById('deleteStudentName');
 
-    deleteTriggers.forEach(button => {
-        button.addEventListener('click', () => {
-            const studentId = button.getAttribute('data-id');
-            const studentName = button.getAttribute('data-name');
+    if (deleteTriggers.length > 0 && deleteModal) {
+        deleteTriggers.forEach(button => {
+            button.addEventListener('click', () => {
+                const studentId = button.getAttribute('data-id');
+                const studentName = button.getAttribute('data-name');
 
-            // Set student name in modal
-            deleteStudentName.textContent = studentName;
+                if (deleteStudentName) deleteStudentName.textContent = studentName;
+                if (deleteStudentForm) deleteStudentForm.action = `/admin/students/${studentId}?_method=DELETE`;
 
-            // Set dynamic form action for submission
-            deleteStudentForm.action = `/admin/students/${studentId}?_method=DELETE`;
-
-            // Display modal
-            deleteModal.classList.add('active');
+                deleteModal.classList.add('active');
+            });
         });
-    });
 
-    const closeModal = () => {
-        deleteModal.classList.remove('active');
-    };
+        const closeModal = () => deleteModal.classList.remove('active');
 
-    if (cancelDeleteBtn) {
-        cancelDeleteBtn.addEventListener('click', closeModal);
+        if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeModal);
+
+        window.addEventListener('click', (e) => {
+            if (e.target === deleteModal) closeModal();
+        });
     }
-
-    // Close modal when clicking outside box
-    window.addEventListener('click', (e) => {
-        if (e.target === deleteModal) {
-            closeModal();
-        }
-    });
 });

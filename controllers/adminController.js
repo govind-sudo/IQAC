@@ -298,25 +298,63 @@ exports.exportStudentsCSV = async (req, res) => {
     }
 };
 
-// Render list of all students
+// Render list of all students with Server-Side Pagination (15 per page) & Search
 exports.getStudentsList = async (req, res) => {
     try {
-        const students = await Student.find({})
-            .select('firstName lastName fullName email ugNumber enrollmentNo phone phoneCode studentStatus')
-            .sort({ createdAt: -1 })
-            .lean();
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15; // Fixed page size of 15 items
+        const skip = (page - 1) * limit;
+        const search = req.query.search ? req.query.search.trim() : '';
+
+        // Base query
+        let query = {};
+
+        // Optimized search regex across key fields
+        if (search) {
+            const searchRegex = new RegExp(search, 'i');
+            query.$or = [
+                { fullName: searchRegex },
+                { firstName: searchRegex },
+                { lastName: searchRegex },
+                { email: searchRegex },
+                { ugNumber: searchRegex },
+                { enrollmentNo: searchRegex },
+                { phone: searchRegex }
+            ];
+        }
+
+        // Execute count and paginated query concurrently
+        const [totalStudents, students] = await Promise.all([
+            Student.countDocuments(query),
+            Student.find(query)
+                .select('firstName lastName fullName email ugNumber enrollmentNo phone phoneCode studentStatus')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean()
+        ]);
+
+        const totalPages = Math.ceil(totalStudents / limit) || 1;
 
         res.render('admin/students', {
-            currentPage: 'students',
-            admin: req.admin,
-            students
+            currentPage: 'students', // Keep 'students' for sidebar active link highlight
+            page,                     // Numeric current page
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+            nextPage: page + 1,
+            prevPage: page - 1,
+            limit,
+            totalStudents,
+            students,
+            search,
+            admin: req.admin
         });
     } catch (err) {
         console.error("Error fetching students list:", err);
         res.status(500).render('errors/500');
     }
 };
-
 // Render detailed student profile
 exports.getStudentInDetail = async (req, res) => {
     try {
@@ -525,6 +563,76 @@ exports.updateSubAdmin = async (req, res) => {
             subadmin: { _id: id, fullName, misCode, email, phone, isActive: isActive === "true" || isActive === "on" },
             errorMessage,
             formData: { fullName, misCode, email, phone, isActive }
+        });
+    }
+};
+
+// GET /admin/profile - Render read-only profile details
+exports.getMyProfile = async (req, res) => {
+    try {
+        const currentAdmin = await Admin.findById(req.admin._id).populate("createdBy", "fullName email");
+
+        res.render("admin/myProfile", {
+            currentPage: "profile",
+            admin: currentAdmin
+        });
+    } catch (err) {
+        console.error("Error fetching profile:", err);
+        res.status(500).render("error", { message: "Failed to load profile details." });
+    }
+};
+
+
+// GET /admin/:id/edit — Render Edit Profile Form
+exports.renderEditProfileForm = async (req, res) => {
+    try {
+        const targetAdmin = await Admin.findById(req.params.id);
+        if (!targetAdmin) {
+            return res.status(404).render("error", { message: "Admin account not found." });
+        }
+
+        res.render("admin/editProfile", {
+            currentPage: "editProfile",
+            adminToEdit: targetAdmin,
+            errorMessage: null
+        });
+    } catch (err) {
+        console.error("Error loading edit profile page:", err);
+        res.status(500).render("error", { message: "Failed to load edit profile form." });
+    }
+};
+
+// PUT or POST /admin/:id/edit — Update All Admin Profile Details
+exports.updateAdminProfile = async (req, res) => {
+    try {
+        const { fullName, misCode, email, phone, role, isActive } = req.body;
+
+        if (!fullName || !misCode || !email) {
+            const targetAdmin = await Admin.findById(req.params.id);
+            return res.status(400).render("admin/editProfile", {
+                currentPage: "editProfile",
+                adminToEdit: targetAdmin,
+                errorMessage: "Full Name, MIS Code, and Email are required fields."
+            });
+        }
+
+        await Admin.findByIdAndUpdate(req.params.id, {
+            fullName: fullName.trim(),
+            misCode: misCode.trim().toUpperCase(),
+            email: email.trim().toLowerCase(),
+            phone: phone ? phone.trim() : null,
+            role: role,
+            isActive: isActive === "true" || isActive === true
+        });
+
+        res.redirect("/admin/profile");
+    } catch (err) {
+        console.error("Error updating admin profile:", err);
+        const targetAdmin = await Admin.findById(req.params.id);
+        res.status(500).render("admin/editProfile", {
+            currentPage: "editProfile",
+            adminToEdit: targetAdmin,
+            errorMessage: err.code === 11000 ? "MIS Code or Email already exists." : "Failed to update profile details."
         });
     }
 };
