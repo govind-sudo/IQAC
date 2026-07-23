@@ -278,6 +278,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const snapshot = buildFormSnapshot();
     const percentage = percentageFor(fieldName, snapshot);
 
+    // Block BEFORE calling the server at all if the required matching
+    // number isn't filled in yet — no point burning OCR/AI compute (or
+    // the network round-trip) on a document that can't be verified
+    // regardless of what it actually contains. Mirrors the same rule
+    // enforced server-side in documentVerifier.js, but catches it
+    // instantly here instead of after a full OCR pass.
+    if (!snapshot.fullName) {
+      fileState.set(fieldName, { status: "mismatch", controller: null });
+      paintStatus(input, "mismatch", "Please enter your name on the form first.");
+      updateSubmitState();
+      return;
+    }
+    if (fieldName === "documents[aadhaarProof]" && !snapshot.aadhaarNumber) {
+      fileState.set(fieldName, { status: "mismatch", controller: null });
+      paintStatus(input, "mismatch", "Please enter your Aadhaar number on the form first.");
+      updateSubmitState();
+      return;
+    }
+    if (fieldName === "documents[abcIdProof]" && !snapshot.abcId) {
+      fileState.set(fieldName, { status: "mismatch", controller: null });
+      paintStatus(input, "mismatch", "Please enter your ABC/APAAR ID on the form first.");
+      updateSubmitState();
+      return;
+    }
+    if (fieldName === "documents[passportUpload]" && !snapshot.passportNumber) {
+      fileState.set(fieldName, { status: "mismatch", controller: null });
+      paintStatus(input, "mismatch", "Please enter your Passport number on the form first.");
+      updateSubmitState();
+      return;
+    }
+
     const formSnapshot = {
       fullName: snapshot.fullName,
       dob: snapshot.dob,

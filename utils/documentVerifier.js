@@ -6,8 +6,6 @@ const AIService = require('../services/AIService');
 
 const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
-// Fields that skip OCR/AI verification entirely — only the file
-// signature/format check applies.
 const NO_VERIFICATION_FIELDS = new Set([
   'documents[casteProof]',
 ]);
@@ -27,10 +25,10 @@ function namesLikelyMatch(ocrName, fullName) {
 function nameLikelyPresentInText(text, fullName) {
   const normText = normalize(text);
   const parts = String(fullName || '').split(/\s+/).filter((p) => p.length > 1);
-  if (!parts.length || !normText) return true;
+  if (!parts.length) return false;
+  if (!normText) return true;
 
   const hits = parts.filter((p) => normText.includes(normalize(p)));
-
   const requiredHits = parts.length <= 2 ? parts.length : parts.length - 1;
   return hits.length >= requiredHits;
 }
@@ -40,10 +38,6 @@ function extractPassportFromText(text) {
   return m ? m[0].toUpperCase() : null;
 }
 
-// ABC/APAAR IDs are 12-digit numeric identifiers, same shape as
-// Aadhaar. Documents sometimes print them in grouped format
-// (e.g. "1234 5678 9012") — strip whitespace before comparing, same
-// approach as the Aadhaar check.
 function extractAbcIdFromText(text) {
   const m = String(text || '').match(/\b(\d{4}\s?\d{4}\s?\d{4})\b/);
   return m ? m[1].replace(/\s/g, '') : null;
@@ -62,7 +56,46 @@ async function verifyDocument({ fieldName, ocrResult, formSnapshot }) {
   }
 
   const mismatches = [];
-  const fullName = formSnapshot.fullName;
+  const fullName = (formSnapshot.fullName || '').trim();
+
+  // A document can never be legitimately "verified" against a name
+  // that was never provided.
+  if (!fullName) {
+    mismatches.push({
+      type: 'name',
+      message: 'Please enter your name on the form before uploading this document.',
+    });
+    return { verified: false, mismatches };
+  }
+
+  // Aadhaar proof requires the Aadhaar number to already be typed on
+  // the form — otherwise the number-match check below has nothing to
+  // check against and would previously silently pass.
+  if (fieldName === 'documents[aadhaarProof]' && !String(formSnapshot.aadhaarNumber || '').trim()) {
+    mismatches.push({
+      type: 'aadhaar',
+      message: 'Please enter your Aadhaar number on the form before uploading this document.',
+    });
+    return { verified: false, mismatches };
+  }
+
+  // Same rule for ABC/APAAR ID proof.
+  if (fieldName === 'documents[abcIdProof]' && !String(formSnapshot.abcId || '').trim()) {
+    mismatches.push({
+      type: 'abcId',
+      message: 'Please enter your ABC/APAAR ID on the form before uploading this document.',
+    });
+    return { verified: false, mismatches };
+  }
+
+  // Same rule for Passport proof.
+  if (fieldName === 'documents[passportUpload]' && !String(formSnapshot.passportNumber || '').trim()) {
+    mismatches.push({
+      type: 'passport',
+      message: 'Please enter your Passport number on the form before uploading this document.',
+    });
+    return { verified: false, mismatches };
+  }
 
   if (!ocrResult || !ocrResult.success || !ocrResult.fullText) {
     mismatches.push({
@@ -75,7 +108,6 @@ async function verifyDocument({ fieldName, ocrResult, formSnapshot }) {
   }
 
   // ---------- Name check ----------
-  // Applies to every non-skipped document.
   const ocrName = ocrResult.englishName || ocrResult.hindiName;
   let nameOk = ocrName
     ? namesLikelyMatch(ocrName, fullName)
@@ -111,7 +143,6 @@ async function verifyDocument({ fieldName, ocrResult, formSnapshot }) {
   }
 
   // ---------- Aadhaar check ----------
-  // documents[aadhaarProof] ONLY.
   if (fieldName === 'documents[aadhaarProof]' && formSnapshot.aadhaarNumber) {
     const found = ocrResult.aadhaar;
     const expected = String(formSnapshot.aadhaarNumber).replace(/\s/g, '');
@@ -124,7 +155,6 @@ async function verifyDocument({ fieldName, ocrResult, formSnapshot }) {
   }
 
   // ---------- Passport check ----------
-  // documents[passportUpload] ONLY.
   if (fieldName === 'documents[passportUpload]' && formSnapshot.passportNumber) {
     const found = extractPassportFromText(ocrResult.fullText);
     const expected = String(formSnapshot.passportNumber).toUpperCase().replace(/\s/g, '');
@@ -137,9 +167,6 @@ async function verifyDocument({ fieldName, ocrResult, formSnapshot }) {
   }
 
   // ---------- ABC/APAAR ID check ----------
-  // documents[abcIdProof] ONLY. abcId on the form is optional (12-digit
-  // ID, if the student has one) — only checked if they actually
-  // provided a value AND uploaded this proof.
   if (fieldName === 'documents[abcIdProof]' && formSnapshot.abcId) {
     const found = extractAbcIdFromText(ocrResult.fullText);
     const expected = String(formSnapshot.abcId).replace(/\s/g, '');
