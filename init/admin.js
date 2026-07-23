@@ -8,6 +8,14 @@ module.exports = [
     isActive: true,
   },
   {
+    fullName: "Raghav",
+    misCode: "MIS5001",
+    email: "raghavsoni4511@gmail.com",
+    phone: "9876543210",
+    role: "admin",
+    isActive: true,
+  },
+  {
     fullName: "Rahul Patel",
     misCode: "MIS1002",
     email: "rahul.patel@paruluniversity.ac.in",

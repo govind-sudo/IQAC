@@ -1,10 +1,12 @@
+require("dotenv").config();
+
 const mongoose = require("mongoose");
 
 const Admin = require("../models/admin");
 const fakeAdmins = require("./admin");
-
+const MONGO_URL = process.env.MONGO_URL;
 mongoose
-  .connect("mongodb://127.0.0.1:27017/iqac-student-portal")
+  .connect(MONGO_URL)
   .then(() => console.log("MongoDB Connected"))
   .catch(console.error);
 
