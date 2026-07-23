@@ -37,6 +37,28 @@
 
                 <div class="academic-sub-section">
                     <h4 class="academic-section-title">Required Identity & Verification Documents</h4>
+                    <% 
+                      const hasAnyDoc = !!(
+                        student.documents?.aadhaarProof ||
+                        student.documents?.abcIdProof ||
+                        student.documents?.leavingCertificate ||
+                        student.documents?.casteProof ||
+                        student.education?.tenth?.marksheet ||
+                        student.education?.twelfth?.marksheet ||
+                        student.education?.diploma?.marksheet
+                      );
+                    %>
+                                    
+                    <% if (!hasAnyDoc) { %>
+                        <div class="documents-empty-state">
+                            <i class="fa-solid fa-folder-open empty-state-icon"></i>
+                            <p>No documents uploaded yet.</p>
+                        </div>
+                    <% } else { %>
+                        <div class="documents-grid">
+                            <!-- ... all the existing document-item-box blocks go here, unchanged ... -->
+                        </div>
+                    <% } %>
                     <div class="documents-grid">
                         
                         <!-- Aadhaar Card -->
@@ -224,6 +246,59 @@
                             <div class="document-file-side">
                                 <% if (student.documents && student.documents.puAdmissionLetter) { %>
                                     <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="PU Admission Letter" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.puAdmissionLetter) %>">
+                                        <i class="fa-solid fa-eye"></i> View Document
+                                    </button>
+                                <% } else { %>
+                                    <span class="file-status-badge missing">
+                                        <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- 10th Marksheet -->
+                        <div class="document-item-box">
+                            <div class="document-meta-side">
+                                <div class="doc-icon-wrapper media">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <div class="doc-text-details">
+                                    <span class="doc-label">10th Standard Marksheet</span>
+                                    <span class="doc-value-status"><%= student.education?.tenth?.schoolName || 'Not Given' %></span>
+                                </div>
+                            </div>
+                            <div class="document-file-side">
+                                <% if (student.education && student.education.tenth && student.education.tenth.marksheet) { %>
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="10th Marksheet" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.education.tenth.marksheet) %>">
+                                        <i class="fa-solid fa-eye"></i> View Document
+                                    </button>
+                                <% } else { %>
+                                    <span class="file-status-badge missing">
+                                        <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- 12th / Diploma Marksheet -->
+                        <div class="document-item-box">
+                            <div class="document-meta-side">
+                                <div class="doc-icon-wrapper media">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <div class="doc-text-details">
+                                    <span class="doc-label">
+                                        <%= student.education?.diploma ? 'Diploma Marksheet' : '12th Standard Marksheet' %>
+                                    </span>
+                                    <span class="doc-value-status">
+                                        <%= (student.education?.twelfth?.schoolName || student.education?.diploma?.schoolName) || 'Not Given' %>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="document-file-side">
+                                <% const qualMarksheet = (student.education?.twelfth?.marksheet) || (student.education?.diploma?.marksheet); %>
+                                <% if (qualMarksheet) { %>
+                                    <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="12th/Diploma Marksheet" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(qualMarksheet) %>">
                                         <i class="fa-solid fa-eye"></i> View Document
                                     </button>
                                 <% } else { %>
