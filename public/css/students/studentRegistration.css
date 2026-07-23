@@ -482,7 +482,18 @@ body {
     font-size: 12px;
   }
 }
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+}
 
+.btn:disabled:hover {
+  filter: none;
+}
+.btn-not-ready {
+  opacity: 0.6;
+}
 /* --- Very small (< 360px): ultra-compact --- */
 @media (max-width: 360px) {
   .page-body {

@@ -12,8 +12,6 @@ const Admin = require("../models/admin");
 
 router.post("/auth/enrollment-check", async (req, res) => {
   try {
-    console.log("SESSION ID at enrollment-check:", req.sessionID);
-
     const { enrollmentNo } = req.body;
 
     if (!enrollmentNo) {
@@ -85,13 +83,8 @@ router.post("/auth/admin-check", async (req, res) => {
 
 router.get(
   "/auth/google",
-  (req, res, next) => {
-    console.log("SESSION ID at /auth/google:", req.sessionID);
-    next();
-  },
   passport.authenticate("google", {
     scope: ["profile", "email"],
-    // hd: "paruluniversity.ac.in",
   })
 );
 
@@ -109,11 +102,8 @@ router.get(
   async (req, res) => {
     try {
 
-      console.log("SESSION:", req.session);
-
       const googleProfile = req.user;
       const googleEmail = googleProfile.emails[0].value.toLowerCase();
-
 
 
       // =====================================================
@@ -146,7 +136,19 @@ router.get(
 
           admin.googleId = googleProfile.id;
 
-          await admin.save();
+          try {
+            await admin.save();
+          } catch (saveErr) {
+            // This Google account is already linked to a DIFFERENT
+            // admin/subadmin record — googleId has a unique index, so
+            // MongoDB rejects the save rather than silently overwriting.
+            // Without this catch, the outer catch below would swallow
+            // it as a generic "/login" redirect with no explanation.
+            if (saveErr.code === 11000 && saveErr.keyPattern?.googleId) {
+              return res.redirect("/login?error=This Google account is already linked to a different admin profile.");
+            }
+            throw saveErr;
+          }
         }
 
         // -------------------------------
@@ -169,7 +171,6 @@ router.get(
 
         return res.redirect("/admin/dashboard");
       }
-
 
 
       // =====================================================
@@ -202,7 +203,18 @@ router.get(
         student.parulEmailId = googleEmail;
         student.parulEmailActive = true;
 
-        await student.save();
+        try {
+          await student.save();
+        } catch (saveErr) {
+          // Same duplicate-googleId scenario as above, for students —
+          // this is the exact bug that bounced YOU back to /login with
+          // no error earlier, caused by testing multiple "students"
+          // with one real Google account.
+          if (saveErr.code === 11000 && saveErr.keyPattern?.googleId) {
+            return res.redirect("/login?error=This Google account is already linked to a different student profile.");
+          }
+          throw saveErr;
+        }
       }
 
       // -------------------------------

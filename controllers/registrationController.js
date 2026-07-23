@@ -20,22 +20,10 @@ exports.showRegisterForm = (req, res) => {
   res.render('students/register', { error: null });
 };
 
-// NOTE: Document OCR/AI re-verification at final submit has been
-// intentionally removed per product decision — final submit now only
-// validates that required fields are present and well-formed. The
-// pre-submit AJAX checks (fileVerification.js) still run OCR/AI while
-// the student is filling the form, as a helpful live-feedback UX, but
-// nothing blocks final registration based on document content anymore.
-//
-// Responses are now JSON (not res.render) so the frontend can submit
-// via fetch() instead of a native form POST — this means a rejection
-// (duplicate UG number, validation error, etc.) no longer reloads the
-// page, so neither typed fields nor selected files are lost. See
-// public/js/registerSubmit.js for the client side of this.
 exports.registerStudent = async (req, res) => {
   const body = req.body || {};
   const isIndian = body.nationality === 'Indian';
-  let storedFilePaths = null; // set once files are written; used to roll back on later failure
+  let storedFilePaths = null;
 
   try {
     // ---------- 1. Required top-level fields ----------
@@ -97,10 +85,8 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    // Qualification type
     const qualKey = body.qualificationType === 'diploma' ? 'diploma' : 'twelfth';
 
-    // Only Indian students submit 10th / 12th / Diploma details
     if (isIndian) {
       if (!body.education?.tenth?.schoolName || !body.education?.tenth?.percentage) {
         return res.status(400).json({
@@ -124,13 +110,18 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    // International students (Nationality = "Other") must supply three
-    // additional proof documents. Indian students are exempt.
+    // ---------- FIX: check req.files directly, not body.documents ----------
+    // body.documents only gets populated AFTER applyStoredFilePaths() runs
+    // (later in this function, after file storage). At this point in the
+    // request, the actual uploaded files already exist on req.files
+    // (populated immediately by Multer) even though body.documents is
+    // still empty — checking body.documents here was a false negative
+    // that rejected international students who HAD uploaded everything.
     if (!isIndian) {
       const missingIntlDocs = [];
-      if (!body.documents?.aoLevelCertificate) missingIntlDocs.push('A/O Level Certificate');
-      if (!body.documents?.puAdmissionLetter) missingIntlDocs.push('PU Offer Letter');
-      if (!body.documents?.passportUpload) missingIntlDocs.push('Passport');
+      if (!req.files?.['documents[aoLevelCertificate]']) missingIntlDocs.push('A/O Level Certificate');
+      if (!req.files?.['documents[puAdmissionLetter]']) missingIntlDocs.push('PU Offer Letter');
+      if (!req.files?.['documents[passportUpload]']) missingIntlDocs.push('Passport');
 
       if (missingIntlDocs.length) {
         return res.status(400).json({
@@ -140,21 +131,11 @@ exports.registerStudent = async (req, res) => {
       }
     }
 
-    // ---------- 2b. Persist uploaded files (Storage Service) ----------
-    // Signature Validator (middleware) already approved every buffer in
-    // req.files, and all field/business-rule checks above have passed,
-    // so it's now safe to write them to disk with UUID names and fold
-    // the resulting paths back into `body` at the same nested keys the
-    // rest of this function already expects.
     // ---------- 3. Normalize identifiers ----------
     const ugNumber = String(body.ugNumber).trim().toUpperCase();
     const email = String(body.email).trim().toLowerCase();
 
     // ---------- 4. Duplicate checks (friendly, pre-save) ----------
-    // Moved BEFORE file storage: storeUploadedFiles now needs a
-    // confirmed-unique ugNumber to build the student's folder name, so
-    // there's no point writing files to disk for a registration that's
-    // about to be rejected as a duplicate anyway.
     const [existingByUg, existingByEmail] = await Promise.all([
       Student.findOne({ ugNumber }),
       Student.findOne({ email }),
@@ -180,6 +161,7 @@ exports.registerStudent = async (req, res) => {
       lastName: body.lastName,
     });
     applyStoredFilePaths(body, storedFilePaths);
+
     // ---------- 5. Password from DOB (DDMMYYYY), hashed ----------
     const dob = new Date(body.dob);
     if (Number.isNaN(dob.getTime())) {
@@ -313,8 +295,6 @@ exports.registerStudent = async (req, res) => {
 
     return res.json({ success: true, redirectTo: '/students/registerSuccess' });
   } catch (err) {
-    // Rollback: if files were already written to disk this request but a
-    // later step (e.g. student.save()) failed, don't leave orphaned uploads.
     if (storedFilePaths) {
       await deleteStoredFiles(storedFilePaths);
     }

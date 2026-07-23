@@ -17,17 +17,17 @@
         </div>
         <div class="stat-details">
             <span class="stat-title">Total Students</span>
-            <h2 class="stat-value"><%= metrics.totalStudents.toLocaleString() %></h2>
+            <h2 class="stat-value"><%= (metrics && metrics.totalStudents ? metrics.totalStudents : 0).toLocaleString() %></h2>
         </div>
     </div>
-
+    
     <div class="stat-card purple">
         <div class="stat-icon">
             <i class="fa-solid fa-user-shield"></i>
         </div>
         <div class="stat-details">
             <span class="stat-title">Total Admins</span>
-            <h2 class="stat-value"><%= metrics.totalAdmins.toLocaleString() %></h2>
+            <h2 class="stat-value"><%= (metrics && metrics.totalAdmins ? metrics.totalAdmins : 0).toLocaleString() %></h2>
         </div>
     </div>
 </section>

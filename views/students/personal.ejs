@@ -22,7 +22,7 @@
                     <h2><%= student.fullName %></h2>
                     <span class="status-badge status-<%= student.profileStatus %>">
                         <span class="status-indicator-dot"></span>
-                        <%= student.profileStatus.toUpperCase() %>
+                        <%= (student.profileStatus || 'incomplete').toUpperCase() %>
                     </span>
                 </div>
             </div>
@@ -118,7 +118,7 @@
                 <div class="section-card-body fields-grid-2">
                     <div class="input-group">
                         <label>Aadhaar Number</label>
-                        <div class="form-control-static secure-placeholder"><%= student.aadhaarNumber ? '[Aadhaar Redacted]' : 'Not Provided' %></div>
+                        <div class="form-control-static secure-placeholder"><%= student.aadhaarNumber ? student.aadhaarNumber.replace(/(\d{4})(?=\d)/g, '$1 ') : 'Not Provided' %></div>
                     </div>
                     <div class="input-group">
                         <label>Passport Number</label>
@@ -180,7 +180,7 @@
                     <% if(student.residesInHostel) { %>
                     <div class="input-group">
                         <label>Hostel Name</label>
-                        <div class="form-control-static"><%= student.hostelName %></div>
+                        <%= student.hostelName || 'Not Assigned' %>
                     </div>
                     <% } %>
                 </div>

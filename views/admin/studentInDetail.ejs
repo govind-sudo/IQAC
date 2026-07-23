@@ -127,8 +127,9 @@
                 <div class="address-section">
                     <div class="address-box">
                         <span class="address-title">Present Address</span>
-                        <% if (student.presentAddress && (student.presentAddress.street || student.presentAddress.city)) { %>
-                            <p><%= student.presentAddress.street %></p>
+                        <!-- Present Address -->
+                        <% if (student.presentAddress && (student.presentAddress.address1 || student.presentAddress.city)) { %>
+                            <p><%= student.presentAddress.address1 %><% if (student.presentAddress.address2) { %>, <%= student.presentAddress.address2 %><% } %></p>
                             <p><%= student.presentAddress.city %>, <%= student.presentAddress.district %></p>
                             <p><%= student.presentAddress.state %>, <%= student.presentAddress.country %> - <%= student.presentAddress.pincode %></p>
                         <% } else { %>
@@ -137,8 +138,8 @@
                     </div>
                     <div class="address-box">
                         <span class="address-title">Permanent Address</span>
-                        <% if (student.permanentAddress && (student.permanentAddress.street || student.permanentAddress.city)) { %>
-                            <p><%= student.permanentAddress.street %></p>
+                        <% if (student.permanentAddress && (student.permanentAddress.address1 || student.permanentAddress.city)) { %>
+                            <p><%= student.permanentAddress.address1 %><% if (student.permanentAddress.address2) { %>, <%= student.permanentAddress.address2 %><% } %></p>
                             <p><%= student.permanentAddress.city %>, <%= student.permanentAddress.district %></p>
                             <p><%= student.permanentAddress.state %>, <%= student.permanentAddress.country %> - <%= student.permanentAddress.pincode %></p>
                         <% } else { %>
