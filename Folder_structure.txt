@@ -1,11 +1,10 @@
-PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 ├── config
 │   ├── passport.js
 │   ├── redisClient.js
 ├── controllers
+│   ├── adminController.js
 │   ├── authController.js
 │   ├── fileVerificationController.js
-│   ├── old_registrationController.js
 │   ├── registrationController.js
 │   ├── studentController.js
 ├── init
@@ -30,6 +29,12 @@ PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 │   ├── GeminiProvider.js
 ├── public
 │   ├── css
+│   │   ├── admin
+│   │   │   ├── adminSidebar.css
+│   │   │   ├── dashboard.css
+│   │   │   ├── studentDetail.css
+│   │   │   ├── students.css
+│   │   │   ├── subadmins.css
 │   │   ├── students
 │   │   │   ├── studentRegistration.css
 │   │   │   ├── studentsAcademic.css
@@ -47,7 +52,12 @@ PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 │   │   ├── indiaDistricts.json
 │   │   ├── indiaStates.json
 │   ├── js
+│   │   ├── admin
+│   │   │   ├── students.js
+│   │   │   ├── subadmins.js
+│   │   ├── adminSidebar.js
 │   │   ├── fileVerification.js
+│   │   ├── registerSubmit.js
 │   │   ├── studentPersonal.js
 │   │   ├── studentRegistration.js
 │   │   ├── studentSidebar.js
@@ -59,14 +69,10 @@ PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 │   ├── adminRoutes.js
 │   ├── authRoutes.js
 │   ├── googleAuthRoutes.js
-│   ├── old1_registrationRoutes.js
-│   ├── old_registrationRoutes.js
 │   ├── registrationRoutes.js
 │   ├── studentRoutes.js
 ├── scripts
-│   ├── paddle_ocr.py
 │   ├── paddle_ocr_server.py
-│   ├── test_paddle.py
 ├── services
 │   ├── AIService.js
 │   ├── storageService.js
@@ -77,13 +83,20 @@ PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 │   ├── ocrTextExtractor.js
 ├── views
 │   ├── admin
+│   │   ├── addSubadmin.ejs
 │   │   ├── dashboard.ejs
+│   │   ├── editProfile.ejs
+│   │   ├── editSubadmin.ejs
+│   │   ├── myProfile.ejs
+│   │   ├── studentInDetail.ejs
+│   │   ├── students.ejs
+│   │   ├── subadmins.ejs
 │   ├── include
+│   │   ├── adminSidebar.ejs
 │   │   ├── studentsSidebar.ejs
 │   ├── layout
 │   │   ├── adminBoilerPlate.ejs
 │   │   ├── studentsBoilerPlate.ejs
-│   │   ├── teacherBoilerPlate.ejs
 │   ├── students
 │   │   ├── academic.ejs
 │   │   ├── contact.ejs
@@ -92,7 +105,6 @@ PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 │   │   ├── forms.ejs
 │   │   ├── help.ejs
 │   │   ├── login.ejs
-│   │   ├── old_register.ejs
 │   │   ├── personal.ejs
 │   │   ├── register.ejs
 │   │   ├── registerSuccess.ejs
@@ -110,5 +122,4 @@ PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 ├── requirements.txt
 ├── setup.bat
 ├── setup.sh
-├── test_output-1.jpg
 ├── USED.text
