@@ -597,7 +597,6 @@ exports.updateStudent = async (req, res) => {
                 name: body.emergencyContact.name || student.emergencyContact?.name,
                 phoneCode: body.emergencyContact.phoneCode || student.emergencyContact?.phoneCode || "+91",
                 phone: body.emergencyContact.phone || student.emergencyContact?.phone,
-                relation: body.emergencyContact.relation || student.emergencyContact?.relation,
             };
         }
         if (body.father) {
