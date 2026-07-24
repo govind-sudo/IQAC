@@ -1,5 +1,15 @@
 <% layout('layout/adminBoilerPlate') %>
 
+<style>
+    /* Styling for the disabled Save Changes button */
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(20%);
+        box-shadow: none;
+    }
+</style>
+
 <div class="form-page-container">
     <div class="form-header">
         <a href="/admin/subadmins" class="back-link">
@@ -25,7 +35,7 @@
             </div>
         <% } %>
 
-        <form action="/admin/subadmins/<%= subadmin._id %>?_method=PUT" method="POST" class="subadmin-form">
+        <form action="/admin/subadmins/<%= subadmin._id %>?_method=PUT" method="POST" class="subadmin-form" id="editSubadminForm">
             
             <div class="form-row">
                 <!-- Full Name -->
@@ -94,6 +104,7 @@
                         <input 
                             type="checkbox" 
                             name="isActive" 
+                            id="isActive"
                             value="true" 
                             <%= (typeof formData !== 'undefined' ? (formData.isActive === 'true' || formData.isActive === true || formData.isActive === 'on') : subadmin.isActive) ? 'checked' : '' %> 
                         />
@@ -104,10 +115,55 @@
 
             <div class="form-actions">
                 <a href="/admin/subadmins" class="btn-secondary">Cancel</a>
-                <button type="submit" class="btn-primary">
+                <button type="submit" class="btn-primary" id="saveBtn" disabled>
                     <i class="fa-solid fa-floppy-disk"></i> Save Changes
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Form Change Detector Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("editSubadminForm");
+        const saveBtn = document.getElementById("saveBtn");
+        
+        if (!form || !saveBtn) return;
+
+        // Capture initial values of form inputs
+        const initialValues = {};
+        const inputs = form.querySelectorAll("input");
+
+        inputs.forEach(input => {
+            if (input.type === "checkbox") {
+                initialValues[input.name] = input.checked;
+            } else {
+                initialValues[input.name] = input.value.trim();
+            }
+        });
+
+        // Check if any current input value differs from the initial state
+        const checkForChanges = () => {
+            let isChanged = false;
+
+            inputs.forEach(input => {
+                if (input.type === "checkbox") {
+                    if (input.checked !== initialValues[input.name]) {
+                        isChanged = true;
+                    }
+                } else {
+                    if (input.value.trim() !== initialValues[input.name]) {
+                        isChanged = true;
+                    }
+                }
+            });
+
+            saveBtn.disabled = !isChanged;
+        };
+
+        // Attach listeners for text changes and checkbox toggles
+        form.addEventListener("input", checkForChanges);
+        form.addEventListener("change", checkForChanges);
+    });
+</script>

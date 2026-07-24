@@ -153,13 +153,22 @@
         font-size: 0.9rem;
         border: none;
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
         background-color: #1d4ed8;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    /* Disabled state styling for primary button */
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(20%);
+        box-shadow: none;
+        transform: none;
     }
 
     /* Error Alert Popup */
@@ -229,7 +238,7 @@
             </div>
         <% } %>
 
-        <form action="/admin/add" method="POST" class="add-admin-form">
+        <form action="/admin/add" method="POST" class="add-admin-form" id="addAdminForm">
             
             <!-- Personal Details Section -->
             <h3 class="section-title">
@@ -282,7 +291,7 @@
 
                 <!-- Phone Number -->
                 <div class="form-group">
-                    <label for="phone">Phone Number</label>
+                    <label for="phone">Phone Number <span class="required">*</span></label>
                     <input 
                         type="tel" 
                         id="phone" 
@@ -290,6 +299,7 @@
                         value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>" 
                         placeholder="e.g., +91 9876543210" 
                         autocomplete="off"
+                        required
                     />
                 </div>
             </div>
@@ -322,10 +332,42 @@
             <!-- Action Buttons -->
             <div class="form-actions">
                 <a href="/admin/subadmins" class="btn-secondary">Cancel</a>
-                <button type="submit" class="btn-primary">
+                <button type="submit" class="btn-primary" id="submitBtn" disabled>
                     <i class="fa-solid fa-user-plus"></i> Add Administrator
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Required Fields Validator Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("addAdminForm");
+        const submitBtn = document.getElementById("submitBtn");
+
+        if (!form || !submitBtn) return;
+
+        // Select all required inputs and dropdowns
+        const requiredFields = form.querySelectorAll("[required]");
+
+        const checkFormCompletion = () => {
+            let allFilled = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    allFilled = false;
+                }
+            });
+
+            submitBtn.disabled = !allFilled;
+        };
+
+        // Run validation immediately on load (in case form is pre-filled from server)
+        checkFormCompletion();
+
+        // Listen for user input/change events across all fields
+        form.addEventListener("input", checkFormCompletion);
+        form.addEventListener("change", checkFormCompletion);
+    });
+</script>

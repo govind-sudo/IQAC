@@ -153,13 +153,22 @@
         font-size: 0.9rem;
         border: none;
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
         background-color: #1d4ed8;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    /* Disabled state styling for primary button */
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(20%);
+        box-shadow: none;
+        transform: none;
     }
 
     /* Error Alert Popup */
@@ -230,7 +239,7 @@
             </div>
         <% } %>
 
-        <form action="/admin/<%= adminToEdit._id %>/edit" method="POST" class="edit-profile-form">
+        <form action="/admin/<%= adminToEdit._id %>/edit" method="POST" class="edit-profile-form" id="editProfileForm">
             
             <!-- Personal Details Section -->
             <h3 class="section-title">
@@ -315,10 +324,55 @@
             <!-- Action Buttons -->
             <div class="form-actions">
                 <a href="/admin/profile" class="btn-secondary">Cancel</a>
-                <button type="submit" class="btn-primary">
+                <button type="submit" class="btn-primary" id="saveBtn" disabled>
                     <i class="fa-solid fa-floppy-disk"></i> Save Changes
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Form Change & Required Fields Detector Script -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("editProfileForm");
+        const saveBtn = document.getElementById("saveBtn");
+
+        if (!form || !saveBtn) return;
+
+        const inputs = form.querySelectorAll("input, select");
+        const requiredFields = form.querySelectorAll("[required]");
+
+        // Store initial values to compare changes against
+        const initialValues = {};
+        inputs.forEach(input => {
+            initialValues[input.name] = input.value.trim();
+        });
+
+        const checkFormStatus = () => {
+            let hasChanged = false;
+            let allRequiredFilled = true;
+
+            // Check if all required inputs are non-empty
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    allRequiredFilled = false;
+                }
+            });
+
+            // Check if any field differs from its initial state
+            inputs.forEach(input => {
+                if (input.value.trim() !== initialValues[input.name]) {
+                    hasChanged = true;
+                }
+            });
+
+            // Enable save button only if there are changes AND all required fields are filled
+            saveBtn.disabled = !(hasChanged && allRequiredFilled);
+        };
+
+        // Listen for input and select events
+        form.addEventListener("input", checkFormStatus);
+        form.addEventListener("change", checkFormStatus);
+    });
+</script>
