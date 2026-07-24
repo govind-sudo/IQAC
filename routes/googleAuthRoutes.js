@@ -4,56 +4,70 @@ const passport = require("passport");
 const Student = require("../models/Student");
 const Admin = require("../models/admin");
 
+// ==========================================================
+// HELPER: Session Helper for Session Regeneration
+// ==========================================================
+const createAuthenticatedSession = (req, res, sessionData, redirectUrl) => {
+  req.session.regenerate((err) => {
+    if (err) {
+      console.error("Session regeneration error:", err);
+      return res.redirect("/login?error=Authentication failed");
+    }
+
+    Object.assign(req.session, sessionData);
+
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error("Session save error:", saveErr);
+        return res.redirect("/login?error=Authentication failed");
+      }
+      return res.redirect(redirectUrl);
+    });
+  });
+};
 
 // ==========================================================
 // STUDENT : STEP 1
-// Student enters UG Number
 // ==========================================================
-
 router.post("/auth/enrollment-check", async (req, res) => {
   try {
     const { enrollmentNo } = req.body;
 
-    if (!enrollmentNo) {
-      return res.redirect("/login?error=Please enter UG Number");
+    if (!enrollmentNo || typeof enrollmentNo !== "string") {
+      return res.redirect("/login?error=Please enter a valid UG Number");
     }
 
-    const student = await Student.findOne({ enrollmentNo });
+    const cleanEnrollment = enrollmentNo.trim();
+    const student = await Student.findOne({ enrollmentNo: cleanEnrollment });
 
     if (!student) {
       return res.redirect("/login?error=Invalid UG Number");
     }
 
-    req.session.pendingEnrollmentNo = enrollmentNo;
-
-    // Remove any previous admin session values
+    req.session.pendingEnrollmentNo = cleanEnrollment;
     delete req.session.pendingAdminId;
     delete req.session.loginType;
 
     return res.redirect("/auth/google");
   } catch (err) {
-    console.error(err);
+    console.error("Enrollment check error:", err);
     return res.redirect("/login");
   }
 });
 
-
 // ==========================================================
 // ADMIN : STEP 1
-// Admin/Subadmin enters MIS Code
 // ==========================================================
-
 router.post("/auth/admin-check", async (req, res) => {
   try {
     const { misCode } = req.body;
 
-    if (!misCode) {
-      return res.redirect("/login?error=Please enter MIS Code");
+    if (!misCode || typeof misCode !== "string") {
+      return res.redirect("/login?error=Please enter a valid MIS Code");
     }
 
-    const admin = await Admin.findOne({
-      misCode: misCode.toUpperCase().trim(),
-    });
+    const cleanMisCode = misCode.toUpperCase().trim();
+    const admin = await Admin.findOne({ misCode: cleanMisCode });
 
     if (!admin) {
       return res.redirect("/login?error=Invalid MIS Code");
@@ -63,24 +77,20 @@ router.post("/auth/admin-check", async (req, res) => {
       return res.redirect("/login?error=Account Disabled");
     }
 
-    req.session.pendingAdminId = admin._id;
+    req.session.pendingAdminId = admin._id.toString();
     req.session.loginType = "admin";
-
-    // Remove any previous student session values
     delete req.session.pendingEnrollmentNo;
 
     return res.redirect("/auth/google");
   } catch (err) {
-    console.error(err);
+    console.error("Admin check error:", err);
     return res.redirect("/login");
   }
 });
 
-
 // ==========================================================
 // GOOGLE LOGIN
 // ==========================================================
-
 router.get(
   "/auth/google",
   passport.authenticate("google", {
@@ -88,30 +98,28 @@ router.get(
   })
 );
 
-
 // ==========================================================
 // GOOGLE CALLBACK
 // ==========================================================
-
 router.get(
   "/auth/google/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: "/login",
+    failureRedirect: "/login?error=Google authentication failed",
   }),
   async (req, res) => {
     try {
+      if (!req.user || !req.user.emails || !req.user.emails.length) {
+        return res.redirect("/login?error=No email associated with Google account");
+      }
 
       const googleProfile = req.user;
       const googleEmail = googleProfile.emails[0].value.toLowerCase();
 
-
       // =====================================================
       // ADMIN / SUBADMIN LOGIN
       // =====================================================
-
       if (req.session.loginType === "admin") {
-
         const adminId = req.session.pendingAdminId;
 
         if (!adminId) {
@@ -120,16 +128,13 @@ router.get(
 
         const admin = await Admin.findById(adminId);
 
-        if (!admin) {
-          return res.redirect("/login?error=Admin not found");
+        // Verify account existence and active status
+        if (!admin || !admin.isActive) {
+          return res.redirect("/login?error=Account is invalid or disabled");
         }
 
-        // -------------------------------
-        // FIRST LOGIN
-        // -------------------------------
-
+        // First Login - Link Google ID
         if (!admin.googleId) {
-
           if (admin.email.toLowerCase() !== googleEmail) {
             return res.redirect("/login?error=Invalid MIS Code or Google Account");
           }
@@ -139,44 +144,31 @@ router.get(
           try {
             await admin.save();
           } catch (saveErr) {
-            // This Google account is already linked to a DIFFERENT
-            // admin/subadmin record — googleId has a unique index, so
-            // MongoDB rejects the save rather than silently overwriting.
-            // Without this catch, the outer catch below would swallow
-            // it as a generic "/login" redirect with no explanation.
             if (saveErr.code === 11000 && saveErr.keyPattern?.googleId) {
-              return res.redirect("/login?error=This Google account is already linked to a different admin profile.");
+              return res.redirect(
+                "/login?error=This Google account is already linked to a different profile."
+              );
             }
             throw saveErr;
           }
-        }
-
-        // -------------------------------
-        // NEXT LOGINS
-        // -------------------------------
-
-        else {
-
+        } else {
+          // Subsequent Logins - Verify matching Google ID
           if (admin.googleId !== googleProfile.id) {
             return res.redirect("/login?error=Invalid MIS Code or Google Account");
           }
-
         }
 
-        delete req.session.pendingAdminId;
-        delete req.session.loginType;
-
-        req.session.userId = admin._id;
-        req.session.role = admin.role;
-
-        return res.redirect("/admin/students");
+        return createAuthenticatedSession(
+          req,
+          res,
+          { userId: admin._id, role: admin.role },
+          "/admin/students"
+        );
       }
-
 
       // =====================================================
       // STUDENT LOGIN
       // =====================================================
-
       const enrollmentNo = req.session.pendingEnrollmentNo;
 
       if (!enrollmentNo) {
@@ -189,12 +181,8 @@ router.get(
         return res.redirect("/login?error=Student not found");
       }
 
-      // -------------------------------
-      // FIRST LOGIN
-      // -------------------------------
-
+      // First Login - Link Google ID
       if (!student.googleId) {
-
         if (student.email.toLowerCase() !== googleEmail) {
           return res.redirect("/login?error=Invalid UG Number or Google Account");
         }
@@ -206,39 +194,29 @@ router.get(
         try {
           await student.save();
         } catch (saveErr) {
-          // Same duplicate-googleId scenario as above, for students —
-          // this is the exact bug that bounced YOU back to /login with
-          // no error earlier, caused by testing multiple "students"
-          // with one real Google account.
           if (saveErr.code === 11000 && saveErr.keyPattern?.googleId) {
-            return res.redirect("/login?error=This Google account is already linked to a different student profile.");
+            return res.redirect(
+              "/login?error=This Google account is already linked to a different student profile."
+            );
           }
           throw saveErr;
         }
-      }
-
-      // -------------------------------
-      // NEXT LOGIN
-      // -------------------------------
-
-      else {
-
+      } else {
+        // Subsequent Logins - Verify matching Google ID
         if (student.googleId !== googleProfile.id) {
           return res.redirect("/login?error=Invalid UG Number or Google Account");
         }
-
       }
 
-      delete req.session.pendingEnrollmentNo;
-
-      req.session.userId = student._id;
-      req.session.role = "student";
-
-      return res.redirect("/students/dashboard");
-
+      return createAuthenticatedSession(
+        req,
+        res,
+        { userId: student._id, role: "student" },
+        "/students/dashboard"
+      );
     } catch (err) {
-      console.error(err);
-      return res.redirect("/login");
+      console.error("OAuth Callback error:", err);
+      return res.redirect("/login?error=An unexpected error occurred");
     }
   }
 );
