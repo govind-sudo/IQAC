@@ -1,5 +1,16 @@
 <% layout('layout/adminBoilerPlate') %>
 
+<% 
+    // Detect logged-in user object from common Express locals
+    const loggedUser = (typeof currentUser !== 'undefined' && currentUser) || 
+                       (typeof user !== 'undefined' && user) || 
+                       (typeof admin !== 'undefined' && admin) || 
+                       (typeof req !== 'undefined' && req.user ? req.user : null);
+
+    // Show actions if user is explicitly 'admin' or NOT 'subadmin'
+    const isAdminRole = loggedUser ? (loggedUser.role === 'admin' || loggedUser.role !== 'subadmin') : true;
+%>
+
 <div class="subadmins-page-container">
     <!-- Header Section -->
     <header class="page-header">
@@ -7,11 +18,13 @@
             <h1>Sub-Admin Management</h1>
             <p>Manage administrator roles, system access, and credentials.</p>
         </div>
-        <div class="header-actions">
-            <a href="/admin/subadmins/new" class="btn-primary">
-                <i class="fa-solid fa-user-plus"></i> Add Sub-Admin
-            </a>
-        </div>
+        <% if (isAdminRole) { %>
+            <div class="header-actions">
+                <a href="/admin/subadmins/new" class="btn-primary">
+                    <i class="fa-solid fa-user-plus"></i> Add Sub-Admin
+                </a>
+            </div>
+        <% } %>
     </header>
 
     <!-- Toolbar: Server-side Search Form -->
@@ -53,7 +66,9 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Status</th>
-                        <th class="text-center">Actions</th>
+                        <% if (isAdminRole) { %>
+                            <th class="text-center">Actions</th>
+                        <% } %>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,28 +85,30 @@
                                         <%= subadmin.isActive ? 'ACTIVE' : 'INACTIVE' %>
                                     </span>
                                 </td>
-                                <td class="text-center">
-                                    <div class="action-buttons">
-                                        <a href="/admin/subadmins/<%= subadmin._id %>/edit" class="btn-action edit" title="Edit Sub-Admin">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                                        </a>
+                                <% if (isAdminRole) { %>
+                                    <td class="text-center">
+                                        <div class="action-buttons">
+                                            <a href="/admin/subadmins/<%= subadmin._id %>/edit" class="btn-action edit" title="Edit Sub-Admin">
+                                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            </a>
 
-                                        <button 
-                                            type="button" 
-                                            class="btn-action delete btn-delete-trigger" 
-                                            data-id="<%= subadmin._id %>" 
-                                            data-name="<%= subadmin.fullName %>"
-                                            title="Delete Sub-Admin"
-                                        >
-                                            <i class="fa-solid fa-trash-can"></i> Delete
-                                        </button>
-                                    </div>
-                                </td>
+                                            <button 
+                                                type="button" 
+                                                class="btn-action delete btn-delete-trigger" 
+                                                data-id="<%= subadmin._id %>" 
+                                                data-name="<%= subadmin.fullName %>"
+                                                title="Delete Sub-Admin"
+                                            >
+                                                <i class="fa-solid fa-trash-can"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                <% } %>
                             </tr>
                         <% }) %>
                     <% } else { %>
                         <tr id="noDataRow">
-                            <td colspan="7" class="empty-state">
+                            <td colspan="<%= isAdminRole ? 7 : 6 %>" class="empty-state">
                                 <i class="fa-solid fa-user-slash empty-icon"></i>
                                 <p>No sub-administrators found matching your search.</p>
                             </td>
@@ -135,26 +152,28 @@
 </div>
 
 <!-- Modal: Delete Confirmation -->
-<div class="modal-overlay" id="deleteConfirmModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <div class="warning-icon-wrapper">
-                <i class="fa-solid fa-triangle-exclamation"></i>
+<% if (isAdminRole) { %>
+    <div class="modal-overlay" id="deleteConfirmModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="warning-icon-wrapper">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3>Confirm Sub-Admin Deletion</h3>
             </div>
-            <h3>Confirm Sub-Admin Deletion</h3>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete sub-admin <strong id="deleteSubadminName"></strong>?</p>
-            <p class="warning-text">This action is permanent and cannot be undone.</p>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
-            <form id="deleteSubadminForm" method="POST" action="">
-                <button type="submit" class="btn-danger">Delete Sub-Admin</button>
-            </form>
+            <div class="modal-body">
+                <p>Are you sure you want to delete sub-admin <strong id="deleteSubadminName"></strong>?</p>
+                <p class="warning-text">This action is permanent and cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                <form id="deleteSubadminForm" method="POST" action="">
+                    <button type="submit" class="btn-danger">Delete Sub-Admin</button>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+<% } %>
 
 <!-- Page Scripts -->
 <script src="/js/admin/subadmins.js"></script>
