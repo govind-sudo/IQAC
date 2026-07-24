@@ -313,3 +313,47 @@
     color: #4f46e5;
     text-decoration: underline;
 }
+
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Edit Button States */
+.btn-action.edit { 
+    background: #e0e7ff; 
+    color: #3730a3; 
+}
+
+.btn-action.edit:hover { 
+    background: #4338ca; 
+    color: #ffffff; 
+}
+
+/* Delete Button States */
+.btn-action.delete { 
+    background: #fee2e2; 
+    color: #991b1b; 
+}
+
+.btn-action.delete:hover { 
+    background: #dc2626; 
+    color: #ff0000; 
+}

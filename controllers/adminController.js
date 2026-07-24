@@ -4,89 +4,113 @@ const Admin = require("../models/admin");
 // -------------------------------------------------------------
 // GET Admin Dashboard
 // -------------------------------------------------------------
-exports.getDashboard = async (req, res) => {
+exports.getDashboard = async (req, res, next) => {
     try {
-        // 1. Existing Stat Counts
-        const totalStudents = await Student.countDocuments();
-        const totalAdmins = await Admin.countDocuments();
-
-        // 2. Monthly Registrations Trend
         const currentYear = new Date().getFullYear();
-        const monthlyAggregation = await Student.aggregate([
-            {
-                $match: {
-                    createdAt: {
-                        $gte: new Date(`${currentYear}-01-01`),
-                        $lte: new Date(`${currentYear}-12-31`)
+        const startOfYear = new Date(Date.UTC(currentYear, 0, 1));
+        const startOfNextYear = new Date(Date.UTC(currentYear + 1, 0, 1));
+
+        // 1. Execute all independent DB operations concurrently
+        const [
+            totalStudents,
+            totalAdmins,
+            monthlyAggregation,
+            districtAggregation,
+            percentageAggregation
+        ] = await Promise.all([
+            Student.countDocuments(),
+            Admin.countDocuments(),
+            
+            // 2. Monthly Registrations Trend
+            Student.aggregate([
+                {
+                    $match: {
+                        createdAt: {
+                            $gte: startOfYear,
+                            $lt: startOfNextYear
+                        }
+                    }
+                },
+                { 
+                    $group: { 
+                        _id: { $month: "$createdAt" }, 
+                        count: { $sum: 1 } 
+                    } 
+                }
+            ]),
+
+            // 3. District Analytics (Top 5 + Others)
+            Student.aggregate([
+                { 
+                    $match: { 
+                        "presentAddress.district": { $exists: true, $ne: null, $ne: "" } 
+                    } 
+                },
+                { 
+                    $group: { 
+                        _id: "$presentAddress.district", 
+                        count: { $sum: 1 } 
+                    } 
+                },
+                { $sort: { count: -1 } }
+            ]),
+
+            // 4. 12th Percentage Analytics (Adjust field name as per your Mongoose schema)
+            Student.aggregate([
+                { 
+                    $match: { 
+                        "education.twelfth.percentage": { $exists: true, $ne: null, $gte: 0 } 
+                    } 
+                },
+                {
+                    $bucket: {
+                        groupBy: "$education.twelfth.percentage",
+                        boundaries: [0, 50, 60, 70, 80, 90, 101],
+                        default: "Unknown",
+                        output: { count: { $sum: 1 } }
                     }
                 }
-            },
-            { $group: { _id: { $month: "$createdAt" }, count: { $sum: 1 } } }
+            ])
         ]);
 
+        // Process Monthly Data
         const monthlyData = Array(12).fill(0);
-        monthlyAggregation.forEach(item => { monthlyData[item._id - 1] = item.count; });
-
-        // 3. District Analytics (Pie Chart - Top 5 + Others)
-       // District Analytics based on presentAddress.district
-const districtAggregation = await Student.aggregate([
-    { 
-        $match: { 
-            "presentAddress.district": { $exists: true, $ne: null, $ne: "" } 
-        } 
-    },
-    { 
-        $group: { 
-            _id: "$presentAddress.district", 
-            count: { $sum: 1 } 
-        } 
-    },
-    { $sort: { count: -1 } }
-]);
-
-let districtLabels = [];
-let districtData = [];
-
-if (districtAggregation.length > 5) {
-    const top5 = districtAggregation.slice(0, 5);
-    const othersCount = districtAggregation.slice(5).reduce((acc, curr) => acc + curr.count, 0);
-
-    districtLabels = top5.map(d => d._id);
-    districtData = top5.map(d => d.count);
-    districtLabels.push("Others");
-    districtData.push(othersCount);
-} else {
-    districtLabels = districtAggregation.map(d => d._id);
-    districtData = districtAggregation.map(d => d.count);
-}
-
-        // 4. 12th Percentage Analytics (Bar Chart Brackets)
-        const percentageAggregation = await Student.aggregate([
-            { $match: { twelthPercentage: { $ne: null } } },
-            {
-                $bucket: {
-                    groupBy: "$twelthPercentage",
-                    boundaries: [0, 50, 60, 70, 80, 90, 101],
-                    default: "Unknown",
-                    output: { count: { $sum: 1 } }
-                }
+        monthlyAggregation.forEach(item => {
+            if (item._id >= 1 && item._id <= 12) {
+                monthlyData[item._id - 1] = item.count;
             }
-        ]);
+        });
 
-        // Map bucket output to friendly labels
-        const bucketMap = { 0: "< 50%", 50: "50-59%", 60: "60-69%", 70: "70-79%", 80: "80-89%", 90: "90-100%" };
+        // Process District Data
+        let districtLabels = [];
+        let districtData = [];
+
+        if (districtAggregation.length > 5) {
+            const top5 = districtAggregation.slice(0, 5);
+            const othersCount = districtAggregation.slice(5).reduce((acc, curr) => acc + curr.count, 0);
+
+            districtLabels = top5.map(d => d._id);
+            districtData = top5.map(d => d.count);
+            districtLabels.push("Others");
+            districtData.push(othersCount);
+        } else {
+            districtLabels = districtAggregation.map(d => d._id);
+            districtData = districtAggregation.map(d => d.count);
+        }
+
+        // Process Percentage Bucket Data
+        const bucketMap = { 0: 0, 50: 1, 60: 2, 70: 3, 80: 4, 90: 5 };
         const marksLabels = ["< 50%", "50-59%", "60-69%", "70-79%", "80-89%", "90-100%"];
         const marksData = Array(6).fill(0);
 
-        percentageAggregation.forEach(b => {
-            if (bucketMap[b._id]) {
-                const index = marksLabels.indexOf(bucketMap[b._id]);
-                if (index !== -1) marksData[index] = b.count;
+        percentageAggregation.forEach(bucket => {
+            if (bucketMap[bucket._id] !== undefined) {
+                marksData[bucketMap[bucket._id]] = bucket.count;
             }
         });
 
         // Render Dashboard
-        res.render("admin/dashboard", {
+        return res.render("admin/dashboard", {
             currentPage: "dashboard",
             admin: req.admin,
             metrics: { totalStudents, totalAdmins },
@@ -96,23 +120,38 @@ if (districtAggregation.length > 5) {
             marksLabels: JSON.stringify(marksLabels),
             marksData: JSON.stringify(marksData)
         });
+
     } catch (err) {
-        console.error("Dashboard Error:", err);
-        res.status(500).render("errors/500");
+        // Pass to central error middleware or handle cleanly
+        return next(err);
     }
 };
-// -------------------------------------------------------------
-// GET Export Students Data (CSV)
-// -------------------------------------------------------------
-exports.exportStudentsCSV = async (req, res) => {
-    try {
-        const students = await Student.find({}).lean();
 
-        if (!students || students.length === 0) {
+
+
+
+/**
+ * @desc    Export Students Data as CSV Stream
+ * @route   GET /admin/students/export/csv
+ * @access  Private (Admin)
+ */
+exports.exportStudentsCSV = async (req, res, next) => {
+    try {
+        // 1. Verify records exist before starting the stream
+        const hasRecords = await Student.exists({});
+        if (!hasRecords) {
             return res.status(404).send("No student records found to export.");
         }
 
-        // Helper: Safe value formatting
+        // 2. Set Response Headers for CSV File Streaming
+        const fileName = `Students_Export_${new Date().toISOString().split('T')[0]}.csv`;
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+        // Prepend UTF-8 BOM for Microsoft Excel UTF-8 compatibility
+        res.write('\uFEFF');
+
+        // Helper: Safe value formatting & CSV Formula Injection Protection
         const formatValue = (val) => {
             if (val === null || val === undefined) return '""';
 
@@ -127,17 +166,23 @@ exports.exportStudentsCSV = async (req, res) => {
                 if (Object.keys(val).length === 0) return '"Pending"';
             }
 
-            const strVal = String(val).replace(/"/g, '""');
+            let strVal = String(val).replace(/"/g, '""');
+
+            // Sanitize potential CSV Injection / Formula Execution triggers
+            if (/^[=+\-@\t\r]/.test(strVal)) {
+                strVal = `'${strVal}`;
+            }
+
             return `"${strVal}"`;
         };
 
-        // Helper: Resolve nested key paths dynamically
+        // Helper: Extract nested values safely
         const getNestedValue = (obj, path) => {
             if (!obj || !path) return null;
             return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined) ? acc[part] : null, obj);
         };
 
-        // Helper: Check document upload status
+        // Helper: Determine document upload status
         const getDocumentStatus = (docVal) => {
             if (!docVal) return "Pending";
             if (typeof docVal === 'string' && docVal.trim() !== '') return "Uploaded";
@@ -196,42 +241,36 @@ exports.exportStudentsCSV = async (req, res) => {
 
             // Parents Info
             { label: "Father Name", path: "father.name" },
-            { label: "Father Occupation", path: "father.occupation" },
+            { label: "Father Phone Code", path: "father.phoneCode" },
             { label: "Father Phone", path: "father.phone" },
+            { label: "Father Email", path: "father.email" },
             { label: "Mother Name", path: "mother.name" },
-            { label: "Mother Occupation", path: "mother.occupation" },
+            { label: "Mother Phone Code", path: "mother.phoneCode" },
             { label: "Mother Phone", path: "mother.phone" },
+            { label: "Mother Email", path: "mother.email" },
 
             // Emergency Contact
             { label: "Emergency Contact Name", path: "emergencyContact.name" },
-            { label: "Emergency Contact Relation", path: "emergencyContact.relation" },
+            { label: "Emergency Contact Phone Code", path: "emergencyContact.phoneCode" },
             { label: "Emergency Contact Phone", path: "emergencyContact.phone" },
 
             // Addresses
-            { label: "Present Address", getValue: (s) => s.presentAddress ? `${s.presentAddress.address1 || ''} ${s.presentAddress.city || ''} ${s.presentAddress.state || ''} ${s.presentAddress.pincode || ''}`.trim() : '' },
-            { label: "Permanent Address", getValue: (s) => s.permanentAddress ? `${s.permanentAddress.address1 || ''} ${s.permanentAddress.city || ''} ${s.permanentAddress.state || ''} ${s.permanentAddress.pincode || ''}`.trim() : '' },
+            { label: "Present Address", getValue: (s) => s.presentAddress ? `${s.presentAddress.address1 || ''} ${s.presentAddress.city || ''} ${s.presentAddress.district || ''} ${s.presentAddress.state || ''} ${s.presentAddress.pincode || ''}`.trim() : '' },
+            { label: "Permanent Address", getValue: (s) => s.permanentAddress ? `${s.permanentAddress.address1 || ''} ${s.permanentAddress.city || ''} ${s.permanentAddress.district || ''} ${s.permanentAddress.state || ''} ${s.permanentAddress.pincode || ''}`.trim() : '' },
 
             // Education Details
             { label: "10th School Name", getValue: (s) => getNestedValue(s, "education.tenth.schoolName") },
             { label: "10th Percentage", getValue: (s) => getNestedValue(s, "education.tenth.percentage") },
-            { label: "12th School Name", getValue: (s) => getNestedValue(s, "education.twelfth.schoolName") || getNestedValue(s, "education.twelth.schoolName") },
-            { label: "12th Percentage", getValue: (s) => getNestedValue(s, "education.twelfth.percentage") || getNestedValue(s, "education.twelth.percentage") },
+            { label: "12th School Name", getValue: (s) => getNestedValue(s, "education.twelfth.schoolName") },
+            { label: "12th Percentage", getValue: (s) => getNestedValue(s, "education.twelfth.percentage") },
+            { label: "Diploma Institute", getValue: (s) => getNestedValue(s, "education.diploma.schoolName") },
+            { label: "Diploma Percentage", getValue: (s) => getNestedValue(s, "education.diploma.percentage") },
 
             // Document Status Checks
             { 
-                label: "Photo Status", 
+                label: "Aadhaar Proof Status", 
                 isDocument: true, 
-                getValue: (s) => getNestedValue(s, "documents.photo") 
-            },
-            { 
-                label: "Signature Status", 
-                isDocument: true, 
-                getValue: (s) => getNestedValue(s, "documents.signature") 
-            },
-            { 
-                label: "Aadhaar Card Status", 
-                isDocument: true, 
-                getValue: (s) => getNestedValue(s, "documents.aadhaarProof") || getNestedValue(s, "documents.aadhaarCard") 
+                getValue: (s) => getNestedValue(s, "documents.aadhaarProof") 
             },
             { 
                 label: "ABC ID Proof Status", 
@@ -241,35 +280,48 @@ exports.exportStudentsCSV = async (req, res) => {
             { 
                 label: "10th Marksheet Status", 
                 isDocument: true, 
-                getValue: (s) => getNestedValue(s, "education.tenth.marksheet") || getNestedValue(s, "documents.marksheet10th") 
+                getValue: (s) => getNestedValue(s, "education.tenth.marksheet") 
             },
             { 
                 label: "12th Marksheet Status", 
                 isDocument: true, 
-                getValue: (s) => getNestedValue(s, "education.twelfth.marksheet") || getNestedValue(s, "education.twelth.marksheet") || getNestedValue(s, "documents.marksheet12th") 
+                getValue: (s) => getNestedValue(s, "education.twelfth.marksheet") 
             },
             { 
                 label: "Diploma Marksheet Status", 
                 isDocument: true, 
-                getValue: (s) => getNestedValue(s, "documents.marksheetDiploma") || getNestedValue(s, "education.diploma.marksheet") 
+                getValue: (s) => getNestedValue(s, "education.diploma.marksheet") 
             },
             { 
-                label: "Caste Certificate Status", 
+                label: "Caste Proof Status", 
                 isDocument: true, 
-                getValue: (s) => getNestedValue(s, "documents.casteCertificate") 
+                getValue: (s) => getNestedValue(s, "documents.casteProof") || getNestedValue(s, "documents.casteCertificate") 
             },
             { 
                 label: "Leaving Certificate Status", 
                 isDocument: true, 
                 getValue: (s) => getNestedValue(s, "documents.leavingCertificate") 
+            },
+            { 
+                label: "PWD Proof Status", 
+                isDocument: true, 
+                getValue: (s) => getNestedValue(s, "documents.pwdProof") 
             }
         ];
 
-        // 1. Build CSV Header
-        let csv = schemaColumns.map(col => `"${col.label}"`).join(',') + '\n';
+        // 3. Write CSV Header Row
+        const headerRow = schemaColumns.map(col => `"${col.label}"`).join(',') + '\n';
+        res.write(headerRow);
 
-        // 2. Build Data Rows
-        students.forEach(student => {
+        // 4. Stream Documents via Cursor
+        const cursor = Student.find({}).lean().cursor();
+
+        // Cleanup cursor if client disconnects mid-download
+        req.on('close', () => {
+            cursor.close();
+        });
+
+        cursor.on('data', (student) => {
             const row = schemaColumns.map(col => {
                 const rawVal = col.getValue ? col.getValue(student) : getNestedValue(student, col.path);
 
@@ -282,36 +334,58 @@ exports.exportStudentsCSV = async (req, res) => {
                 }
 
                 return formatValue(rawVal);
-            }).join(',');
+            }).join(',') + '\n';
 
-            csv += row + '\n';
+            res.write(row);
         });
 
-        // Set Headers and Send Response
-        res.setHeader("Content-Type", "text/csv; charset=utf-8");
-        res.setHeader("Content-Disposition", `attachment; filename=Students_Export_${Date.now()}.csv`);
-        res.status(200).send(csv);
+        cursor.on('end', () => {
+            res.end();
+        });
+
+        cursor.on('error', (err) => {
+            if (!res.headersSent) {
+                return next(err);
+            }
+            res.end();
+        });
 
     } catch (err) {
-        console.error("CSV Export Error:", err);
-        res.status(500).send("Error exporting student data.");
+        return next(err);
     }
 };
 
-// Render list of all students with Server-Side Pagination (15 per page) & Search
-exports.getStudentsList = async (req, res) => {
+
+
+/**
+ * Helper: Escapes special characters for safe standard Regular Expression creation
+ */
+const escapeRegex = (text) => {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+};
+
+/**
+ * @desc    Get Paginated & Searched Student List
+ * @route   GET /admin/students
+ * @access  Private (Admin)
+ */
+exports.getStudentsList = async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = 15; // Fixed page size of 15 items
-        const skip = (page - 1) * limit;
+        // 1. Sanitize & Normalize Pagination Parameters
+        let page = parseInt(req.query.page, 10);
+        if (isNaN(page) || page < 1) page = 1;
+
+        const limit = 15;
         const search = req.query.search ? req.query.search.trim() : '';
 
-        // Base query
+        // 2. Build Query Safely
         let query = {};
 
-        // Optimized search regex across key fields
         if (search) {
-            const searchRegex = new RegExp(search, 'i');
+            // Escape special regex characters to eliminate ReDoS attack vectors
+            const safeSearch = escapeRegex(search);
+            const searchRegex = new RegExp(safeSearch, 'i');
+
             query.$or = [
                 { fullName: searchRegex },
                 { firstName: searchRegex },
@@ -323,22 +397,28 @@ exports.getStudentsList = async (req, res) => {
             ];
         }
 
-        // Execute count and paginated query concurrently
-        const [totalStudents, students] = await Promise.all([
-            Student.countDocuments(query),
-            Student.find(query)
-                .select('firstName lastName fullName email ugNumber enrollmentNo phone phoneCode studentStatus')
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .lean()
-        ]);
-
+        // 3. Count total documents matching query first to get totalPages
+        const totalStudents = await Student.countDocuments(query);
         const totalPages = Math.ceil(totalStudents / limit) || 1;
 
-        res.render('admin/students', {
-            currentPage: 'students', // Keep 'students' for sidebar active link highlight
-            page,                     // Numeric current page
+        // 4. Redirect gracefully if requested page exceeds actual available pages
+        if (page > totalPages && totalStudents > 0) {
+            const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+            return res.redirect(`/admin/students?page=${totalPages}${searchParam}`);
+        }
+
+        // 5. Fetch current page students
+        const students = await Student.find(query)
+            .select('firstName middleName lastName fullName email ugNumber enrollmentNo phone phoneCode studentStatus createdAt')
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean();
+
+        // 6. Render Admin Students View
+        return res.render('admin/students', {
+            currentPage: 'students',
+            page,
             totalPages,
             hasNextPage: page < totalPages,
             hasPrevPage: page > 1,
@@ -350,20 +430,37 @@ exports.getStudentsList = async (req, res) => {
             search,
             admin: req.admin
         });
+
     } catch (err) {
-        console.error("Error fetching students list:", err);
-        res.status(500).render('errors/500');
+        return next(err);
     }
 };
-// Render detailed student profile
-exports.getStudentInDetail = async (req, res) => {
-    try {
-        const student = await Student.findById(req.params.id).lean();
 
-        if (!student) {
-            return res.status(404).render('errors/404', { message: 'Student not found' });
+
+const mongoose = require('mongoose');
+
+/**
+ * @desc    Get Detailed Student Profile View
+ * @route   GET /admin/students/:id
+ * @access  Private (Admin)
+ */
+exports.getStudentInDetail = async (req, res, next) => {
+    try {
+        const studentId = req.params.id;
+
+        // 1. Validate Mongo ObjectId format before querying DB to prevent CastError 500s
+        if (!mongoose.Types.ObjectId.isValid(studentId)) {
+            return res.status(404).render('errors/404', { message: 'Student profile not found' });
         }
 
+        // 2. Fetch Student Record
+        const student = await Student.findById(studentId).lean();
+
+        if (!student) {
+            return res.status(404).render('errors/404', { message: 'Student profile not found' });
+        }
+
+        // 3. Compute Document Upload Status Checklist based on exact schema keys
         const documentStatus = {
             aadhaar: !!student.documents?.aadhaarProof,
             tenthMarksheet: !!student.education?.tenth?.marksheet,
@@ -372,37 +469,52 @@ exports.getStudentInDetail = async (req, res) => {
             casteCertificate: !!student.documents?.casteProof,
         };
 
-        res.render('admin/studentInDetail', {
+        // 4. Render Admin Detailed View
+        return res.render('admin/studentInDetail', {
             currentPage: 'students',
             admin: req.admin,
             student,
             documentStatus,
         });
+
     } catch (err) {
-        console.error("Error fetching detailed student view:", err);
-        res.status(500).render('errors/500');
+        return next(err);
     }
 };
 
 
 const { storeUploadedFiles, applyStoredFilePaths, deleteStoredFiles } = require("../services/storageService");
 
-// GET /admin/students/:id/edit — Render full editable student form
-exports.renderEditStudentForm = async (req, res) => {
+/**
+ * @desc    Render full editable student form
+ * @route   GET /admin/students/:id/edit
+ * @access  Private (Admin)
+ */
+exports.renderEditStudentForm = async (req, res, next) => {
     try {
-        const student = await Student.findById(req.params.id).lean();
+        const studentId = req.params.id;
+
+        // 1. Validate Mongo ObjectId before querying DB to avoid CastError 500s
+        if (!mongoose.Types.ObjectId.isValid(studentId)) {
+            return res.status(404).render("errors/404", { message: "Student not found" });
+        }
+
+        // 2. Fetch Student Record
+        const student = await Student.findById(studentId).lean();
         if (!student) {
             return res.status(404).render("errors/404", { message: "Student not found" });
         }
-        res.render("admin/editStudent", {
+
+        // 3. Render Edit Student Form
+        return res.render("admin/editStudent", {
             currentPage: "students",
             admin: req.admin,
             student,
             errorMessage: null
         });
+
     } catch (err) {
-        console.error("Error loading student edit form:", err);
-        res.status(500).render("errors/500");
+        return next(err);
     }
 };
 
@@ -848,5 +960,96 @@ exports.updateAdminProfile = async (req, res) => {
             adminToEdit: targetAdmin,
             errorMessage: err.code === 11000 ? "MIS Code or Email already exists." : "Failed to update profile details."
         });
+    }
+};
+
+
+/**
+ * @desc    Render Add New Admin Form
+ * @route   GET /admin/add
+ * @access  Private (Root Admin Only)
+ */
+exports.renderAddAdminForm = async (req, res) => {
+    return res.render('admin/addAdmin', {
+        currentPage: 'addAdmin',
+        admin: req.admin,
+        formData: {},
+        errorMessage: null
+    });
+};
+
+/**
+ * @desc    Create New Admin / Sub-admin
+ * @route   POST /admin/add
+ * @access  Private (Root Admin Only)
+ */
+exports.addAdmin = async (req, res, next) => {
+    try {
+        const { fullName, misCode, email, phone, role, isActive } = req.body;
+
+        const normalizedEmail = email ? email.toLowerCase().trim() : '';
+        const normalizedMisCode = misCode ? misCode.toUpperCase().trim() : '';
+
+        // 1. Check if Email or MIS Code already exists
+        const existingAdmin = await Admin.findOne({
+            $or: [
+                { email: normalizedEmail },
+                { misCode: normalizedMisCode }
+            ]
+        });
+
+        if (existingAdmin) {
+            return res.status(400).render('admin/addAdmin', {
+                currentPage: 'addAdmin',
+                admin: req.admin,
+                formData: { fullName, misCode, email, phone, role, isActive },
+                errorMessage: 'An administrator with this Email or MIS Code already exists.'
+            });
+        }
+
+        // 2. Create and Save New Admin
+        await Admin.create({
+            fullName: fullName.trim(),
+            misCode: normalizedMisCode,
+            email: normalizedEmail,
+            phone: phone ? phone.trim() : null,
+            role: role || 'subadmin',
+            isActive: isActive === 'true',
+            createdBy: req.admin ? req.admin._id : null
+        });
+
+        return res.redirect('/admin/subadmins');
+
+    } catch (err) {
+        return next(err);
+    }
+};
+
+
+/**
+ * Render the page displaying all main system administrators.
+ * Accessible by both Admins and Sub-Admins.
+ * 
+ * @route   GET /admin/allAdmins
+ * @access  Private (Admin / Sub-Admin)
+ */
+exports.getAllAdmins = async (req, res, next) => {
+    try {
+        const admins = await Admin.find({ role: 'admin' })
+            .select('fullName name email phone phoneCode role')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        // Ensure logged-in user object is explicitly passed as 'admin' or 'currentUser'
+        return res.status(200).render('admin/allAdmins', {
+            title: 'All Administrators',
+            currentPage: 'allAdmins',
+            admins: admins || [],
+            admin: req.user || req.admin // Pass the authenticated session user
+        });
+
+    } catch (error) {
+        console.error('[getAllAdmins] Error:', error);
+        return res.status(500).redirect('/admin/dashboard');
     }
 };

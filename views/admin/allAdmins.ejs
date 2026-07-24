@@ -1,0 +1,231 @@
+<% layout('layout/adminBoilerPlate') %>
+
+<style>
+    .admins-page-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 16px;
+    }
+
+    .page-header {
+        margin-bottom: 28px;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+        letter-spacing: -0.02em;
+    }
+
+    .page-header p {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    /* Grid Layout for Admin Cards */
+    .admins-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+    }
+
+    /* Modern Card Styles */
+    .admin-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-top: 4px solid #2563eb; /* Top accent bar */
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .admin-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
+        border-color: #cbd5e1;
+        border-top-color: #1d4ed8;
+    }
+
+    .card-header-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #eff6ff;
+        color: #2563eb;
+        font-weight: 700;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+        border: 2px solid #dbeafe;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background-color: #e0e7ff;
+        color: #3730a3;
+        border: 1px solid #c7d2fe;
+    }
+
+    .admin-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.3;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background-color: #f8fafc;
+        padding: 14px 16px;
+        border-radius: 8px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.875rem;
+        color: #475569;
+    }
+
+    .info-item i {
+        color: #64748b;
+        width: 16px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .info-item a {
+        color: #334155;
+        font-weight: 500;
+        text-decoration: none;
+        word-break: break-all;
+        transition: color 0.2s ease;
+    }
+
+    .info-item a:hover {
+        color: #2563eb;
+        text-decoration: underline;
+    }
+
+    /* Empty State */
+    .empty-card {
+        grid-column: 1 / -1;
+        background: #ffffff;
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 48px 24px;
+        text-align: center;
+        color: #64748b;
+    }
+
+    .empty-card i {
+        font-size: 2.5rem;
+        color: #94a3b8;
+        margin-bottom: 12px;
+    }
+
+    @media (max-width: 640px) {
+        .admins-page-container {
+            padding: 16px 12px;
+        }
+
+        .admins-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="admins-page-container">
+    <!-- Header Section -->
+    <header class="page-header">
+        <h1>All Administrators</h1>
+        <p>Overview of registered primary system administrators.</p>
+    </header>
+
+    <!-- Admins Cards Grid -->
+    <div class="admins-grid">
+        <% if (typeof admins !== 'undefined' && admins && admins.length > 0) { %>
+            <% admins.forEach(admin => { %>
+                <div class="admin-card">
+                    <div>
+                        <!-- Header: Avatar & Role Badge -->
+                        <div class="card-header-group">
+                            <div class="avatar-circle">
+                                <%= (admin.fullName ? admin.fullName[0] : (admin.name ? admin.name[0] : 'A')).toUpperCase() %>
+                            </div>
+                            <span class="role-badge">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <%= admin.role || 'Admin' %>
+                            </span>
+                        </div>
+
+                        <!-- Full Name -->
+                        <h2 class="admin-name">
+                            <%= admin.fullName || admin.name || 'System Administrator' %>
+                        </h2>
+
+                        <!-- Contact Info Section -->
+                        <div class="info-list">
+                            <!-- Email -->
+                            <div class="info-item">
+                                <i class="fa-solid fa-envelope"></i>
+                                <% if (admin.email) { %>
+                                    <a href="mailto:<%= admin.email %>"><%= admin.email %></a>
+                                <% } else { %>
+                                    <span style="color: #94a3b8;">N/A</span>
+                                <% } %>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="info-item">
+                                <i class="fa-solid fa-phone"></i>
+                                <% if (admin.phone) { %>
+                                    <a href="tel:<%= admin.phoneCode || '+91' %><%= admin.phone %>">
+                                        <%= admin.phoneCode || '+91' %> <%= admin.phone %>
+                                    </a>
+                                <% } else { %>
+                                    <span style="color: #94a3b8;">N/A</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <!-- Empty State -->
+            <div class="empty-card">
+                <i class="fa-solid fa-user-shield"></i>
+                <p style="margin: 0; font-size: 1rem; font-weight: 500;">No main administrators found.</p>
+            </div>
+        <% } %>
+    </div>
+</div>

@@ -700,7 +700,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
   color: #ffffff;
-  background: url('https://static.boostmytalent.com/img/univ/parul-university-vadodara-campus-admission.webp') center/cover no-repeat fixed;
+  background: url('https://ums.paruluniversity.ac.in/Default/assets/pages/img/1.jpg') center/cover no-repeat fixed;
   position: relative;
   overflow-x: hidden;
   background-color: #0b132b;
@@ -736,33 +736,31 @@ body::before {
   position: relative;
   z-index: 1;
 }
-
-/* Multi-layered desktop-only wave accent (Faded Version) */
+/* Multi-layered desktop-only wave accent (Fixed Responsive Alignment) */
 @media (min-width: 993px) {
   body::after {
     content: "";
     position: fixed;
     bottom: 0;
     right: 0;
-    width: 50vw;
-    height: 40vh;
-    max-width: 700px;
+    width: 45vw;
+    height: 50vh;
+    max-width: 650px;
     max-height: 450px;
     z-index: 0;
     pointer-events: none;
     
-    /* Overall element opacity reduced for a gentle fade */
     opacity: 0.55;
 
-    /* 1. Dotted grid + 2. Multi-layered SVG wave paths */
     background-image: 
-      /* Softened dotted matrix on bottom right */
       radial-gradient(circle, rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px),
-      /* Layered SVG wave layers with lowered opacities */
-      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" preserveAspectRatio="none"><defs><linearGradient id="wave1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="%232563eb" stop-opacity="0.15"/><stop offset="100%" stop-color="%2360a5fa" stop-opacity="0.25"/></linearGradient><linearGradient id="wave2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="%233b82f6" stop-opacity="0.25"/><stop offset="100%" stop-color="%23818cf8" stop-opacity="0.38"/></linearGradient><linearGradient id="wave3" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="%231d4ed8" stop-opacity="0.35"/><stop offset="100%" stop-color="%23a855f7" stop-opacity="0.5"/></linearGradient></defs><path d="M 0,400 C 180,380 220,260 380,210 C 460,185 520,120 600,20 L 600,400 Z" fill="url(%23wave1)"/><path d="M 50,400 C 220,370 270,220 420,170 C 490,145 540,70 600,0 L 600,400 Z" fill="url(%23wave2)"/><path d="M 120,400 C 260,360 320,250 460,180 C 520,150 560,100 600,40 L 600,400 Z" fill="url(%23wave3)"/></svg>');
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" preserveAspectRatio="xMaxYMax meet"><defs><linearGradient id="wave1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="%232563eb" stop-opacity="0.15"/><stop offset="100%" stop-color="%2360a5fa" stop-opacity="0.25"/></linearGradient><linearGradient id="wave2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="%233b82f6" stop-opacity="0.25"/><stop offset="100%" stop-color="%23818cf8" stop-opacity="0.38"/></linearGradient><linearGradient id="wave3" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="%231d4ed8" stop-opacity="0.35"/><stop offset="100%" stop-color="%23a855f7" stop-opacity="0.5"/></linearGradient></defs><path d="M 0,400 C 180,380 220,260 380,210 C 460,185 520,120 600,20 L 600,400 Z" fill="url(%23wave1)"/><path d="M 50,400 C 220,370 270,220 420,170 C 490,145 540,70 600,0 L 600,400 Z" fill="url(%23wave2)"/><path d="M 120,400 C 260,360 320,250 460,180 C 520,150 560,100 600,40 L 600,400 Z" fill="url(%23wave3)"/></svg>');
     
     background-position: right 30px bottom 30px, right bottom;
-    background-size: 110px 90px, cover;
+    background-size: 110px 90px, contain;
     background-repeat: no-repeat, no-repeat;
   }
 }
+
+
+

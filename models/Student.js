@@ -1,5 +1,3 @@
-// models/Student.js
-
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
@@ -17,9 +15,10 @@ const studentSchema = new Schema(
       enum: ['Mr', 'Ms', 'Mrs'],
     },
     firstName: { type: String, required: true, trim: true },
-    middleName: { type: String, trim: true },
+    middleName: { type: String, trim: true, default: '' },
     lastName: { type: String, required: true, trim: true },
-    fullName: { type: String, trim: true }, // auto-set in a pre-save hook from first+middle+last
+    fullName: { type: String, trim: true, index: true },
+    
     gender: {
       type: String,
       enum: ['male', 'female', 'other'],
@@ -35,27 +34,20 @@ const studentSchema = new Schema(
     },
     religion: { type: String, trim: true },
     caste: { type: String, trim: true },
-    nationality: { type: String, trim: true },
-    passportNumber: { type: String, trim: true, },
+    nationality: { type: String, trim: true, default: 'Indian' },
+    passportNumber: { type: String, trim: true },
 
     aadhaarNumber: {
-        type: String,
-        trim: true,
-        unique: true,
-        sparse: true,
-        match: /^\d{12}$/
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true,
+      match: [/^\d{12}$/, 'Please enter a valid 12-digit Aadhaar number']
     },
-    // Domicile state — separate from presentAddress.state/permanentAddress.state,
-    // since this is likely used for quota/reservation purposes rather than
-    // a mailing address. Flag me if you actually meant one of those instead.
-    // state: { type: String, trim: true },
-    // district: { type: String, trim: true },
-    // country: { type: String, trim: true, default: 'India' },
-    // city: { type: String, trim: true },
 
     // ---------- Hostel ----------
     residesInHostel: { type: Boolean, default: false },
-    hostelName: { type: String, trim: true }, // only relevant if residesInHostel is true
+    hostelName: { type: String, trim: true },
 
     // ---------- Authentication ----------
     email: {
@@ -69,17 +61,13 @@ const studentSchema = new Schema(
     password: {
       type: String,
       required: true,
-      select: false, // never returned by default in queries
+      select: false,
     },
     googleId: {
       type: String,
       unique: true,
-      sparse: true, // most students won't have this until Google login is added later
+      sparse: true,
     },
-    // Official Parul University email — issued by the institute, not
-    // self-entered. Not usable for login yet since issuance is disabled
-    // on the university's end; parulEmailActive tracks that separately
-    // so the field itself can exist without implying it's live.
     parulEmailId: {
       type: String,
       unique: true,
@@ -89,13 +77,14 @@ const studentSchema = new Schema(
     },
     parulEmailActive: {
       type: Boolean,
-      default: false, // flip to true once the university enables these accounts
+      default: false,
     },
     enrollmentNo: {
       type: String,
       unique: true,
-      sparse: true, // new admissions won't have one yet — HOD/admin assigns it during verification
+      sparse: true,
       trim: true,
+      index: true,
     },
     ugNumber: {
       type: String,
@@ -103,19 +92,18 @@ const studentSchema = new Schema(
       unique: true,
       trim: true,
       uppercase: true,
-  },
+      index: true,
+    },
 
     // ---------- Academic ----------
-    // Hierarchy per the admission form: Faculty > Institute > Course > Branch > Specialization
-    faculty: { type: String, trim: true, default: 'FET' }, // Faculty of Engineering & Technology
+    faculty: { type: String, trim: true, default: 'FET' },
     institute: { type: String, trim: true },
-    course: { type: String, trim: true },       // e.g. B.Tech
+    course: { type: String, trim: true },
     branch: { type: String, trim: true, default: 'CSE' },
-    specialization: {type:String, trim:true, },
-      
+    specialization: { type: String, trim: true },
     
     joiningDate: { type: Date },
-    admissionYear: { type: Number },
+    admissionYear: { type: Number, index: true },
     admissionType: {
       type: String,
       enum: ['Regular', 'Lateral Entry', 'Transfer'],
@@ -124,68 +112,98 @@ const studentSchema = new Schema(
       type: String,
       enum: ['active', 'graduated', 'dropped', 'suspended'],
       default: 'active',
+      index: true,
     },
 
     // ---------- Contact ----------
-    phoneCode: { type: String, default: "+91",},
-    phone: { type: String, trim: true },
+    phoneCode: { type: String, default: "+91" },
+    phone: { type: String, trim: true, index: true },
     whatsapp: { type: String, trim: true },
     alternateEmail: { type: String, trim: true, lowercase: true },
 
-    // ---------- Emergency ----------
+    // ---------- Embedded Schemas ----------
     emergencyContact: emergencyContactSchema,
-
-    // ---------- Parents ----------
     father: parentSchema,
     mother: parentSchema,
-
-    // ---------- Addresses ----------
     presentAddress: addressSchema,
     permanentAddress: addressSchema,
-
-    // ---------- Education ----------
     education: educationSchema,
-
-    // ---------- Documents (proof required) ----------
     documents: documentsSchema,
 
-    // ---------- Identity ----------
+    // ---------- Identity & Status ----------
     abcId: {
       type: String,
       unique: true,
-      sparse: true, // not every student may have generated one yet
+      sparse: true,
       trim: true,
     },
-
-    // ---------- Role ----------
     role: {
       type: String,
       enum: ['student'],
       default: 'student',
     },
-
-    // ---------- Status ----------
     isActive: {
       type: Boolean,
       default: true,
     },
-
-    // ---------- Verification ----------
     profileStatus: {
       type: String,
       enum: ['incomplete', 'pending', 'verified', 'rejected'],
       default: 'incomplete',
+      index: true,
     },
   },
-  { timestamps: true } // adds createdAt, updatedAt automatically
+  { timestamps: true }
 );
 
-// Auto-build fullName from parts on every save, so you never have to
-// remember to keep it in sync by hand.
+// -------------------------------------------------------------
+// INDEXES FOR HIGH-PERFORMANCE SEARCH & DASHBOARD AGGREGATIONS
+// -------------------------------------------------------------
+
+// Index for default pagination sorting
+studentSchema.index({ createdAt: -1 });
+
+// Index for District aggregation query in Admin Dashboard
+studentSchema.index({ "presentAddress.district": 1 });
+
+// Index for 12th Percentage Bucket aggregation in Admin Dashboard
+studentSchema.index({ "education.twelfth.percentage": 1 });
+
+// Text Index for Fast Server-Side Search Across Primary Identifiers
+studentSchema.index({
+  fullName: 'text',
+  firstName: 'text',
+  lastName: 'text',
+  email: 'text',
+  ugNumber: 'text',
+  enrollmentNo: 'text',
+  phone: 'text'
+});
+
+// -------------------------------------------------------------
+// HOOKS & MIDDLEWARE
+// -------------------------------------------------------------
+
+// Auto-build fullName on Save
 studentSchema.pre('save', function (next) {
   this.fullName = [this.firstName, this.middleName, this.lastName]
     .filter(Boolean)
     .join(' ');
+  next();
+});
+
+// Auto-build fullName on Update Queries (findOneAndUpdate / findByIdAndUpdate)
+studentSchema.pre('findOneAndUpdate', function (next) {
+  const update = this.getUpdate();
+  if (update.firstName || update.lastName || update.middleName) {
+    const firstName = update.firstName || this._update.$set?.firstName;
+    const middleName = update.middleName || this._update.$set?.middleName || '';
+    const lastName = update.lastName || this._update.$set?.lastName;
+
+    if (firstName && lastName) {
+      this.set({ fullName: [firstName, middleName, lastName].filter(Boolean).join(' ') });
+    }
+  }
   next();
 });
 

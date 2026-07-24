@@ -42,11 +42,19 @@
                     </a>
                 </li>
 
-                <!-- Sub Admins (Visible to both Admin & Subadmin) -->
+                <!-- Sub Admins (Admin & Subadmin) -->
                 <li class="<%= currentPage === 'subadmins' ? 'active' : '' %>">
                     <a href="/admin/subadmins">
                         <i class="fa-solid fa-user-shield"></i>
                         <span>Sub Admins</span>
+                    </a>
+                </li>
+
+                <!-- All Admins (Admin & Subadmin) -->
+                <li class="<%= currentPage === 'allAdmins' ? 'active' : '' %>">
+                    <a href="/admin/allAdmins">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>Admins</span>
                     </a>
                 </li>
 
@@ -58,17 +66,29 @@
                     </a>
                 </li>
 
-                 <!-- Settings (ONLY Root Admin) -->
-                <!-- Settings / Edit Profile (ONLY Root Admin) -->
-<% if (typeof admin !== 'undefined' && admin && admin.role === 'admin') { %>
-    <li class="<%= currentPage === 'editProfile' ? 'active' : '' %>">
-        <a href="/admin/<%= admin._id %>/edit">
-            <i class="fa-solid fa-gear"></i>
-            <span>Edit Profile</span>
-        </a>
-    </li>
-<% } %>
+                <!-- Root Admin Only Section -->
+                <% 
+                    // Safely resolve the logged-in user object across different middleware naming conventions
+                    const loggedInUser = typeof currentUser !== 'undefined' ? currentUser : (typeof user !== 'undefined' ? user : (typeof admin !== 'undefined' && !Array.isArray(admin) ? admin : null));
+                %>
 
+                <% if (loggedInUser && (loggedInUser.role === 'admin' || loggedInUser.role === 'ADMIN')) { %>
+                    <!-- Add Admin -->
+                    <li class="<%= currentPage === 'addAdmin' ? 'active' : '' %>">
+                        <a href="/admin/add">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Add Admin</span>
+                        </a>
+                    </li>
+
+                    <!-- Edit Profile / Settings -->
+                    <li class="<%= currentPage === 'editProfile' ? 'active' : '' %>">
+                        <a href="/admin/<%= loggedInUser._id %>/edit">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Edit Profile</span>
+                        </a>
+                    </li>
+                <% } %>
             </ul>
         </nav>
     </div>

@@ -1,12 +1,17 @@
 const router = require("express").Router();
-const adminController = require("../controllers/adminController");
-const Admin = require("../models/admin");
 const path = require("path");
 const fs = require("fs");
+
+const adminController = require("../controllers/adminController");
+const Admin = require("../models/admin");
 const Student = require("../models/Student");
+
 const { requireAuth, requireRole } = require("../middleware/auth");
 const { handleUpload } = require("../middleware/uploadMiddleware");
 
+// ==========================================
+// Base Middlewares
+// ==========================================
 router.use(requireAuth);
 router.use(requireRole("admin", "subadmin"));
 
@@ -22,10 +27,19 @@ router.use(async (req, res, next) => {
     }
 });
 
+// ==========================================
+// 1. Static General Routes
+// ==========================================
 router.get("/dashboard", adminController.getDashboard);
+router.get("/profile", adminController.getMyProfile);
 router.get("/export-students", adminController.exportStudentsCSV);
+
+// ==========================================
+// 2. Student Routes
+// ==========================================
 router.get("/students", adminController.getStudentsList);
 router.get("/students/:id/inDetail", adminController.getStudentInDetail);
+
 router.get("/students/:id/documents/file", async (req, res) => {
     try {
         const student = await Student.findById(req.params.id).lean();
@@ -60,25 +74,37 @@ router.get("/students/:id/documents/file", async (req, res) => {
     }
 });
 
-// ---------- Student Edit / Delete (NEW) ----------
+// Student Edit / Delete
 router.get("/students/:id/edit", adminController.renderEditStudentForm);
 router.put("/students/:id", handleUpload, adminController.updateStudent);
-router.post("/students/:id/update", handleUpload, adminController.updateStudent); // backup POST if method-override isn't active
+router.post("/students/:id/update", handleUpload, adminController.updateStudent);
 router.delete("/students/:id", adminController.deleteStudent);
-router.post("/students/:id/delete", adminController.deleteStudent); // backup POST
+router.post("/students/:id/delete", adminController.deleteStudent);
 
+// ==========================================
+// 3. Sub-Admin & Admin Management (ROOT ADMIN ONLY)
+// ==========================================
+
+// Add New Admin (MUST BE BEFORE :id routes)
+router.get('/add', requireRole("admin"), adminController.renderAddAdminForm);
+router.post('/add', requireRole("admin"), adminController.addAdmin);
+
+// Subadmin List & Specific Handlers
 router.get("/subadmins", adminController.getSubAdminsList);
 router.get("/subadmins/new", requireRole("admin"), adminController.renderAddSubAdminForm);
 router.post("/subadmins", requireRole("admin"), adminController.createSubAdmin);
+
 router.get("/subadmins/:id/edit", requireRole("admin"), adminController.renderEditSubAdminForm);
 router.put("/subadmins/:id", requireRole("admin"), adminController.updateSubAdmin);
 router.post("/subadmins/:id/update", requireRole("admin"), adminController.updateSubAdmin);
 router.delete("/subadmins/:id", requireRole("admin"), adminController.deleteSubAdmin);
 router.post("/subadmins/:id/delete", requireRole("admin"), adminController.deleteSubAdmin);
 
-router.get("/profile", adminController.getMyProfile);
+// Admin Profile Edit (Keep at bottom due to broad `/:id` match)
 router.get("/:id/edit", requireRole("admin"), adminController.renderEditProfileForm);
 router.put("/:id/edit", requireRole("admin"), adminController.updateAdminProfile);
 router.post("/:id/edit", requireRole("admin"), adminController.updateAdminProfile);
+
+router.get('/allAdmins', adminController.getAllAdmins);
 
 module.exports = router;

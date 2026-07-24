@@ -169,7 +169,7 @@ router.get(
         req.session.userId = admin._id;
         req.session.role = admin.role;
 
-        return res.redirect("/admin/dashboard");
+        return res.redirect("/admin/students");
       }
 
 
