@@ -498,3 +498,123 @@
     border-color: #cbd5e1;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
+
+/* ==========================================================================
+   DOCUMENTS CARD — appended to studentDetail.css
+   ========================================================================== */
+
+.student-detail-container .documents-card {
+    margin-top: 20px;
+}
+
+.student-detail-container .documents-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.student-detail-container .doc-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.student-detail-container .documents-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.student-detail-container .document-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 4px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.student-detail-container .document-row:last-child {
+    border-bottom: none;
+}
+
+.student-detail-container .document-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.student-detail-container .doc-icon {
+    font-size: 15px;
+    flex: 0 0 auto;
+}
+
+.student-detail-container .doc-icon.ok {
+    color: #10b981;
+}
+
+.student-detail-container .doc-icon.missing {
+    color: #d1d5db;
+}
+
+.student-detail-container .document-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.student-detail-container .document-actions {
+    display: flex;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.student-detail-container .doc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid #e5e7eb;
+    color: #4f46e5;
+    background: #fff;
+    white-space: nowrap;
+}
+
+.student-detail-container .doc-btn:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+}
+
+.student-detail-container .doc-btn.download {
+    color: #374151;
+}
+
+.student-detail-container .doc-btn.download:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.student-detail-container .doc-pending {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+    .student-detail-container .document-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

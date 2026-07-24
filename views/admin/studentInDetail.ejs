@@ -244,6 +244,80 @@
         </div>
 
     </div>
+
+    <!-- ============ DOCUMENTS ============ -->
+<%
+// Build the document list from the same rules the registration and edit
+// forms use, so an international student never shows an Aadhaar row and
+// a General-category student never shows a caste certificate row.
+const _isIndian = (student.nationality || 'Indian').trim().toLowerCase() === 'indian';
+const _category = student.category || 'General';
+const _docs     = student.documents || {};
+const _edu      = student.education || {};
+
+let documentList = [];
+
+if (_isIndian) {
+    documentList.push({ label: 'Aadhaar Card',        path: _docs.aadhaarProof });
+    documentList.push({ label: 'ABC ID / APAAR Proof', path: _docs.abcIdProof });
+    documentList.push({ label: '10th Marksheet',       path: _edu.tenth?.marksheet });
+
+    if (_edu.diploma?.marksheet || _edu.diploma?.schoolName) {
+        documentList.push({ label: 'Diploma Marksheet', path: _edu.diploma?.marksheet });
+    } else {
+        documentList.push({ label: '12th Marksheet',    path: _edu.twelfth?.marksheet });
+    }
+
+    documentList.push({ label: 'Leaving Certificate',  path: _docs.leavingCertificate });
+
+    if (_category === 'PWD') {
+        documentList.push({ label: 'PWD Certificate',   path: _docs.pwdProof });
+    } else if (_category !== 'General') {
+        documentList.push({ label: 'Caste Certificate', path: _docs.casteProof });
+    }
+} else {
+    documentList.push({ label: 'Passport',             path: _docs.passportUpload });
+    documentList.push({ label: 'A/O Level Certificate', path: _docs.aoLevelCertificate });
+    documentList.push({ label: 'PU Admission Letter',  path: _docs.puAdmissionLetter });
+}
+
+const _uploaded = documentList.filter(d => d.path).length;
+%>
+
+<div class="card detail-card documents-card">
+    <div class="card-header">
+        <h3><i class="fa-solid fa-folder-open header-icon"></i> Documents</h3>
+        <span class="doc-count"><%= _uploaded %> of <%= documentList.length %> uploaded</span>
+    </div>
+
+    <div class="documents-list">
+        <% documentList.forEach(doc => { %>
+            <div class="document-row">
+                <div class="document-meta">
+                    <i class="fa-solid <%= doc.path ? 'fa-file-circle-check' : 'fa-file-circle-xmark' %> doc-icon <%= doc.path ? 'ok' : 'missing' %>"></i>
+                    <span class="document-name"><%= doc.label %></span>
+                </div>
+
+                <% if (doc.path) { %>
+                    <div class="document-actions">
+                        <a class="doc-btn view"
+                           href="/admin/students/<%= student._id %>/documents/file?path=<%= encodeURIComponent(doc.path) %>"
+                           target="_blank" rel="noopener">
+                            <i class="fa-solid fa-eye"></i> View
+                        </a>
+                        <a class="doc-btn download"
+                           href="/admin/students/<%= student._id %>/documents/download?path=<%= encodeURIComponent(doc.path) %>">
+                            <i class="fa-solid fa-download"></i> Download
+                        </a>
+                    </div>
+                <% } else { %>
+                    <span class="doc-pending">Not uploaded</span>
+                <% } %>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
 </div>
 
 <!-- Modal: Delete Confirmation -->
