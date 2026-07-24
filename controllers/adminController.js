@@ -795,13 +795,17 @@ exports.createSubAdmin = async (req, res) => {
     const { fullName, misCode, email, phone, isActive } = req.body;
 
     try {
+        const isAccountActive = isActive === "true" || isActive === true || isActive === "on";
+
         const newSubAdmin = new Admin({
             fullName: fullName.trim(),
             misCode: misCode.trim().toUpperCase(),
             email: email.trim().toLowerCase(),
             phone: phone ? phone.trim() : null,
             role: "subadmin",
-            isActive: isActive === "true" || isActive === true || isActive === "on",
+            isActive: isAccountActive,
+            // If created as inactive, start the 1-year deletion timer now; otherwise set to null
+            inactivatedAt: isAccountActive ? null : new Date(),
             createdBy: req.admin._id
         });
 
@@ -849,31 +853,42 @@ exports.renderEditSubAdminForm = async (req, res) => {
     }
 };
 
-// Handle Sub-Admin Update
 exports.updateSubAdmin = async (req, res) => {
     const { id } = req.params;
     const { fullName, misCode, email, phone, isActive } = req.body;
 
     try {
-        const updatedIsActive = isActive === "true" || isActive === true || isActive === "on";
+        const subadmin = await Admin.findOne({ _id: id, role: "subadmin" });
 
-        const updatedSubAdmin = await Admin.findOneAndUpdate(
-            { _id: id, role: "subadmin" },
-            {
-                fullName: fullName.trim(),
-                misCode: misCode.trim().toUpperCase(),
-                email: email.trim().toLowerCase(),
-                phone: phone ? phone.trim() : null,
-                isActive: updatedIsActive
-            },
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedSubAdmin) {
+        if (!subadmin) {
             return res.status(404).render("errors/404", { message: "Sub-Admin not found" });
         }
 
-        res.redirect("/admin/subadmins");
+        const updatedIsActive = isActive === "true" || isActive === true || isActive === "on";
+
+        // Update standard fields
+        subadmin.fullName = fullName.trim();
+        subadmin.misCode = misCode.trim().toUpperCase();
+        subadmin.email = email.trim().toLowerCase();
+        subadmin.phone = phone ? phone.trim() : null;
+
+        // Manage isActive and inactivatedAt timestamp
+        if (!updatedIsActive) {
+            subadmin.isActive = false;
+            // Only set timestamp if transitioning from active -> inactive
+            if (!subadmin.inactivatedAt) {
+                subadmin.inactivatedAt = new Date();
+            }
+        } else {
+            subadmin.isActive = true;
+            // Clear timestamp so TTL index won't auto-delete
+            subadmin.inactivatedAt = null; 
+        }
+
+        await subadmin.save();
+
+        return res.redirect("/admin/subadmins");
+
     } catch (err) {
         console.error("Error updating sub-admin:", err);
 
@@ -1051,4 +1066,12 @@ exports.getAllAdmins = async (req, res, next) => {
         console.error('[getAllAdmins] Error:', error);
         return res.status(500).redirect('/admin/dashboard');
     }
+};
+
+
+// Render Help / Contact Support Page
+exports.getHelpPage = (req, res) => {
+    res.render("admin/help", {
+        currentPage: "help"
+    });
 };

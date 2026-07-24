@@ -74,6 +74,7 @@ async function resolveOwnedDocument(req, res) {
 // ==========================================
 router.get("/dashboard", adminController.getDashboard);
 router.get("/profile", adminController.getMyProfile);
+router.get("/help", adminController.getHelpPage);
 router.get("/export-students", adminController.exportStudentsCSV);
 
 // ==========================================

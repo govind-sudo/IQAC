@@ -46,6 +46,13 @@ const adminSchema = new mongoose.Schema(
         default: true,
     },
 
+    // Tracks when account was set to inactive; MongoDB automatically deletes after 365 days (in seconds)
+    inactivatedAt: {
+        type: Date,
+        default: null,
+        expires: 31536000 // 365 days = 365 * 24 * 60 * 60 seconds
+    },
+
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Admin",

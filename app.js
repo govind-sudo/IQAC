@@ -76,7 +76,7 @@ app.get('/', (req, res) => {
 // ---------------- Student routes ----------------
 // Handles GET /students/dashboard with REAL data + auth check.
 // This must be mounted BEFORE the leftover static routes below,
-// so it wins the /students/dashboard match instead of the old one.
+
 app.use("/students", require("./routes/studentRoutes"));
 
 app.get("/students/help", (req, res) => {
@@ -84,8 +84,8 @@ app.get("/students/help", (req, res) => {
 });
 
 // ---------------- 404 ----------------
-app.use((req, res) => {
-  res.status(404).send("Not Found");
+app.use((req, res, next) => {
+    res.status(404).render("404");
 });
 
 // ---------------- Central error handler ----------------
