@@ -40,11 +40,12 @@ app.use(
     secret: process.env.SESSION_SECRET || 'change-this-in-production',
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 24h
+      maxAge: 10 * 60 * 1000, //10 mins
     },
   })
 );
