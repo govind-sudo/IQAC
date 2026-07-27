@@ -5,6 +5,7 @@
     "worker": "node workers/ocrProcessor.js"
   },
   "dependencies": {
+    "archiver": "^8.0.0",
     "bcrypt": "^6.0.0",
     "bullmq": "^5.34.0",
     "dotenv": "^17.4.2",
@@ -21,5 +22,8 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pdf-parse": "^2.4.5"
+  },
+  "overrides": {
+    "brace-expansion": "5.0.8"
   }
 }

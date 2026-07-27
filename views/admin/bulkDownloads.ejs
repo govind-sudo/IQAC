@@ -1,0 +1,301 @@
+<% layout('layout/adminBoilerPlate') %>
+
+<div class="students-page-container">
+
+    <header class="page-header">
+        <h1>Bulk Document Downloads</h1>
+        <p>Download every student's file of a given type as a single ZIP archive. Filenames inside the archive follow <strong>Identifier_StudentName_documentType</strong>.</p>
+    </header>
+
+    <% if (errorMessage) { %>
+        <div class="bulk-alert"><i class="fa-solid fa-triangle-exclamation"></i> <%= errorMessage %></div>
+    <% } %>
+
+    <!-- ==========================================
+         Filters
+         ========================================== -->
+    <form class="bulk-filters" method="GET" action="/admin/documents">
+        <div class="filter-field">
+            <label for="filterYear">Admission Year</label>
+            <select id="filterYear" name="year">
+                <option value="">All years</option>
+                <% filterOptions.years.forEach(function (y) { %>
+                    <option value="<%= y %>" <%= String(activeFilter.year) === String(y) ? 'selected' : '' %>><%= y %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="filter-field">
+            <label for="filterBranch">Branch</label>
+            <select id="filterBranch" name="branch">
+                <option value="">All branches</option>
+                <% filterOptions.branches.forEach(function (b) { %>
+                    <option value="<%= b %>" <%= activeFilter.branch === b ? 'selected' : '' %>><%= b %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="filter-field">
+            <label for="filterInstitute">Institute</label>
+            <select id="filterInstitute" name="institute">
+                <option value="">All institutes</option>
+                <% filterOptions.institutes.forEach(function (i) { %>
+                    <option value="<%= i %>" <%= activeFilter.institute === i ? 'selected' : '' %>><%= i %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="filter-btn apply"><i class="fa-solid fa-filter"></i> Apply</button>
+            <a href="/admin/documents" class="filter-btn clear">Clear</a>
+        </div>
+    </form>
+
+    <div class="bulk-summary">
+        <i class="fa-solid fa-user-graduate"></i>
+        <span><strong><%= totalStudents.toLocaleString() %></strong> students match<%= filterLabel ? ' — ' + filterLabel : ' (no filter)' %></span>
+    </div>
+
+    <!-- ==========================================
+         Document type cards
+         ========================================== -->
+    <div class="bulk-grid">
+        <% documentTypes.forEach(function (doc) { %>
+            <div class="bulk-card <%= doc.count === 0 ? 'is-empty' : '' %>">
+                <div class="bulk-card-top">
+                    <div class="bulk-icon"><i class="fa-regular fa-file-lines"></i></div>
+                    <span class="bulk-count"><%= doc.count.toLocaleString() %></span>
+                </div>
+
+                <h3 class="bulk-title"><%= doc.label %></h3>
+                <p class="bulk-sub"><%= doc.count === 1 ? '1 file available' : doc.count.toLocaleString() + ' files available' %></p>
+
+                <% if (doc.count > 0) { %>
+                    <a class="bulk-btn" href="/admin/documents/download?type=<%= doc.key %><%= filterSuffix %>">
+                        <i class="fa-solid fa-file-zipper"></i> Download All
+                    </a>
+                <% } else { %>
+                    <span class="bulk-btn disabled"><i class="fa-solid fa-ban"></i> Nothing to download</span>
+                <% } %>
+            </div>
+        <% }); %>
+    </div>
+
+    <p class="bulk-note">
+        <i class="fa-solid fa-circle-info"></i>
+        Large downloads are streamed and may take several minutes to complete. Keep this tab open until the browser reports the download as finished.
+    </p>
+</div>
+
+<style>
+    .bulk-alert {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
+        border-radius: 12px;
+        padding: 0.85rem 1.1rem;
+        font-size: 0.88rem;
+        font-weight: 500;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    /* ---------- Filters ---------- */
+    .bulk-filters {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 1rem;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.1rem 1.25rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        margin-bottom: 1.25rem;
+    }
+
+    .filter-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        min-width: 170px;
+        flex: 1;
+    }
+
+    .filter-field label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+    }
+
+    .filter-field select {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        color: #1e293b;
+        background: #ffffff;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .filter-field select:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 0.6rem;
+    }
+
+    .filter-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.62rem 1.1rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .filter-btn.apply { background: #4f46e5; color: #ffffff; }
+    .filter-btn.apply:hover { background: #4338ca; }
+    .filter-btn.clear { background: #f1f5f9; color: #475569; }
+    .filter-btn.clear:hover { background: #e2e8f0; }
+
+    /* ---------- Summary ---------- */
+    .bulk-summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        background: #f1f5f9;
+        color: #475569;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .bulk-summary i { color: #4f46e5; }
+
+    /* ---------- Cards ---------- */
+    .bulk-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .bulk-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .bulk-card:hover {
+        transform: translateY(-3px);
+        border-color: #c7d2fe;
+        box-shadow: 0 12px 24px -6px rgba(79, 70, 229, 0.12);
+    }
+
+    .bulk-card.is-empty { opacity: 0.65; }
+    .bulk-card.is-empty:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        border-color: #e2e8f0;
+    }
+
+    .bulk-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.9rem;
+    }
+
+    .bulk-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: #eef2ff;
+        color: #4338ca;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .bulk-count {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #475569;
+        background: #f1f5f9;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+    }
+
+    .bulk-title {
+        font-size: 1rem;
+        color: #0f172a;
+        margin-bottom: 0.2rem;
+    }
+
+    .bulk-sub {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 1.1rem;
+    }
+
+    .bulk-btn {
+        margin-top: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1rem;
+        border-radius: 10px;
+        background: #4f46e5;
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .bulk-btn:hover { background: #4338ca; }
+
+    .bulk-btn.disabled {
+        background: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+    .bulk-note {
+        margin-top: 1.5rem;
+        font-size: 0.8rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .bulk-grid { grid-template-columns: 1fr; }
+        .bulk-filters { flex-direction: column; align-items: stretch; }
+        .filter-actions { width: 100%; }
+        .filter-btn { flex: 1; justify-content: center; }
+        .students-page-container .page-header { padding-top: 3.5rem; }
+    }
+</style>

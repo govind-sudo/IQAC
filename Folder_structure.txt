@@ -1,3 +1,4 @@
+PS D:\AA My Learning\NODE EJS EXPRESS\IQAC-Student-Portal> Show-Tree
 ├── config
 │   ├── passport.js
 │   ├── redisClient.js
@@ -32,6 +33,7 @@
 │   │   ├── admin
 │   │   │   ├── adminSidebar.css
 │   │   │   ├── dashboard.css
+│   │   │   ├── editStudent.css
 │   │   │   ├── studentDetail.css
 │   │   │   ├── students.css
 │   │   │   ├── subadmins.css
@@ -56,12 +58,14 @@
 │   │   │   ├── students.js
 │   │   │   ├── subadmins.js
 │   │   ├── adminSidebar.js
+│   │   ├── dropdownOptions.js
 │   │   ├── fileVerification.js
 │   │   ├── registerSubmit.js
 │   │   ├── studentPersonal.js
 │   │   ├── studentRegistration.js
 │   │   ├── studentSidebar.js
 │   │   ├── studentsLogin.js
+│   ├── 4012cdc2cf44b21bfcb51ccf5c09c42e.jpg
 │   ├── iqactodo.txt
 ├── queue
 │   ├── ocrQueue.js
@@ -77,16 +81,38 @@
 │   ├── AIService.js
 │   ├── storageService.js
 ├── uploads
+│   ├── 24UG046750_RaghavSoni_20260723
+│   │   ├── aadhaarProof.png
+│   │   ├── abcIdProof.jpg
+│   │   ├── casteProof.webp
+│   │   ├── leavingCertificate.png
+│   │   ├── tenthMarksheet.jpg
+│   │   ├── twelfthMarksheet.jpg
+│   ├── 24UG345342_gracesmith_20260723
+│   │   ├── aoLevelCertificate.webp
+│   │   ├── passportUpload.webp
+│   │   ├── puAdmissionLetter.jpg
+│   ├── 24UG345342_PranamSingh_20260723
+│   │   ├── aadhaarProof.png
+│   │   ├── abcIdProof.jpg
+│   │   ├── casteProof.webp
+│   │   ├── leavingCertificate.pdf
+│   │   ├── tenthMarksheet.jpg
+│   │   ├── twelfthMarksheet.jpg
 ├── utils
 │   ├── documentVerifier.js
 │   ├── fileSignatureValidator.js
 │   ├── ocrTextExtractor.js
 ├── views
 │   ├── admin
+│   │   ├── addAdmin.ejs
 │   │   ├── addSubadmin.ejs
+│   │   ├── allAdmins.ejs
 │   │   ├── dashboard.ejs
 │   │   ├── editProfile.ejs
+│   │   ├── editStudent.ejs
 │   │   ├── editSubadmin.ejs
+│   │   ├── help.ejs
 │   │   ├── myProfile.ejs
 │   │   ├── studentInDetail.ejs
 │   │   ├── students.ejs
@@ -108,13 +134,13 @@
 │   │   ├── personal.ejs
 │   │   ├── register.ejs
 │   │   ├── registerSuccess.ejs
+│   ├── 404.ejs
 ├── workers
 │   ├── ocrProcessor.js
 ├── .env
 ├── .env.example
 ├── .gitignore
 ├── app.js
-├── autofill.py
 ├── Folder_structure.txt
 ├── package-lock.json
 ├── package.json

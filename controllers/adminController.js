@@ -483,7 +483,12 @@ exports.getStudentInDetail = async (req, res, next) => {
 };
 
 
-const { storeUploadedFiles, applyStoredFilePaths, deleteStoredFiles } = require("../services/storageService");
+const {
+    storeUploadedFiles,
+    applyStoredFilePaths,
+    deleteStoredFiles,
+    renameStudentDocuments,
+} = require("../services/storageService");
 
 /**
  * @desc    Render full editable student form
@@ -543,6 +548,7 @@ exports.updateStudent = async (req, res) => {
         if (req.files && Object.keys(req.files).length > 0) {
             storedFilePaths = await storeUploadedFiles(req.files, {
                 ugNumber: body.ugNumber || student.ugNumber,
+                enrollmentNo: body.enrollmentNo || student.enrollmentNo,
                 firstName: body.firstName || student.firstName,
                 lastName: body.lastName || student.lastName,
             });
@@ -570,6 +576,9 @@ exports.updateStudent = async (req, res) => {
 
         if (body.email) student.email = body.email.trim().toLowerCase();
         if (body.ugNumber) student.ugNumber = body.ugNumber.trim().toUpperCase();
+        // Capture the enrollment number BEFORE overwriting it, so we can
+        // detect an actual change and re-identify the stored documents.
+        const previousEnrollmentNo = student.enrollmentNo;
         student.enrollmentNo = body.enrollmentNo || student.enrollmentNo;
 
         student.faculty = body.faculty || student.faculty;
@@ -659,6 +668,20 @@ exports.updateStudent = async (req, res) => {
                 puAdmissionLetter: body.documents.puAdmissionLetter || existingDocs.puAdmissionLetter,
                 passportUpload: body.documents.passportUpload || existingDocs.passportUpload,
             };
+        }
+
+        // ---------- Re-identify stored documents on enrollment assignment ----------
+        // When an admin assigns (or corrects) the real enrollment number,
+        // every stored file is renamed from
+        //   {ugNumber}_{Name}_{docType}.ext
+        // to
+        //   {enrollmentNo}_{Name}_{docType}.ext
+        // and the student's document paths are rewritten to match.
+        // Deliberately runs BEFORE save() so the renamed paths are part
+        // of the same write — if the rename throws, nothing is persisted
+        // and the catch block below rolls back any new uploads too.
+        if (student.enrollmentNo && student.enrollmentNo !== previousEnrollmentNo) {
+            await renameStudentDocuments(student, student.enrollmentNo);
         }
 
         await student.save();

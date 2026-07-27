@@ -232,3 +232,5 @@
         padding-top: 0; /* No extra top spacing needed when hamburger button is hidden */
     }
 }
+/* Bulk document download tile (Quick Options) */
+.action-documents { background: #ecfeff; color: #0e7490; }

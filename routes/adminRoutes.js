@@ -3,6 +3,7 @@ const path = require("path");
 const fs = require("fs");
 
 const adminController = require("../controllers/adminController");
+const documentBulkController = require("../controllers/documentBulkController");
 const Admin = require("../models/admin");
 const Student = require("../models/Student");
 
@@ -76,6 +77,10 @@ router.get("/dashboard", adminController.getDashboard);
 router.get("/profile", adminController.getMyProfile);
 router.get("/help", adminController.getHelpPage);
 router.get("/export-students", adminController.exportStudentsCSV);
+
+// Bulk document downloads (one ZIP per document type)
+router.get("/documents", documentBulkController.getBulkDownloadsPage);
+router.get("/documents/download", documentBulkController.downloadDocumentsByType);
 
 // ==========================================
 // 2. Student Routes
