@@ -966,36 +966,201 @@ exports.renderEditProfileForm = async (req, res) => {
 };
 
 // PUT or POST /admin/:id/edit — Update All Admin Profile Details
+//
+// Guards two genuinely irreversible situations that the form itself
+// cannot prevent:
+//
+//   1. LAST ADMIN LOCKOUT. Only a root admin can create or edit admins
+//      (requireRole("admin") on these routes). If the last active admin
+//      deactivates themselves or demotes themselves to subadmin, there
+//      is nobody left in the system who can undo it — the account can
+//      only be restored by editing the database by hand. That change is
+//      refused outright, not merely warned about.
+//
+//   2. SELF-INFLICTED LOCKOUT. There is no password login for admins
+//      (authController.login is commented out); the only way in is
+//      Google. So a self-edit that changes the sign-in email, or that
+//      deactivates the account, can end the admin's own access. Those
+//      are allowed, but only after an explicit confirmation step.
 exports.updateAdminProfile = async (req, res) => {
     try {
         const { fullName, misCode, email, phone, role, isActive } = req.body;
 
-        if (!fullName || !misCode || !email) {
-            const targetAdmin = await Admin.findById(req.params.id);
-            return res.status(400).render("admin/editProfile", {
+        const targetAdmin = await Admin.findById(req.params.id);
+        if (!targetAdmin) {
+            return res.status(404).render("errors/404", { message: "Admin account not found." });
+        }
+
+        const renderEditWithError = (errorMessage) =>
+            res.status(400).render("admin/editProfile", {
                 currentPage: "editProfile",
                 adminToEdit: targetAdmin,
-                errorMessage: "Full Name, MIS Code, and Email are required fields."
+                errorMessage
+            });
+
+        if (!fullName || !misCode || !email) {
+            return renderEditWithError("Full Name, MIS Code, and Email are required fields.");
+        }
+
+        // ---------- Work out what is actually changing ----------
+        const nextEmail = email.trim().toLowerCase();
+        const nextRole = role || targetAdmin.role;
+        const nextIsActive = isActive === "true" || isActive === true || isActive === "on";
+
+        const emailChanged = nextEmail !== (targetAdmin.email || "").toLowerCase();
+        const deactivating = targetAdmin.isActive && !nextIsActive;
+        const demoting = targetAdmin.role === "admin" && nextRole !== "admin";
+
+        const isSelf = String(targetAdmin._id) === String(req.session.userId);
+
+        // ---------- Guard 1: never strip the system of its last admin ----------
+        if (targetAdmin.role === "admin" && (deactivating || demoting)) {
+            const otherActiveAdmins = await Admin.countDocuments({
+                _id: { $ne: targetAdmin._id },
+                role: "admin",
+                isActive: true
+            });
+
+            if (otherActiveAdmins === 0) {
+                const action = deactivating ? "deactivate" : "demote to Sub-Admin";
+                return renderEditWithError(
+                    `This is the only active Administrator account, so it cannot be ${action}d. ` +
+                    `Doing so would leave the portal with no one able to manage admins, students, ` +
+                    `or restore this account. Create and activate another Administrator first, ` +
+                    `then retry this change.`
+                );
+            }
+        }
+
+        // ---------- Guard 2: confirm self-inflicted access changes ----------
+        const needsConfirmation = isSelf && (emailChanged || deactivating || demoting);
+        const confirmed = req.body.confirmDangerousChange === "yes";
+
+        if (needsConfirmation && !confirmed) {
+            const warnings = [];
+
+            if (deactivating) {
+                warnings.push({
+                    title: "You will be signed out and locked out immediately",
+                    body:
+                        "Deactivating your own account ends your session at once and blocks you from " +
+                        "signing back in. Only another active Administrator can reactivate it. " +
+                        "Inactive accounts are also permanently deleted by the database after 365 days."
+                });
+            }
+
+            if (demoting) {
+                warnings.push({
+                    title: "You will lose Administrator privileges",
+                    body:
+                        "Sub-Admins cannot add, edit, or promote administrators. You will not be able " +
+                        "to restore your own Administrator role — another Administrator must do it for you."
+                });
+            }
+
+            if (emailChanged) {
+                warnings.push({
+                    title: "You will be signed out and must sign in with the new email address",
+                    body:
+                        "Admins sign in with Google only — there is no password fallback. Saving a new " +
+                        "email address unlinks the Google account currently attached to this profile, so " +
+                        "the next sign-in will accept ONLY the Google account matching the new address. " +
+                        "Make absolutely sure you own and can access that Google account: if the address " +
+                        "is wrong, nobody can sign in as you and only another active Administrator can " +
+                        "correct it."
+                });
+            }
+
+            return res.status(200).render("admin/confirmProfileChange", {
+                currentPage: "editProfile",
+                adminToEdit: targetAdmin,
+                warnings,
+                formValues: {
+                    fullName: fullName.trim(),
+                    misCode: misCode.trim().toUpperCase(),
+                    email: nextEmail,
+                    phone: phone ? phone.trim() : "",
+                    role: nextRole,
+                    isActive: nextIsActive ? "true" : "false"
+                },
+                cancelUrl: `/admin/${targetAdmin._id}/edit`
             });
         }
 
-        await Admin.findByIdAndUpdate(req.params.id, {
-            fullName: fullName.trim(),
-            misCode: misCode.trim().toUpperCase(),
-            email: email.trim().toLowerCase(),
-            phone: phone ? phone.trim() : null,
-            role: role,
-            isActive: isActive === "true" || isActive === true
-        });
+        // ---------- Apply ----------
+        targetAdmin.fullName = fullName.trim();
+        targetAdmin.misCode = misCode.trim().toUpperCase();
+        targetAdmin.email = nextEmail;
+        targetAdmin.phone = phone ? phone.trim() : null;
+        targetAdmin.role = nextRole;
 
-        res.redirect("/admin/profile");
+        // Changing the email must also break the existing Google link.
+        //
+        // Admin login (googleAuthRoutes.js) only compares googleId once
+        // it is set — the email is never re-checked. So without this,
+        // a changed email is completely inert: the OLD Google account
+        // still signs in and the NEW address never can. Clearing
+        // googleId puts the account back into "first login" mode, where
+        // the next Google sign-in is matched against the new email and
+        // re-links from there.
+        if (emailChanged && targetAdmin.googleId) {
+            targetAdmin.googleId = null;
+        }
+
+        // Keep inactivatedAt in step with isActive, matching how
+        // updateSubAdmin already handles it. Without this the TTL index
+        // on inactivatedAt never arms for admins, so a deactivated admin
+        // account would linger forever while a deactivated sub-admin is
+        // cleaned up after 365 days — an inconsistency that was easy to
+        // miss because nothing surfaces it.
+        if (!nextIsActive) {
+            targetAdmin.isActive = false;
+            if (!targetAdmin.inactivatedAt) {
+                targetAdmin.inactivatedAt = new Date();
+            }
+        } else {
+            targetAdmin.isActive = true;
+            targetAdmin.inactivatedAt = null;
+        }
+
+        await targetAdmin.save();
+
+        // Any self-edit that changes how (or whether) you can sign in
+        // must end the current session immediately. Otherwise the admin
+        // keeps browsing on a live session belonging to an account whose
+        // credentials no longer work — and only discovers the problem
+        // much later, after the session quietly expires.
+        if (isSelf && deactivating) {
+            return req.session.destroy(() => {
+                res.clearCookie("connect.sid");
+                res.redirect("/login?error=Your account has been deactivated.");
+            });
+        }
+
+        if (isSelf && emailChanged) {
+            return req.session.destroy(() => {
+                res.clearCookie("connect.sid");
+                res.redirect(
+                    "/login?error=" +
+                    encodeURIComponent(
+                        "Email updated. Please sign in again using the Google account for " +
+                        nextEmail + "."
+                    )
+                );
+            });
+        }
+
+        return res.redirect("/admin/profile");
     } catch (err) {
         console.error("Error updating admin profile:", err);
         const targetAdmin = await Admin.findById(req.params.id);
-        res.status(500).render("admin/editProfile", {
+        return res.status(500).render("admin/editProfile", {
             currentPage: "editProfile",
             adminToEdit: targetAdmin,
-            errorMessage: err.code === 11000 ? "MIS Code or Email already exists." : "Failed to update profile details."
+            errorMessage:
+                err.code === 11000
+                    ? "MIS Code or Email already exists."
+                    : "Failed to update profile details."
         });
     }
 };

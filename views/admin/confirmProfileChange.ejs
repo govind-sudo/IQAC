@@ -1,0 +1,237 @@
+<% layout('layout/adminBoilerPlate') %>
+
+<div class="confirm-page">
+
+    <div class="confirm-card">
+
+        <div class="confirm-head">
+            <div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div>
+                <h1>Confirm changes to your own account</h1>
+                <p>You are editing <strong><%= adminToEdit.fullName %></strong> (<%= adminToEdit.misCode %>) &mdash; this is your own profile.</p>
+            </div>
+        </div>
+
+        <ul class="warning-list">
+            <% warnings.forEach(function (w) { %>
+                <li>
+                    <h3><%= w.title %></h3>
+                    <p><%= w.body %></p>
+                </li>
+            <% }); %>
+        </ul>
+
+        <div class="confirm-summary">
+            <h4>What will be saved</h4>
+            <dl>
+                <div><dt>Full Name</dt><dd><%= formValues.fullName %></dd></div>
+                <div><dt>MIS Code</dt><dd><%= formValues.misCode %></dd></div>
+                <div><dt>Email</dt><dd><%= formValues.email %></dd></div>
+                <div><dt>Phone</dt><dd><%= formValues.phone || '\u2014' %></dd></div>
+                <div><dt>Role</dt><dd><%= formValues.role === 'admin' ? 'Administrator' : 'Sub-Admin' %></dd></div>
+                <div><dt>Status</dt><dd><%= formValues.isActive === 'true' ? 'Active' : 'Inactive' %></dd></div>
+            </dl>
+        </div>
+
+        <!-- Re-submits the exact values already validated, plus the
+             confirmation flag the controller checks for. -->
+        <form method="POST" action="/admin/<%= adminToEdit._id %>/edit">
+            <input type="hidden" name="fullName"  value="<%= formValues.fullName %>">
+            <input type="hidden" name="misCode"   value="<%= formValues.misCode %>">
+            <input type="hidden" name="email"     value="<%= formValues.email %>">
+            <input type="hidden" name="phone"     value="<%= formValues.phone %>">
+            <input type="hidden" name="role"      value="<%= formValues.role %>">
+            <input type="hidden" name="isActive"  value="<%= formValues.isActive %>">
+            <input type="hidden" name="confirmDangerousChange" value="yes">
+
+            <label class="confirm-check">
+                <input type="checkbox" id="understandBox">
+                <span>I understand these changes affect my own access and may not be reversible by me.</span>
+            </label>
+
+            <div class="confirm-actions">
+                <a href="<%= cancelUrl %>" class="btn-cancel">Go back and edit</a>
+                <button type="submit" id="confirmBtn" class="btn-confirm" disabled>
+                    <i class="fa-solid fa-check"></i> Yes, apply these changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // The confirm button stays disabled until the box is ticked, so the
+    // warning has to be acknowledged rather than clicked past.
+    (function () {
+        var box = document.getElementById("understandBox");
+        var btn = document.getElementById("confirmBtn");
+        if (!box || !btn) return;
+        box.addEventListener("change", function () {
+            btn.disabled = !box.checked;
+        });
+    })();
+</script>
+
+<style>
+    .confirm-page {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 1rem 0 2rem;
+    }
+
+    .confirm-card {
+        background: #ffffff;
+        border: 1px solid #fecaca;
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.15);
+    }
+
+    .confirm-head {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        margin-bottom: 1.25rem;
+    }
+
+    .confirm-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        background: #fee2e2;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .confirm-head h1 {
+        font-size: 1.25rem;
+        color: #0f172a;
+        margin-bottom: 0.25rem;
+    }
+
+    .confirm-head p {
+        font-size: 0.88rem;
+        color: #64748b;
+    }
+
+    .warning-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-list li {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-left: 4px solid #f59e0b;
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+    }
+
+    .warning-list h3 {
+        font-size: 0.92rem;
+        color: #92400e;
+        margin-bottom: 0.3rem;
+    }
+
+    .warning-list p {
+        font-size: 0.85rem;
+        color: #78350f;
+        line-height: 1.5;
+    }
+
+    .confirm-summary {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem 1.15rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .confirm-summary h4 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        margin-bottom: 0.75rem;
+    }
+
+    .confirm-summary dl {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        gap: 0.75rem 1rem;
+    }
+
+    .confirm-summary dt {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #94a3b8;
+        margin-bottom: 0.15rem;
+    }
+
+    .confirm-summary dd {
+        font-size: 0.88rem;
+        color: #1e293b;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .confirm-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        font-size: 0.86rem;
+        color: #334155;
+        margin-bottom: 1.25rem;
+        cursor: pointer;
+        line-height: 1.45;
+    }
+
+    .confirm-check input { margin-top: 0.2rem; flex-shrink: 0; }
+
+    .confirm-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-cancel,
+    .btn-confirm {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.65rem 1.2rem;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-cancel { background: #f1f5f9; color: #475569; }
+    .btn-cancel:hover { background: #e2e8f0; }
+
+    .btn-confirm { background: #dc2626; color: #ffffff; }
+    .btn-confirm:hover:not(:disabled) { background: #b91c1c; }
+    .btn-confirm:disabled { background: #fca5a5; cursor: not-allowed; }
+
+    @media (max-width: 640px) {
+        .confirm-page { padding-top: 3.5rem; }
+        .confirm-card { padding: 1.25rem; }
+        .confirm-actions { flex-direction: column-reverse; }
+        .btn-cancel, .btn-confirm { width: 100%; }
+    }
+</style>
