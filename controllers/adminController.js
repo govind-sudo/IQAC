@@ -586,6 +586,7 @@ const {
     deleteStoredFiles,
     deleteStudentDocuments,
     renameStudentDocuments,
+    getStudentFolderName,
 } = require("../services/storageService");
 
 /**
@@ -649,6 +650,11 @@ exports.updateStudent = async (req, res) => {
                 enrollmentNo: body.enrollmentNo || student.enrollmentNo,
                 firstName: body.firstName || student.firstName,
                 lastName: body.lastName || student.lastName,
+                // Write into the folder this student's files are already
+                // in. Without this hint, editing the student's name in
+                // the same save would rebuild a different folder name and
+                // split their documents across two directories.
+                existingFolder: getStudentFolderName(student),
             });
             applyStoredFilePaths(body, storedFilePaths);
         }
@@ -851,7 +857,9 @@ exports.deleteStudent = async (req, res) => {
             cleanup.failed.length
                 ? `Student "${name}" was deleted, but ${cleanup.failed.length} document file(s) ` +
                   `could not be removed from storage. Check the server log.`
-                : `Student "${name}" and ${cleanup.deleted} document file(s) were deleted.`
+                : `Student "${name}" was deleted along with ` +
+                  `${cleanup.deleted + cleanup.orphansDeleted} document file(s)` +
+                  `${cleanup.foldersRemoved ? ` and ${cleanup.foldersRemoved} folder(s)` : ""}.`
         );
 
         return res.redirect("/admin/students");

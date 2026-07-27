@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       
         mismatch: {
-          text: message || "Details could not be verified",
+          text: message || "Details do not match",
           icon: icons.warning,
           color: "#e0433c",
         },
