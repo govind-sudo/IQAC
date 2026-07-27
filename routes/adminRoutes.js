@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const path = require("path");
 const fs = require("fs");
+const multer = require("multer");
+const XLSX = require("xlsx");
 
 const adminController = require("../controllers/adminController");
 const documentBulkController = require("../controllers/documentBulkController");
@@ -10,6 +12,22 @@ const Student = require("../models/Student");
 const { requireAuth, requireRole } = require("../middleware/auth");
 const { handleAdminUpload } = require("../middleware/uploadMiddleware");
 
+// Configure Multer for Excel file upload (In-Memory)
+const excelUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB Max
+    fileFilter: (req, file, cb) => {
+        if (
+            file.mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+            file.mimetype === "application/vnd.ms-excel"
+        ) {
+            cb(null, true);
+        } else {
+            cb(new Error("Only Excel files (.xlsx, .xls) are allowed"));
+        }
+    },
+});
+
 // ==========================================
 // Base Middlewares
 // ==========================================
@@ -17,8 +35,6 @@ router.use(requireAuth);
 router.use(requireRole("admin", "subadmin"));
 
 // One-time flash messages ("Sub-Admin created successfully", etc).
-// Moved from the session onto res.locals and cleared immediately, so a
-// message shows exactly once and never survives a refresh.
 router.use((req, res, next) => {
     res.locals.flash = req.session.flash || null;
     if (req.session.flash) delete req.session.flash;
@@ -40,10 +56,6 @@ router.use(async (req, res, next) => {
 // ==========================================
 // Shared helper for the document view/download routes
 // ==========================================
-// Resolves ?path=... against the paths this specific student actually
-// owns. Admins may open any student's files, but only files that belong
-// to the student named in the URL — a mismatched path is a 403, not a
-// silent read of someone else's folder.
 async function resolveOwnedDocument(req, res) {
     const student = await Student.findById(req.params.id).lean();
     if (!student) {
@@ -95,6 +107,109 @@ router.get("/documents/download", documentBulkController.downloadDocumentsByType
 // 2. Student Routes
 // ==========================================
 router.get("/students", adminController.getStudentsList);
+
+// Bulk Update Enrollment Numbers from Excel Sheet
+router.post(
+    "/students/upload-enrollments",
+    excelUpload.single("excelFile"),
+    async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ error: "Please upload an Excel file." });
+            }
+
+            // 1. Read Excel workbook from RAM buffer
+            const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+
+            // 2. Convert sheet data to JSON array
+            const rawData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+            if (!rawData || rawData.length === 0) {
+                return res.status(400).json({ error: "Uploaded Excel file is empty." });
+            }
+
+            // 3. Prepare MongoDB bulk operations
+            const bulkOps = [];
+            const skippedRows = [];
+            const seenEnrollments = new Set();
+
+            for (let i = 0; i < rawData.length; i++) {
+                const row = rawData[i];
+
+                // Flexible header matching
+                const ugNumber = (row.ugNumber || row["UG Number"] || row["ug_number"])
+                    ?.toString()
+                    .trim()
+                    .toUpperCase();
+
+                const enrollmentNo = (row.enrollmentNo || row["Enrollment No"] || row["enrollment_no"])
+                    ?.toString()
+                    .trim()
+                    .toUpperCase();
+
+                if (ugNumber && enrollmentNo) {
+                    // Check for duplicate enrollment numbers within the uploaded sheet
+                    if (seenEnrollments.has(enrollmentNo)) {
+                        skippedRows.push({
+                            rowNumber: i + 2,
+                            reason: `Duplicate enrollment number '${enrollmentNo}' found in sheet.`,
+                        });
+                        continue;
+                    }
+                    seenEnrollments.add(enrollmentNo);
+
+                    bulkOps.push({
+                        updateOne: {
+                            filter: { ugNumber: ugNumber },
+                            update: { $set: { enrollmentNo: enrollmentNo } },
+                        },
+                    });
+                } else {
+                    skippedRows.push({
+                        rowNumber: i + 2,
+                        reason: "Missing required 'UG Number' or 'Enrollment No' column value.",
+                    });
+                }
+            }
+
+            if (bulkOps.length === 0) {
+                return res.status(400).json({
+                    error: "No valid rows found. Ensure Excel column headers are 'UG Number' and 'Enrollment No'.",
+                });
+            }
+
+            // 4. Execute high-speed bulk update
+            const result = await Student.bulkWrite(bulkOps, { ordered: false });
+
+            return res.json({
+                success: true,
+                message: "Enrollment numbers updated successfully.",
+                stats: {
+                    totalRowsParsed: rawData.length,
+                    matchedStudents: result.matchedCount,
+                    updatedStudents: result.modifiedCount,
+                    skippedRowsCount: skippedRows.length,
+                },
+                skippedRows,
+            });
+        } catch (err) {
+            console.error("Bulk enrollment upload error:", err);
+
+            // Handle MongoDB duplicate key error (E11000)
+            if (err.code === 11000 || err.name === "BulkWriteError") {
+                return res.status(400).json({
+                    error: "One or more Enrollment Numbers already exist in the database or excel sheet.",
+                });
+            }
+
+            return res.status(500).json({
+                error: err.message || "Failed to process Excel file due to a server error.",
+            });
+        }
+    }
+);
 router.get("/students/:id/inDetail", adminController.getStudentInDetail);
 
 // View a document inline (opens in a new tab)
@@ -138,9 +253,7 @@ router.post("/add", requireRole("admin"), adminController.addAdmin);
 
 router.get("/allAdmins", adminController.getAllAdmins);
 
-// Admin management actions. Declared BEFORE the broad "/:id/edit"
-// routes at the bottom of this file so "/admins/..." is never swallowed
-// by the ":id" wildcard.
+// Admin management actions
 router.post("/admins/:id/demote", requireRole("admin"), adminController.demoteAdmin);
 router.post("/admins/:id/status", requireRole("admin"), adminController.toggleAdminStatus);
 router.post("/admins/:id/delete", requireRole("admin"), adminController.deleteAdmin);

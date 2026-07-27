@@ -9,27 +9,34 @@
         </div>
     </header>
 
-    <!-- Toolbar: Search Form (Submits ONLY on click / Enter) -->
-    <div class="table-toolbar">
-        <form action="/admin/students" method="GET" class="search-form" id="studentSearchForm" style="display: flex; align-items: center; gap: 8px; max-width: 450px; width: 100%;">
-            <div class="search-box" style="position: relative; flex: 1;">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input 
-                    type="text" 
-                    name="search" 
-                    id="studentSearchInput" 
-                    value="<%= typeof search !== 'undefined' ? search : '' %>" 
-                    placeholder="Search by student name, enrollment no, or contact..." 
-                    autocomplete="off"
-                />
-                <% if (typeof search !== 'undefined' && search) { %>
-                    <a href="/admin/students" class="clear-search-btn" title="Clear Search">
-                        <i class="fa-solid fa-xmark"></i>
-                    </a>
-                <% } %>
-            </div>
-            <button type="submit" class="btn-search" style="padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #2563eb; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">Search</button>
-        </form>
+    <!-- Toolbar: Search Form + Bulk Upload Button -->
+    <div class="table-toolbar" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px; flex: 1; max-width: 650px; width: 100%;">
+            <form action="/admin/students" method="GET" class="search-form" id="studentSearchForm" style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                <div class="search-box" style="position: relative; flex: 1;">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        id="studentSearchInput" 
+                        value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                        placeholder="Search by student name, enrollment no, or contact..." 
+                        autocomplete="off"
+                    />
+                    <% if (typeof search !== 'undefined' && search) { %>
+                        <a href="/admin/students" class="clear-search-btn" title="Clear Search">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    <% } %>
+                </div>
+                <button type="submit" class="btn-search" style="padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #2563eb; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">Search</button>
+            </form>
+
+            <!-- Bulk Upload Trigger Button -->
+            <button type="button" id="openExcelModalBtn" class="btn-excel-upload" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; border: 1px solid #16a34a; background-color: #16a34a; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">
+                <i class="fa-solid fa-file-excel"></i> Update Enrollments
+            </button>
+        </div>
         
         <div class="record-counter">
             Total Students: <strong><%= typeof totalStudents !== 'undefined' ? totalStudents : 0 %></strong>
@@ -121,7 +128,7 @@
             </table>
         </div>
 
-        <!-- Next / Previous Only Pagination Toolbar -->
+        <!-- Pagination Toolbar -->
         <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
             <div class="pagination-container">
                 <div class="pagination-info">
@@ -151,6 +158,44 @@
                 </div>
             </div>
         <% } %>
+    </div>
+</div>
+
+<!-- Modal: Excel Bulk Upload -->
+<div class="modal-overlay" id="excelUploadModal" style="display: none;">
+    <div class="modal-box" style="max-width: 500px; width: 90%;">
+        <div class="modal-header">
+            <div class="warning-icon-wrapper" style="background-color: #dcfce7; color: #16a34a;">
+                <i class="fa-solid fa-file-excel"></i>
+            </div>
+            <h3>Bulk Update Enrollment Numbers</h3>
+        </div>
+        <form id="excelUploadForm" enctype="multipart/form-data">
+            <div class="modal-body">
+                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 12px;">
+                    Upload an Excel file (<code>.xlsx</code> or <code>.xls</code>) containing <strong>ugNumber</strong> and <strong>enrollmentNo</strong> columns.
+                </p>
+                <div class="file-drop-area" style="border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; background-color: #f8fafc; cursor: pointer;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: #94a3b8; margin-bottom: 8px;"></i>
+                    <p style="margin: 0; font-weight: 500; color: #334155;">Click to select Excel sheet</p>
+                    <span id="selectedFileName" style="display: block; margin-top: 6px; font-size: 0.85rem; color: #16a34a; font-weight: 600;"></span>
+                    <input type="file" id="excelFileInput" name="excelFile" accept=".xlsx, .xls" style="display: none;" required />
+                </div>
+                <div id="uploadStatusMessage" style="margin-top: 12px; font-size: 0.85rem; display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" id="cancelExcelModalBtn">Cancel</button>
+                <button 
+    type="submit" 
+    id="submitExcelBtn" 
+    style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: none; background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; font-weight: 600; font-size: 0.9rem; cursor: pointer; box-shadow: 0 2px 4px rgba(22, 163, 74, 0.25); transition: all 0.2s ease-in-out;"
+    onmouseover="this.style.background='linear-gradient(135deg, #15803d, #166534)'; this.style.boxShadow='0 4px 8px rgba(22, 163, 74, 0.35)'; this.style.transform='translateY(-1px)';"
+    onmouseout="this.style.background='linear-gradient(135deg, #16a34a, #15803d)'; this.style.boxShadow='0 2px 4px rgba(22, 163, 74, 0.25)'; this.style.transform='translateY(0)';"
+>
+    <i class="fa-solid fa-cloud-arrow-up"></i> Upload & Update
+</button>
+            </div>
+        </form>
     </div>
 </div>
 
