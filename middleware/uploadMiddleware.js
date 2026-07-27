@@ -121,7 +121,28 @@
 const multer = require('multer');
 const path = require('path');
 
-const MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024; // 4MB per file
+// ---------------------------------------------------------------
+// UPLOAD SIZE LIMIT - change this in ONE place.
+//
+// Set MAX_FILE_SIZE_MB below, or override it without touching code by
+// putting MAX_UPLOAD_MB in your .env file, e.g.:
+//
+//     MAX_UPLOAD_MB=2
+//
+// Fractional values work too (0.5 = 512KB). Everything else - the
+// Multer limit, the AJAX pre-check endpoints, and every error message
+// shown to the student - derives from this single number, so there is
+// nothing else to keep in sync.
+// ---------------------------------------------------------------
+const MAX_FILE_SIZE_MB = Number(process.env.MAX_UPLOAD_MB) || 1;
+
+const MAX_FILE_SIZE_BYTES = Math.round(MAX_FILE_SIZE_MB * 1024 * 1024);
+
+// Pretty label for error messages: "1MB", "512KB", "2.5MB".
+const MAX_FILE_SIZE_LABEL =
+  MAX_FILE_SIZE_MB < 1
+    ? `${Math.round(MAX_FILE_SIZE_MB * 1024)}KB`
+    : `${Number(MAX_FILE_SIZE_MB.toFixed(2))}MB`;
 
 const ALLOWED_EXTENSIONS = new Set(['.pdf', '.jpg', '.jpeg', '.png', '.webp']);
 const ALLOWED_MIME_TYPES = new Set([
@@ -183,33 +204,75 @@ const upload = multer({
   fileFilter,
 });
 
-// Middleware that also turns Multer's thrown errors into the same
-// error-render pattern the rest of registrationController.js uses,
-// instead of leaking a raw stack trace to the student.
-function handleUpload(req, res, next) {
-  upload.fields(UPLOAD_FIELDS)(req, res, (err) => {
-    if (err) {
-      let message = 'There was a problem with one of your uploaded files.';
-
-      if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-          message = `File "${err.field}" exceeds the maximum allowed size of 4MB.`;
-        } else if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-          message = err.message;
-        } else {
-          message = err.message;
-        }
-      }
-
-      return res.status(400).render('students/register', { error: message });
+// Turns Multer's thrown errors into a friendly message instead of
+// leaking a raw stack trace, then hands that message to a per-flow
+// handler.
+//
+// The message is identical everywhere; only the *response* differs,
+// because the student registration flow and the admin edit flow need to
+// land the user back on completely different pages. Previously both
+// re-rendered 'students/register', which meant an admin who uploaded an
+// oversized file while editing a student was bounced onto a broken
+// student registration form.
+function describeUploadError(err) {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return `File "${err.field}" exceeds the maximum allowed size of ${MAX_FILE_SIZE_LABEL}.`;
     }
-    next();
-  });
+    return err.message;
+  }
+  return err.message || 'There was a problem with one of your uploaded files.';
 }
+
+function createUploadHandler(onError) {
+  return function uploadHandler(req, res, next) {
+    upload.fields(UPLOAD_FIELDS)(req, res, (err) => {
+      if (err) return onError(describeUploadError(err), req, res, next);
+      next();
+    });
+  };
+}
+
+// ---------- Student registration flow ----------
+// The register page is a self-contained form, so re-rendering it with
+// an error banner is the right response.
+const handleUpload = createUploadHandler((message, req, res) =>
+  res.status(400).render('students/register', { error: message })
+);
+
+// ---------- Admin edit flow ----------
+// The edit form needs the student it was editing, so re-fetch and
+// re-render 'admin/editStudent' with exactly the locals that
+// adminController.renderEditStudentForm supplies. Falls back to the
+// central error handler if that render itself would fail, so a
+// rejected upload can never turn into an unexplained 500.
+const handleAdminUpload = createUploadHandler(async (message, req, res, next) => {
+  try {
+    const Student = require('../models/Student');
+    const student = await Student.findById(req.params.id).lean();
+
+    if (!student) {
+      return res.status(404).render('errors/404', { message: 'Student not found' });
+    }
+
+    return res.status(400).render('admin/editStudent', {
+      currentPage: 'students',
+      admin: req.admin,
+      student,
+      errorMessage: message,
+    });
+  } catch (renderErr) {
+    console.error('Admin upload error handling failed:', renderErr);
+    return next(renderErr);
+  }
+});
 
 module.exports = {
   handleUpload,
+  handleAdminUpload,
   MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_MB,
+  MAX_FILE_SIZE_LABEL,
   ALLOWED_EXTENSIONS,
   ALLOWED_MIME_TYPES,
   UPLOAD_FIELDS,

@@ -73,7 +73,11 @@ const {
   verifyDocumentField,
 } = require('../controllers/fileVerificationController');
 
-const { handleUpload, MAX_FILE_SIZE_BYTES } = require('../middleware/uploadMiddleware');
+const {
+  handleUpload,
+  MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_LABEL,
+} = require('../middleware/uploadMiddleware');
 const validateFileSignatures = require('../middleware/validateFileSignatures');
 const {
   fileValidateLimiter,
@@ -128,7 +132,7 @@ function handleSingleUpload(req, res, next) {
     if (err) {
       const message =
         err.code === 'LIMIT_FILE_SIZE'
-          ? 'File exceeds the maximum allowed size of 4MB.'
+          ? `File exceeds the maximum allowed size of ${MAX_FILE_SIZE_LABEL}.`
           : err.message || 'Upload failed.';
       return res.status(400).json({ valid: false, verified: false, reason: message });
     }

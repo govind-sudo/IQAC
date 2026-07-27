@@ -8,7 +8,7 @@ const Admin = require("../models/admin");
 const Student = require("../models/Student");
 
 const { requireAuth, requireRole } = require("../middleware/auth");
-const { handleUpload } = require("../middleware/uploadMiddleware");
+const { handleAdminUpload } = require("../middleware/uploadMiddleware");
 
 // ==========================================
 // Base Middlewares
@@ -114,8 +114,8 @@ router.get("/students/:id/documents/download", async (req, res) => {
 
 // Student Edit / Delete
 router.get("/students/:id/edit", adminController.renderEditStudentForm);
-router.put("/students/:id", handleUpload, adminController.updateStudent);
-router.post("/students/:id/update", handleUpload, adminController.updateStudent); // backup POST if method-override isn't active
+router.put("/students/:id", handleAdminUpload, adminController.updateStudent);
+router.post("/students/:id/update", handleAdminUpload, adminController.updateStudent); // backup POST if method-override isn't active
 router.delete("/students/:id", adminController.deleteStudent);
 router.post("/students/:id/delete", adminController.deleteStudent); // backup POST
 
