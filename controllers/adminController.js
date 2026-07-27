@@ -457,7 +457,16 @@ exports.getStudentsList = async (req, res, next) => {
         let page = parseInt(req.query.page, 10);
         if (isNaN(page) || page < 1) page = 1;
 
-        const limit = 15;
+        // Page size is admin-selectable. Whitelisted rather than taken
+        // straight from the query string: ?limit=100000 would otherwise
+        // let anyone pull every student in one request, which is both a
+        // slow query and a lot of personal data in a single response.
+        const ALLOWED_LIMITS = [15, 30, 50, 100, 250];
+        const DEFAULT_LIMIT = 15;
+
+        const requestedLimit = parseInt(req.query.limit, 10);
+        const limit = ALLOWED_LIMITS.includes(requestedLimit) ? requestedLimit : DEFAULT_LIMIT;
+
         const search = req.query.search ? req.query.search.trim() : '';
 
         // 2. Build Query Safely
@@ -486,7 +495,8 @@ exports.getStudentsList = async (req, res, next) => {
         // 4. Redirect gracefully if requested page exceeds actual available pages
         if (page > totalPages && totalStudents > 0) {
             const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
-            return res.redirect(`/admin/students?page=${totalPages}${searchParam}`);
+            const limitParam = limit !== DEFAULT_LIMIT ? `&limit=${limit}` : '';
+            return res.redirect(`/admin/students?page=${totalPages}${searchParam}${limitParam}`);
         }
 
         // 5. Fetch current page students
@@ -507,6 +517,11 @@ exports.getStudentsList = async (req, res, next) => {
             nextPage: page + 1,
             prevPage: page - 1,
             limit,
+            allowedLimits: ALLOWED_LIMITS,
+            // "Showing 31-45 of 216" — more useful at a glance than a
+            // bare page number once the page size can change.
+            rangeStart: totalStudents === 0 ? 0 : (page - 1) * limit + 1,
+            rangeEnd: Math.min(page * limit, totalStudents),
             totalStudents,
             students,
             search,

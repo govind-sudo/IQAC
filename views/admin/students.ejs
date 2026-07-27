@@ -29,7 +29,7 @@
                     style="width: 100%;"
                 />
                 <% if (typeof search !== 'undefined' && search) { %>
-                    <a href="/admin/students" class="clear-search-btn" title="Clear Search">
+                    <a href="/admin/students?limit=<%= typeof limit !== 'undefined' ? limit : 15 %>" class="clear-search-btn" title="Clear Search">
                         <i class="fa-solid fa-xmark"></i>
                     </a>
                 <% } %>
@@ -46,9 +46,38 @@
 
     </div>
 
-    <!-- Bottom Row: Counter -->
-    <div class="record-counter" style="font-size: 0.95rem; color: #475569;">
-        Total Students: <strong><%= typeof totalStudents !== 'undefined' ? totalStudents : 0 %></strong>
+    <!-- Bottom Row: Counter + Page Size -->
+    <div class="counter-row">
+        <div class="record-counter">
+            <% if (typeof rangeStart !== 'undefined' && totalStudents > 0) { %>
+                Showing <strong><%= rangeStart %>&ndash;<%= rangeEnd %></strong>
+                of <strong><%= totalStudents %></strong> students
+            <% } else { %>
+                Total Students: <strong><%= typeof totalStudents !== 'undefined' ? totalStudents : 0 %></strong>
+            <% } %>
+        </div>
+
+        <%# Its own GET form so changing the page size keeps the current
+            search but resets to page 1 — staying on page 12 while going
+            from 15 to 250 per page would land the admin past the end of
+            the results. %>
+        <form action="/admin/students" method="GET" class="page-size-form" id="pageSizeForm">
+            <% if (typeof search !== 'undefined' && search) { %>
+                <input type="hidden" name="search" value="<%= search %>">
+            <% } %>
+
+            <label for="limitSelect">Show</label>
+            <select name="limit" id="limitSelect" onchange="document.getElementById('pageSizeForm').submit();">
+                <% (typeof allowedLimits !== 'undefined' ? allowedLimits : [15]).forEach(function (n) { %>
+                    <option value="<%= n %>" <%= limit === n ? 'selected' : '' %>><%= n %></option>
+                <% }); %>
+            </select>
+            <label for="limitSelect">per page</label>
+
+            <noscript>
+                <button type="submit" class="page-size-apply">Apply</button>
+            </noscript>
+        </form>
     </div>
 
 </div>
@@ -147,7 +176,7 @@
 
                 <div class="pagination-controls">
                     <% if (hasPrevPage) { %>
-                        <a href="/admin/students?page=<%= prevPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" class="pagination-btn prev">
+                        <a href="/admin/students?page=<%= prevPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>&limit=<%= limit %>" class="pagination-btn prev">
                             <i class="fa-solid fa-chevron-left"></i> Previous
                         </a>
                     <% } else { %>
@@ -157,7 +186,7 @@
                     <% } %>
 
                     <% if (hasNextPage) { %>
-                        <a href="/admin/students?page=<%= nextPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" class="pagination-btn next">
+                        <a href="/admin/students?page=<%= nextPage %><%= search ? '&search=' + encodeURIComponent(search) : '' %>&limit=<%= limit %>" class="pagination-btn next">
                             Next <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     <% } else { %>
@@ -233,3 +262,63 @@
 
 <!-- Page Scripts -->
 <script src="/js/admin/students.js"></script>
+
+<style>
+    .counter-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .record-counter {
+        font-size: 0.95rem;
+        color: #475569;
+    }
+
+    .page-size-form {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        color: #475569;
+        margin: 0;
+    }
+
+    .page-size-form select {
+        padding: 0.4rem 0.6rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        color: #1e293b;
+        background: #ffffff;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .page-size-form select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .page-size-apply {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+        .counter-row {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
