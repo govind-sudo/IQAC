@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       
         scanning: {
-          text: "Scanning...",
+          text: "Scanning file…",
           icon: icons.loading,
           color: "#b5680a",
         },
@@ -113,13 +113,13 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       
         valid: {
-          text: "File format OK — checking details...",
+          text: "File accepted — verifying details…",
           icon: icons.success,
           color: "#1d6fe0",
         },
       
         verifying: {
-          text: "Verifying details (OCR/AI)...",
+          text: "AI verification in progress…",
           icon: icons.loading,
           color: "#b5680a",
         },
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       
         mismatch: {
-          text: message || "Details don't match the form",
+          text: message || "Details could not be verified",
           icon: icons.warning,
           color: "#e0433c",
         },
