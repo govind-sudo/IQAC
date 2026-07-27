@@ -349,8 +349,20 @@
     const triggers = document.querySelectorAll('.view-doc-trigger');
 
     function extensionOf(url) {
-        const clean = url.split('?')[0].split('#')[0];
-        return clean.split('.').pop().toLowerCase();
+        // The filename lives in the ?path= query parameter — the URL's
+        // own path is always ".../documents/file" with no extension at
+        // all. Stripping the query string first therefore threw away the
+        // only part that could identify the file type, so every document
+        // (including JPGs and PNGs) fell through to the PDF/iframe
+        // branch and the image-specific handling never ran.
+        try {
+            const queryString = url.split('?')[1] || '';
+            const storedPath = new URLSearchParams(queryString).get('path') || url;
+            const clean = storedPath.split('#')[0];
+            return clean.includes('.') ? clean.split('.').pop().toLowerCase() : '';
+        } catch (err) {
+            return '';
+        }
     }
 
     const IMAGE_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp']);
