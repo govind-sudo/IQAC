@@ -1,25 +1,4 @@
-// services/storageService.js
-//
-// Step 5 of the upload pipeline: Storage Service.
-//
-// NAMING CONVENTION:
-//   Folder: uploads/{identifier}_{FirstLast}/
-//   File:   {identifier}_{FirstLast}_{documentType}.{ext}
-//
-//   e.g. uploads/24UG098890_PrakashRanjan/
-//            24UG098890_PrakashRanjan_aadhaarProof.pdf
-//            24UG098890_PrakashRanjan_tenthMarksheet.jpg
-//
-// `identifier` is the UG number at registration time. Once a real
-// enrollment number is assigned by an admin, renameStudentDocuments()
-// rewrites the folder AND every file inside it to use the enrollment
-// number instead, and returns the new relative paths so the caller can
-// persist them back onto the Student document.
-//
-// One folder per student, always. The name carries no date, so it can
-// be rebuilt from the student's own details — which is what lets a
-// later re-upload write into the same folder instead of creating a
-// second one.
+
 
 const fs = require('fs/promises');
 const path = require('path');
@@ -41,17 +20,7 @@ function buildNameToken(firstName, lastName) {
   return sanitizeForPath(`${firstName || ''}${lastName || ''}`);
 }
 
-// Folder name is deliberately deterministic: {identifier}_{Name}, with
-// no date. That is what lets a later re-upload land in the SAME folder
-// instead of creating a new one — the name can simply be rebuilt from
-// the student's own details rather than remembered.
-//
-// THROWS when the identifier is missing. This is not defensive padding:
-// sanitizeForPath('') returns '', so a blank UG number used to produce
-// the folder name "_" — and every student with a blank identifier then
-// shared that single directory, mixing different students' documents
-// together. Failing loudly here means a bad call is caught at the point
-// of the mistake instead of quietly corrupting storage.
+
 function buildStudentFolderName(identifier, firstName, lastName) {
   const safeIdentifier = sanitizeForPath(identifier);
 
@@ -69,15 +38,7 @@ function buildStudentFolderName(identifier, firstName, lastName) {
   return nameToken ? `${safeIdentifier}_${nameToken}` : safeIdentifier;
 }
 
-/**
- * The folder a student's documents currently live in, derived from
- * whichever document path already exists on the record. Returns null
- * for a student with no documents yet.
- *
- * Used so an edit writes into the existing folder even if the student's
- * name was changed in the same save (which would otherwise rebuild a
- * different folder name and split their files across two directories).
- */
+
 function getStudentFolderName(student) {
   if (!student) return null;
 
@@ -91,14 +52,7 @@ function getStudentFolderName(student) {
   return null;
 }
 
-/**
- * Delete any previous file for this document type in the student's
- * folder, whatever its extension.
- *
- * Replacing a PDF with a JPG produces a DIFFERENT filename, so without
- * this the old file stays on disk forever: unreferenced by the database,
- * invisible in the UI, and still containing the student's personal data.
- */
+
 async function removePreviousVersions(studentDir, docType) {
   let entries;
   try {
@@ -496,27 +450,9 @@ async function deleteStudentDocuments(student) {
     }
   }
 
-  // ---------- Remove the student's folder(s) ----------
-  //
-  // Plural, deliberately. storeUploadedFiles() stamps the folder name
-  // with the CURRENT date, so an admin who re-uploads a document on a
-  // later day creates a second folder for the same student. Deriving
-  // the folder from just the first path would clean one and silently
-  // leave the other behind.
   const folders = [...new Set(paths.map((p) => path.posix.dirname(p.replace(/\\/g, '/'))))];
 
-  // Anything still in the folder after the referenced files are gone is
-  // an orphan belonging to this same student — most often a previous
-  // version of a document that was replaced by one with a different
-  // extension (a .pdf swapped for a .jpg leaves the .pdf behind, since
-  // the filename differs). The folder is named after this student and
-  // holds nobody else's data, so removing what remains is correct: the
-  // whole point of deleting a student is that none of their documents
-  // are left on disk.
-  //
-  // Guarded by an ownership check on the folder name so a corrupted or
-  // unexpected path can never turn this into a recursive delete of
-  // something outside the student's own directory.
+
   const owners = [student.enrollmentNo, student.ugNumber]
     .filter(Boolean)
     .map((v) => sanitizeForPath(v).toUpperCase());

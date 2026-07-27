@@ -13,7 +13,7 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsmate = require("ejs-mate");
 
-// 1. MIDDLEWARE SETTINGS
+//MIDDLEWARE SETTINGS
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "/views"));
@@ -23,12 +23,8 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.urlencoded({ extended: true }));
 
-// Session + Passport — must come BEFORE any route that uses
-// req.session or passport.authenticate()
 
 if (process.env.NODE_ENV === "production" && !process.env.SESSION_SECRET) {
-  // Fail loudly rather than silently running production with a
-  // well-known, hardcoded session secret.
   throw new Error(
     "SESSION_SECRET environment variable is required in production."
   );
@@ -45,7 +41,7 @@ app.use(
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 10 * 60 * 1000, //10 mins
+      maxAge: 10 * 60 * 1000, 
     },
   })
 );
@@ -63,11 +59,9 @@ async function main() {
 }
 
 // ---------------- Auth routes ----------------
-// These handle: GET/POST /login, GET /logout,
-// POST /auth/enrollment-check, GET /auth/google, GET /auth/google/callback
 app.use(require("./routes/authRoutes"));
 app.use(require("./routes/googleAuthRoutes"));
-app.use("/admin", require("./routes/adminRoutes"));   // keep
+app.use("/admin", require("./routes/adminRoutes"));  
 app.use(require("./routes/registrationRoutes"));
 
 app.get('/', (req, res) => {
@@ -75,8 +69,6 @@ app.get('/', (req, res) => {
 });
 
 // ---------------- Student routes ----------------
-// Handles GET /students/dashboard with REAL data + auth check.
-// This must be mounted BEFORE the leftover static routes below,
 
 app.use("/students", require("./routes/studentRoutes"));
 
@@ -90,8 +82,6 @@ app.use((req, res, next) => {
 });
 
 // ---------------- Central error handler ----------------
-// Catches anything thrown/next(err)'d that individual routes didn't
-// already handle, so a stack trace never leaks to the client.
 app.use((err, req, res, next) => {
   console.error(err);
   if (res.headersSent) return next(err);

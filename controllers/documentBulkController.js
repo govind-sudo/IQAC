@@ -1,18 +1,4 @@
-// controllers/documentBulkController.js
-//
-// Bulk document downloads for admins: "download every Aadhaar card",
-// "download every 10th marksheet", and so on — optionally narrowed by
-// admission year, branch, or institute.
-//
-// STREAMING: the archive is piped straight to the HTTP response as it
-// is built. Nothing is buffered in memory and nothing is written to a
-// temp file, so memory stays flat (a few MB) whether the download is
-// 16 documents or 50,000. Files are fed in a bounded batch so we never
-// hold thousands of open file descriptors.
-//
-// ZIP64 is enabled automatically once the selection is large enough to
-// exceed the classic ZIP limits (65,535 entries / 4GB), so very large
-// downloads produce a valid archive rather than a silently broken one.
+
 
 const fs = require('fs');
 const fsp = require('fs/promises');
@@ -28,24 +14,14 @@ const {
 
 const DOC_TYPES = Object.keys(DOC_TYPE_TO_STUDENT_PATH);
 
-// How many files may be queued into the archiver at once. Bounds open
-// file descriptors — without this, a 50k-file download would try to
-// open 50k read streams and hit the OS limit.
 const MAX_PENDING_ENTRIES = 16;
 
-// Past this, classic ZIP can't represent the archive and ZIP64 is
-// required. Archiver also promotes individual oversized entries itself.
+
 const ZIP64_ENTRY_THRESHOLD = 60000;
 
-// PDFs and JPEGs are already compressed — spending CPU deflating them
-// again buys almost nothing and slows a large download considerably.
 const COMPRESSION_LEVEL = 1;
 
-// archiver changed its public API in v8: the package used to export a
-// callable factory, and now exports named archive classes instead.
-// Supporting both means `npm i archiver` works regardless of which
-// version resolves, and an upgrade later won't silently break the
-// download with a confusing "archiver is not a function".
+
 function createZipArchive(options) {
   if (typeof archiverPkg === 'function') {
     return archiverPkg('zip', options); // archiver v5 – v7
@@ -62,11 +38,7 @@ function getByPath(obj, dottedPath) {
   return dottedPath.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), obj);
 }
 
-/**
- * Turn ?year=&branch=&institute= into a Mongo filter. Values are only
- * ever used as literal equality matches on known fields — never
- * interpolated into a field path.
- */
+
 function buildStudentFilter(query) {
   const filter = {};
 
@@ -228,10 +200,7 @@ exports.downloadDocumentsByType = async (req, res, next) => {
 
     archive.on('error', (err) => {
       console.error(`Bulk download (${docType}) failed mid-stream:`, err);
-      // Headers are already sent, so there's no way to show an error
-      // page — destroying the socket makes the browser surface this as
-      // a failed download rather than handing over a truncated ZIP that
-      // looks complete.
+
       res.destroy(err);
     });
 
@@ -287,9 +256,6 @@ exports.downloadDocumentsByType = async (req, res, next) => {
 
       const absolutePath = path.join(__dirname, '..', relativePath);
 
-      // Cheap existence check up front — appending a stream for a file
-      // that doesn't exist surfaces as a mid-archive warning that's far
-      // harder to attribute back to a specific student.
       try {
         await fsp.access(absolutePath);
       } catch (_) {

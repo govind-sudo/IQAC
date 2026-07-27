@@ -50,7 +50,7 @@ const adminSchema = new mongoose.Schema(
     inactivatedAt: {
         type: Date,
         default: null,
-        expires: 31536000 // 365 days = 365 * 24 * 60 * 60 seconds
+        expires: 31536000 
     },
 
     createdBy: {

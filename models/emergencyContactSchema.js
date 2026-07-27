@@ -1,7 +1,3 @@
-// models/emergencyContactSchema.js
-// Reusable shape for emergencyContact on Student.
-// Not a standalone model — just a Schema to be embedded.
-
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 

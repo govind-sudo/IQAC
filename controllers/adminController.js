@@ -2,18 +2,6 @@ const Student = require("../models/Student");
 const Admin = require("../models/admin");
 
 
-// -------------------------------------------------------------
-// Phone numbers are stored WITHOUT a country code — 10 digits only.
-//
-// Browsers autofill this field with "+919754434029" and users paste
-// numbers in half a dozen formats, so the value is normalised here
-// rather than trusting the form. Handles "+91 97544 34029",
-// "091-9754434029", "9754434029" and similar, all of which reduce to
-// the same 10 digits.
-//
-// Returns { ok, value, error }. An empty input is valid (phone is
-// optional in the schema) and yields value: null.
-// -------------------------------------------------------------
 function normalizePhone(raw) {
     if (raw === undefined || raw === null || String(raw).trim() === "") {
         return { ok: true, value: null };
@@ -37,8 +25,7 @@ function normalizePhone(raw) {
     return { ok: true, value: digits };
 }
 
-// Queue a one-time message to show on the next page the admin lands on.
-// Read and cleared by the flash middleware in routes/adminRoutes.js.
+
 function setFlash(req, type, message) {
     req.session.flash = { type, message };
 }
@@ -126,12 +113,7 @@ exports.getDashboard = async (req, res, next) => {
             ])
         ]);
 
-        // Process Admin / Sub-Admin Counts
-        //
-        // Previously the dashboard showed a single "Total Admins" figure
-        // from Admin.countDocuments(), which counted sub-admins too — so
-        // the number on screen never matched what the Admins page listed.
-        // Split by role, and by active/inactive within each role.
+
         const adminCounts = {
             admins: { total: 0, active: 0, inactive: 0 },
             subadmins: { total: 0, active: 0, inactive: 0 }
@@ -457,10 +439,6 @@ exports.getStudentsList = async (req, res, next) => {
         let page = parseInt(req.query.page, 10);
         if (isNaN(page) || page < 1) page = 1;
 
-        // Page size is admin-selectable. Whitelisted rather than taken
-        // straight from the query string: ?limit=100000 would otherwise
-        // let anyone pull every student in one request, which is both a
-        // slow query and a lot of personal data in a single response.
         const ALLOWED_LIMITS = [15, 30, 50, 100, 250];
         const DEFAULT_LIMIT = 15;
 
@@ -622,11 +600,6 @@ exports.renderEditStudentForm = async (req, res, next) => {
     }
 };
 
-// PUT /admin/students/:id — Update ALL student fields, including document
-// re-upload. Admin uploads bypass OCR/AI verification entirely — an
-// admin correcting/replacing a document is trusted at face value, only
-// the same signature/format check (real PDF/JPG/PNG, not corrupted)
-// still applies via handleUpload's fileFilter + Multer limits.
 exports.updateStudent = async (req, res) => {
     const { id } = req.params;
     const body = req.body || {};
@@ -640,20 +613,13 @@ exports.updateStudent = async (req, res) => {
 
         const isIndian = (body.nationality || student.nationality) === "Indian";
 
-        // If any new documents were uploaded, store them and merge the
-        // resulting paths into body — same storage logic as
-        // registration, but with NO OCR/document verification call at
-        // all (that's the entire point: admin-trusted, instant).
+
         if (req.files && Object.keys(req.files).length > 0) {
             storedFilePaths = await storeUploadedFiles(req.files, {
                 ugNumber: body.ugNumber || student.ugNumber,
                 enrollmentNo: body.enrollmentNo || student.enrollmentNo,
                 firstName: body.firstName || student.firstName,
                 lastName: body.lastName || student.lastName,
-                // Write into the folder this student's files are already
-                // in. Without this hint, editing the student's name in
-                // the same save would rebuild a different folder name and
-                // split their documents across two directories.
                 existingFolder: getStudentFolderName(student),
             });
             applyStoredFilePaths(body, storedFilePaths);
@@ -774,16 +740,6 @@ exports.updateStudent = async (req, res) => {
             };
         }
 
-        // ---------- Re-identify stored documents on enrollment assignment ----------
-        // When an admin assigns (or corrects) the real enrollment number,
-        // every stored file is renamed from
-        //   {ugNumber}_{Name}_{docType}.ext
-        // to
-        //   {enrollmentNo}_{Name}_{docType}.ext
-        // and the student's document paths are rewritten to match.
-        // Deliberately runs BEFORE save() so the renamed paths are part
-        // of the same write — if the rename throws, nothing is persisted
-        // and the catch block below rolls back any new uploads too.
         if (student.enrollmentNo && student.enrollmentNo !== previousEnrollmentNo) {
             await renameStudentDocuments(student, student.enrollmentNo);
         }
@@ -817,12 +773,6 @@ exports.updateStudent = async (req, res) => {
 // DELETE /admin/students/:id
 exports.deleteStudent = async (req, res) => {
     try {
-        // findByIdAndDelete returns the document it removed, which still
-        // holds the file paths — so the uploaded documents can be cleaned
-        // up afterwards. Previously only the database row was deleted,
-        // leaving that student's Aadhaar card, passport, and marksheets
-        // on disk permanently, referenced by nothing and invisible to
-        // the app.
         const deleted = await Student.findByIdAndDelete(req.params.id);
 
         if (!deleted) {
@@ -830,12 +780,6 @@ exports.deleteStudent = async (req, res) => {
             setFlash(req, "error", "That student record no longer exists.");
             return res.redirect("/admin/students");
         }
-
-        // File cleanup runs after the record is gone and never blocks the
-        // delete: the admin asked for the student to be removed, and a
-        // stubborn file (locked on Windows, already moved) should not
-        // resurrect the record or throw a 500. Failures are logged with
-        // enough detail to clear them up by hand.
         const cleanup = await deleteStudentDocuments(deleted);
 
         if (cleanup.failed.length) {
@@ -869,19 +813,16 @@ exports.deleteStudent = async (req, res) => {
     }
 };
 
-// Fetch Sub-Admins List with Server-Side Pagination & Search Optimization
-// Fetch Sub-Admins List with Server-Side Pagination & Search Optimization
 exports.getSubAdminsList = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 10; // Fixed page size of 10 items
+        const limit = 10;
         const skip = (page - 1) * limit;
         const search = req.query.search ? req.query.search.trim() : '';
 
         // Base query: Fetch only subadmins
         let query = { role: 'subadmin' };
 
-        // Optimized Search Regex for fullName, misCode, and email
         if (search) {
             const searchRegex = new RegExp(search, 'i');
             query.$or = [
@@ -891,7 +832,7 @@ exports.getSubAdminsList = async (req, res) => {
             ];
         }
 
-        // Execute total count and paginated query concurrently for higher performance
+   
         const [totalSubAdmins, subadmins] = await Promise.all([
             Admin.countDocuments(query),
             Admin.find(query)
@@ -905,8 +846,8 @@ exports.getSubAdminsList = async (req, res) => {
         const totalPages = Math.ceil(totalSubAdmins / limit) || 1;
 
         res.render('admin/subadmins', {
-            currentPage: "subadmins", // Required for sidebar active link highlight
-            page,                     // Numeric current page for pagination math
+            currentPage: "subadmins",
+            page,                    
             totalPages,
             hasNextPage: page < totalPages,
             hasPrevPage: page > 1,
@@ -924,12 +865,12 @@ exports.getSubAdminsList = async (req, res) => {
     }
 };
 
-// Delete a Sub-Admin
+
 exports.deleteSubAdmin = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Delete only if target account has the 'subadmin' role
+        
         const deletedSubAdmin = await Admin.findOneAndDelete({ 
             _id: id, 
             role: 'subadmin' 
@@ -982,7 +923,6 @@ exports.createSubAdmin = async (req, res) => {
             phone: phoneResult.value,
             role: "subadmin",
             isActive: isAccountActive,
-            // If created as inactive, start the 1-year deletion timer now; otherwise set to null
             inactivatedAt: isAccountActive ? null : new Date(),
             createdBy: req.admin._id
         });
@@ -1114,14 +1054,6 @@ exports.getMyProfile = async (req, res) => {
 };
 
 
-// An administrator's own details are theirs alone to change.
-//
-// One admin editing another's name, MIS code, or email would let them
-// silently take over that account — changing the email unlinks the
-// Google login (see updateAdminProfile), so the original owner could be
-// locked out without ever being told. Peer control over other admins is
-// therefore limited to the three coarse, visible actions on
-// /admin/allAdmins: activate/deactivate, demote, and delete.
 const CROSS_EDIT_MESSAGE =
     "Administrators can only edit their own details. You can activate, deactivate, " +
     "demote, or remove another administrator from the Admins page.";
@@ -1130,14 +1062,7 @@ function isEditingSelf(req, targetAdmin) {
     return String(targetAdmin._id) === String(req.session.userId);
 }
 
-// Builds the locals for admin/editProfile.
-//
-// The same template serves two different jobs — "edit my own profile"
-// and "edit another administrator" — and framing both as the former was
-// disorienting: the sidebar lit up "Edit Profile", the back link said
-// "Back to Profile", and Cancel returned to YOUR profile even though you
-// were editing somebody else. currentPage and the navigation targets now
-// follow whose account is actually open.
+
 function buildEditProfileLocals(req, targetAdmin, errorMessage) {
     const isSelf = String(targetAdmin._id) === String(req.session.userId);
     const backUrl = isSelf
@@ -1147,8 +1072,7 @@ function buildEditProfileLocals(req, targetAdmin, errorMessage) {
             : "/admin/subadmins";
 
     return {
-        // Keeps the sidebar highlight on the section you navigated from,
-        // instead of always claiming you are in "Edit Profile".
+
         currentPage: isSelf
             ? "editProfile"
             : targetAdmin.role === "admin"
@@ -1186,23 +1110,7 @@ exports.renderEditProfileForm = async (req, res) => {
     }
 };
 
-// PUT or POST /admin/:id/edit — Update All Admin Profile Details
-//
-// Guards two genuinely irreversible situations that the form itself
-// cannot prevent:
-//
-//   1. LAST ADMIN LOCKOUT. Only a root admin can create or edit admins
-//      (requireRole("admin") on these routes). If the last active admin
-//      deactivates themselves or demotes themselves to subadmin, there
-//      is nobody left in the system who can undo it — the account can
-//      only be restored by editing the database by hand. That change is
-//      refused outright, not merely warned about.
-//
-//   2. SELF-INFLICTED LOCKOUT. There is no password login for admins
-//      (authController.login is commented out); the only way in is
-//      Google. So a self-edit that changes the sign-in email, or that
-//      deactivates the account, can end the admin's own access. Those
-//      are allowed, but only after an explicit confirmation step.
+
 exports.updateAdminProfile = async (req, res) => {
     try {
         const { fullName, misCode, email, phone, role, isActive } = req.body;
@@ -1323,25 +1231,11 @@ exports.updateAdminProfile = async (req, res) => {
         targetAdmin.phone = phoneResult.value;
         targetAdmin.role = nextRole;
 
-        // Changing the email must also break the existing Google link.
-        //
-        // Admin login (googleAuthRoutes.js) only compares googleId once
-        // it is set — the email is never re-checked. So without this,
-        // a changed email is completely inert: the OLD Google account
-        // still signs in and the NEW address never can. Clearing
-        // googleId puts the account back into "first login" mode, where
-        // the next Google sign-in is matched against the new email and
-        // re-links from there.
+
         if (emailChanged && targetAdmin.googleId) {
             targetAdmin.googleId = null;
         }
 
-        // Keep inactivatedAt in step with isActive, matching how
-        // updateSubAdmin already handles it. Without this the TTL index
-        // on inactivatedAt never arms for admins, so a deactivated admin
-        // account would linger forever while a deactivated sub-admin is
-        // cleaned up after 365 days — an inconsistency that was easy to
-        // miss because nothing surfaces it.
         if (!nextIsActive) {
             targetAdmin.isActive = false;
             if (!targetAdmin.inactivatedAt) {
@@ -1354,11 +1248,6 @@ exports.updateAdminProfile = async (req, res) => {
 
         await targetAdmin.save();
 
-        // Any self-edit that changes how (or whether) you can sign in
-        // must end the current session immediately. Otherwise the admin
-        // keeps browsing on a live session belonging to an account whose
-        // credentials no longer work — and only discovers the problem
-        // much later, after the session quietly expires.
         if (isSelf && deactivating) {
             return req.session.destroy(() => {
                 res.clearCookie("connect.sid");
@@ -1379,10 +1268,7 @@ exports.updateAdminProfile = async (req, res) => {
             });
         }
 
-        // Editing your own profile lands on your profile page; editing
-        // another administrator returns to the list you came from,
-        // rather than dumping you on your own profile as if you had
-        // just edited yourself.
+
         if (!isSelf) {
             setFlash(req, "success", `"${targetAdmin.fullName}" updated successfully.`);
             return res.redirect(
@@ -1480,10 +1366,7 @@ exports.addAdmin = async (req, res, next) => {
             createdBy: req.admin ? req.admin._id : null
         });
 
-        // Land on the list that actually contains the new account.
-        // Previously this always redirected to /admin/subadmins, so
-        // creating an Administrator dropped you on a page where the new
-        // account was nowhere to be seen.
+
         const isAdminRole = created.role === 'admin';
 
         setFlash(
@@ -1514,9 +1397,6 @@ exports.getAllAdmins = async (req, res, next) => {
             .sort({ createdAt: -1 })
             .lean();
 
-        // The view needs to know how many admins would be left if one
-        // were removed or demoted, so it can disable those buttons
-        // rather than offering an action the server will refuse.
         const activeAdminCount = (admins || []).filter((a) => a.isActive).length;
 
         return res.status(200).render('admin/allAdmins', {
@@ -1535,27 +1415,6 @@ exports.getAllAdmins = async (req, res, next) => {
     }
 };
 
-
-// Render Help / Contact Support Page
-// -------------------------------------------------------------
-// ADMIN MANAGEMENT ACTIONS (root admin only)
-//
-// These back the buttons on /admin/allAdmins. Each one re-checks the
-// same two invariants server-side, because a disabled button in the UI
-// is a courtesy, not a control:
-//
-//   * You cannot act on your OWN account here. Self-changes go through
-//     /admin/:id/edit, which shows the irreversibility warning and ends
-//     your session properly. Silently demoting or deleting yourself from
-//     a list page would strand you on an admin screen you no longer have
-//     the rights to use.
-//
-//   * You cannot remove, demote, or deactivate the LAST active admin.
-//     Only admins can manage admins, so that would leave the portal with
-//     nobody able to undo it.
-// -------------------------------------------------------------
-
-// Shared precondition check. Returns { ok, admin, error }.
 async function loadManageableAdmin(req, { requireNotLast }) {
     const target = await Admin.findById(req.params.id);
 

@@ -378,7 +378,7 @@
         // Run validation immediately on load (in case form is pre-filled from server)
         checkFormCompletion();
 
-        // Listen for user input/change events across all fields
+        
         form.addEventListener("input", checkFormCompletion);
         form.addEventListener("change", checkFormCompletion);
 
@@ -402,10 +402,7 @@
             roleSelect.addEventListener("change", syncRoleLabel);
         }
 
-        // ---------- Phone: strip country code / non-digits as typed ----------
-        // The server normalises this too (adminController.normalizePhone),
-        // but doing it here stops browser autofill silently dropping a
-        // "+91 " into the field and the user never noticing.
+        
         const phoneInput = document.getElementById("phone");
         if (phoneInput) {
             const cleanPhone = () => {

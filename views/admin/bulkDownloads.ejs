@@ -4,16 +4,14 @@
 
     <header class="page-header">
         <h1>Bulk Document Downloads</h1>
-        <!-- <p>Download every student's file of a given type as a single ZIP archive. Filenames inside the archive follow <strong>Identifier_StudentName_documentType</strong>.</p> -->
+        
     </header>
 
     <% if (errorMessage) { %>
         <div class="bulk-alert"><i class="fa-solid fa-triangle-exclamation"></i> <%= errorMessage %></div>
     <% } %>
 
-    <!-- ==========================================
-         Filters
-         ========================================== -->
+    
     <form class="bulk-filters" method="GET" action="/admin/documents">
         <div class="filter-field">
             <label for="filterYear">Admission Year</label>
@@ -56,9 +54,7 @@
         <span><strong><%= totalStudents.toLocaleString() %></strong> students match<%= filterLabel ? ' — ' + filterLabel : ' (no filter)' %></span>
     </div>
 
-    <!-- ==========================================
-         Document type cards
-         ========================================== -->
+    
     <div class="bulk-grid">
         <% documentTypes.forEach(function (doc) { %>
             <div class="bulk-card <%= doc.count === 0 ? 'is-empty' : '' %>">
@@ -102,7 +98,7 @@
         gap: 0.6rem;
     }
 
-    /* ---------- Filters ---------- */
+    
     .bulk-filters {
         display: flex;
         flex-wrap: wrap;

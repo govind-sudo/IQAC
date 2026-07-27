@@ -1,21 +1,3 @@
-// utils/ocrTextExtractor.js
-//
-// Step 6 of the upload pipeline: OCR Extractor.
-//
-// Hashes the file buffer (sha256). The SAME file is uploaded twice
-// today — once for the pre-submit AJAX check, once again at final
-// submit (controllers/registrationController.js re-verifies
-// server-side). If Redis already has a cached OCR result for this
-// exact hash, return it instantly — no OCR work happens twice.
-//
-// On a cache miss, enqueues a BullMQ job (queue/ocrQueue.js). Actual
-// processing happens in workers/ocrProcessor.js, which talks to the
-// persistent PaddleOCR HTTP service (scripts/paddle_ocr_server.py).
-//
-// fieldName is now passed all the way through to the Python server so
-// it can apply per-document-type PDF page limits (Aadhaar/marksheets
-// are always 1 page; caste certificates, leaving certificates, PU
-// admission letters, and passports can legitimately be multi-page).
 
 const crypto = require('crypto');
 const { QueueEvents } = require('bullmq');
@@ -69,11 +51,7 @@ function hashBuffer(buffer) {
  * }>} structured OCR result — never throws.
  */
 async function extractText(buffer, detectedKind, fieldName) {
-  // fieldName is folded into the cache key: the same file bytes
-  // uploaded under two different fields (unlikely but possible, e.g.
-  // a student reusing one scan for two documents) could legitimately
-  // need different page-limit behavior, so they shouldn't share a
-  // cached result.
+
   const hash = hashBuffer(buffer);
   const cacheKey = `ocr:${hash}:${fieldName || 'unknown'}`;
 

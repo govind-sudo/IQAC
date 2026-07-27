@@ -1,31 +1,7 @@
-// services/AIService.js
-//
-// Provider-agnostic facade used by documentVerifier.js. Nothing outside
-// this file (and the providers/ folder) should know or care which AI
-// vendor is actually behind verifyName() — that's the whole point of
-// this layer.
-//
-// Provider selection is driven entirely by env:
-//   AI_PROVIDER=gemini   (default)
-//   AI_PROVIDER=openai   (once providers/OpenAIProvider.js exists)
-//   AI_PROVIDER=anthropic
-//   AI_PROVIDER=azure
-//
-// Adding a new vendor later means: drop a providers/XyzProvider.js that
-// exports a verifyName(extractedText, fullName) function, register it in
-// PROVIDERS below, and set AI_PROVIDER=xyz. documentVerifier.js never
-// changes.
-//
-// If no provider is configured or the configured provider has no API
-// key set, AIService.verifyName() resolves to `null` rather than
-// throwing — callers treat `null` as "no AI opinion available, fall
-// back to rule-based checks only."
+
 
 const PROVIDERS = {
   gemini: () => require('../providers/GeminiProvider'),
-  // openai: () => require('../providers/OpenAIProvider'),
-  // anthropic: () => require('../providers/AnthropicProvider'),
-  // azure: () => require('../providers/AzureProvider'),
 };
 
 function resolveProvider() {

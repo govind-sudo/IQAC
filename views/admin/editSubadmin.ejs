@@ -168,9 +168,7 @@
     });
 </script>
     <script>
-        // Phone: 10 digits, no country code. Mirrors the server-side
-        // normaliser in adminController.js so browser autofill can't
-        // silently slip a "+91 " in without the user noticing.
+
         (function () {
             var phoneInput = document.getElementById("phone");
             if (!phoneInput) return;

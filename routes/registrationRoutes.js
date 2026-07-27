@@ -85,10 +85,7 @@ const {
   registerSubmitLimiter,
 } = require('../middleware/rateLimiter');
 
-// Whitelist of field names the client is allowed to ask about on the
-// AJAX endpoints — mirrors uploadMiddleware.js's UPLOAD_FIELDS. Prevents
-// a crafted request from probing PDF_ONLY_FIELDS logic or OCR with an
-// arbitrary/unexpected fieldName string.
+
 const KNOWN_FIELD_NAMES = new Set([
   'education[tenth][marksheet]',
   'education[twelfth][marksheet]',
@@ -113,15 +110,9 @@ function requireKnownFieldName(req, res, next) {
 
 router.get('/register', showRegisterForm);
 
-// Pipeline: Upload Middleware (Multer) -> Signature Validator -> Controller
-// (registerStudent itself re-runs OCR/AI verification server-side before
-// ever writing files to disk or saving the student — see
-// controllers/registrationController.js.)
+
 router.post('/register', registerSubmitLimiter, handleUpload, validateFileSignatures, registerStudent);
 
-// ---------- Pre-submit AJAX verification (UX-only — never trusted alone) ----------
-// Single-file, memory-only upload — never touches disk. Same size ceiling
-// as the real submission pipeline (uploadMiddleware.js).
 const singleFileUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_FILE_SIZE_BYTES },
@@ -149,10 +140,6 @@ router.post(
   validateFile
 );
 
-// OCR + semantic (name / Aadhaar / passport / percentage) check — fires
-// only after the signature check above has already passed. This is a
-// convenience/UX pass only: the authoritative check happens again,
-// server-side, inside registerStudent at final submit.
 router.post(
   '/register/verify-document',
   documentVerifyLimiter,

@@ -110,13 +110,6 @@ exports.registerStudent = async (req, res) => {
       });
     }
 
-    // ---------- FIX: check req.files directly, not body.documents ----------
-    // body.documents only gets populated AFTER applyStoredFilePaths() runs
-    // (later in this function, after file storage). At this point in the
-    // request, the actual uploaded files already exist on req.files
-    // (populated immediately by Multer) even though body.documents is
-    // still empty — checking body.documents here was a false negative
-    // that rejected international students who HAD uploaded everything.
     if (!isIndian) {
       const missingIntlDocs = [];
       if (!req.files?.['documents[aoLevelCertificate]']) missingIntlDocs.push('A/O Level Certificate');

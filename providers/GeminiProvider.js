@@ -1,18 +1,3 @@
-// providers/GeminiProvider.js
-//
-// Concrete AI provider backing AIService.verifyName() when
-// AI_PROVIDER=gemini (the default — free developer tier). Talks to the
-// Gemini API directly over fetch, no SDK dependency, so adding this
-// provider never pulls in @anthropic-ai/sdk or any other vendor package.
-//
-// Env:
-//   GEMINI_API_KEY=...
-//   GEMINI_MODEL=gemini-1.5-flash   (optional, defaults below)
-//
-// Contract expected by services/AIService.js:
-//   isConfigured(): boolean
-//   verifyName(extractedText, fullName): Promise<{ nameMatch: boolean, notes?: string }>
-
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 const GEMINI_ENDPOINT = (model) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;

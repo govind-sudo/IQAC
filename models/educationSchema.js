@@ -1,7 +1,3 @@
-// models/educationSchema.js
-// Prior qualifications. Each level captures school/college name, the
-// result type (percentage vs CGPA) with its value, and a marksheet link.
-
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 

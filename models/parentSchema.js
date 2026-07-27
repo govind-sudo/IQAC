@@ -1,6 +1,4 @@
-// models/parentSchema.js
-// Reusable shape for father / mother on Student.
-// Not a standalone model — just a Schema to be embedded.
+
 
 const mongoose = require('mongoose');
 const { Schema } = mongoose;

@@ -1,21 +1,4 @@
-// utils/fileSignatureValidator.js
-//
-// Step 3 of the upload pipeline: Signature Validator.
-// Runs AFTER Multer (which already checked size / extension / mimetype
-// off the client-supplied metadata). This step trusts nothing the client
-// says and instead looks at the actual bytes of the file:
-//
-//   1. Empty file      -> reject
-//   2. Magic number     -> reject if the real file type doesn't match
-//                          what the field expects (pdf vs image)
-//   3. Corrupted file   -> reject if it claims to be a type we accept
-//                          but the header is malformed / truncated
-//
-// This is intentionally dependency-free (no `file-type` package) so it
-// works offline — just raw Buffer inspection of known magic numbers.
 
-// ---------- Known signatures ----------
-// Each signature is a byte array to match at a given offset.
 const SIGNATURES = {
   pdf: [{ offset: 0, bytes: [0x25, 0x50, 0x44, 0x46] }], // %PDF
   jpeg: [{ offset: 0, bytes: [0xff, 0xd8, 0xff] }],
@@ -79,15 +62,6 @@ function validateFileSignature(buffer, fieldName, meta) {
   // 2. Detect actual file type from magic number
   let detectedKind = detectFileKind(buffer);
 
-  // 3. Fallback: if the byte signature didn't match anything, but the
-  // file's own declared mimetype/extension clearly indicate a known,
-  // already-Multer-approved type, trust that instead of hard-blocking.
-  // This exists because real, valid files (confirmed openable in a
-  // normal viewer) have occasionally failed the strict 3-byte check —
-  // rejecting a genuinely fine file is worse for an unmaintained
-  // production system than the small risk this fallback accepts,
-  // since Multer's fileFilter already gates on mimetype/extension
-  // before this code path is ever reached.
   if (!detectedKind && meta) {
     const mimeToKind = {
       'application/pdf': 'pdf',

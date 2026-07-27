@@ -4,9 +4,7 @@ const studentController = require('../controllers/studentController');
 const path = require('path');
 const fs = require('fs');
 
-// Serve a student's own uploaded document — protected, not public static.
-// Path is scoped to the logged-in student's own record only; they
-// cannot view another student's documents by guessing a URL.
+
 router.get('/documents/file', requireAuth, requireRole('student'), async (req, res) => {
   const Student = require('../models/Student');
   const student = await Student.findById(req.session.userId);
@@ -17,9 +15,7 @@ router.get('/documents/file', requireAuth, requireRole('student'), async (req, r
     return res.status(400).send('Invalid path');
   }
 
-  // Confirm this path actually belongs to THIS student's own document
-  // fields — prevents a student editing the query string to view
-  // someone else's file.
+
   const ownedPaths = Object.values(student.documents?.toObject?.() || student.documents || {})
     .concat(
       student.education?.tenth?.marksheet,
@@ -41,11 +37,7 @@ router.get('/documents/file', requireAuth, requireRole('student'), async (req, r
 });
 
 
-// Registration success page — intentionally NOT behind requireAuth,
-// since a student who just completed registration doesn't have a
-// session yet (registration creates the account but doesn't log them
-// in). Must come before any other route that might match a similar
-// path pattern.
+
 router.get('/registerSuccess', (req, res) => {
   res.render('students/registerSuccess');
 });

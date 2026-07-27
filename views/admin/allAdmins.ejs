@@ -25,18 +25,16 @@
         font-size: 0.95rem;
     }
 
-    /* Grid Layout for Admin Cards */
     .admins-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 20px;
     }
 
-    /* Modern Card Styles */
     .admin-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
-        border-top: 4px solid #2563eb; /* Top accent bar */
+        border-top: 4px solid #2563eb;
         border-radius: 12px;
         padding: 24px;
         box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
@@ -239,8 +237,6 @@
                     <% if (typeof isRootAdmin !== 'undefined' && isRootAdmin) { %>
                         <%
                             const isSelf = String(admin._id) === String(currentAdminId);
-                            // Removing/demoting/deactivating the final active
-                            // admin is refused server-side, so don't offer it.
                             const isLastActive = admin.isActive && activeAdminCount <= 1;
                             const locked = isSelf || isLastActive;
                             const lockReason = isSelf
@@ -250,9 +246,6 @@
 
                         <div class="admin-actions">
                             <% if (isSelf) { %>
-                                <%# Your own card: editing details is allowed, but the
-                                    status/role/delete actions are not — those go through
-                                    Edit Profile, which explains what they affect first. %>
                                 <p class="action-note"><i class="fa-solid fa-user"></i> This is your account</p>
                                 <a href="/admin/<%= admin._id %>/edit" class="act-btn edit">
                                     <i class="fa-solid fa-pen"></i> Edit My Details
@@ -260,10 +253,7 @@
                             <% } else if (isLastActive) { %>
                                 <p class="action-note"><i class="fa-solid fa-lock"></i> <%= lockReason %></p>
                             <% } else { %>
-                                <%# Another administrator's card. No Edit button: their
-                                    name, MIS code, and email are theirs alone to change,
-                                    since altering the email would unlink their Google
-                                    login and could lock them out silently. %>
+                                
                                 <form method="POST" action="/admin/admins/<%= admin._id %>/status">
                                     <input type="hidden" name="isActive" value="<%= admin.isActive ? 'false' : 'true' %>">
                                     <button type="submit" class="act-btn <%= admin.isActive ? 'deactivate' : 'activate' %>">
@@ -290,7 +280,7 @@
                 </div>
             <% }) %>
         <% } else { %>
-            <!-- Empty State -->
+            
             <div class="empty-card">
                 <i class="fa-solid fa-user-shield"></i>
                 <p style="margin: 0; font-size: 1rem; font-weight: 500;">No main administrators found.</p>
@@ -299,9 +289,7 @@
     </div>
 </div>
 
-<!-- ==========================================
-     Delete confirmation
-     ========================================== -->
+
 <div class="modal-overlay" id="deleteAdminModal">
     <div class="modal-box">
         <div class="modal-header">
@@ -432,7 +420,7 @@
         margin: 0 0 0.15rem;
     }
 
-    /* ---------- Delete modal ---------- */
+    
     .modal-overlay {
         position: fixed;
         inset: 0;

@@ -395,9 +395,7 @@
     });
 </script>
     <script>
-        // Phone: 10 digits, no country code. Mirrors normalizePhone()
-        // in adminController.js so browser autofill can't slip a "+91 "
-        // in without the admin noticing.
+
         (function () {
             var phoneInput = document.getElementById("phone");
             if (!phoneInput) return;

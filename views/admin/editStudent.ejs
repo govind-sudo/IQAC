@@ -19,11 +19,6 @@
 </style>
 
 <%
-// ---------------------------------------------------------------
-// Reconstruct the exact state the student registered in.
-// Everything below is derived from stored data — nothing defaults
-// to "Indian / dropdown mode" unless the data actually says so.
-// ---------------------------------------------------------------
 const nationalityRaw = (student.nationality || 'Indian').trim();
 const isIndian       = nationalityRaw.toLowerCase() === 'indian';
 
@@ -31,9 +26,7 @@ const category       = student.category || 'General';
 const isPWD          = isIndian && category === 'PWD';
 const isCasteCategory= isIndian && category !== 'General' && category !== 'PWD';
 
-// Which qualification did the student actually fill in?
-// Check a real field, not the subdoc — Mongoose can materialise an
-// empty {} which is truthy and would mis-detect "diploma".
+
 const hasDiploma = !!(student.education?.diploma?.schoolName
                    || student.education?.diploma?.percentage
                    || student.education?.diploma?.marksheet);
@@ -618,11 +611,7 @@ const docUrl = (p) => `/admin/students/${student._id}/documents/file?path=${enco
 document.addEventListener('DOMContentLoaded', async () => {
     'use strict';
 
-    /* =========================================================
-       Option lists — values match the Student schema enums
-       exactly (lowercase gender/status, etc). Kept inline so
-       this page has no external JS dependency.
-       ========================================================= */
+    /* Option lists — values match the Student schema enums  */
     const OPTIONS = {
         title:          [['Mr','Mr.'], ['Ms','Ms.'], ['Mrs','Mrs.']],
         gender:         [['male','Male'], ['female','Female'], ['other','Other']],
@@ -751,10 +740,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
     ));
 
-    // Builds options and preselects `current`. When allowUnknown is true and
-    // `current` isn't in the list (legacy record), it's appended so existing
-    // data is never lost. Pass false where the list is authoritative — e.g.
-    // Indian states/districts, which must never gain a foreign value.
+    
     function fillSelect(sel, pairs, current, placeholder, allowUnknown = true) {
         if (!sel) return;
         const cur = (current ?? '').toString();
@@ -860,13 +846,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         fillSelect(el, codes.map(c => [c.dialCode, `${c.name} (${c.dialCode})`]), el.dataset.current || '+91');
     });
 
-    /* =========================================================
-       Address: country drives whether State/District are
-       dropdowns (India) or free text (anywhere else). The saved
-       values are pre-filled into whichever control is active,
-       and only the visible control carries the `name` so the
-       hidden one can never post an empty overwrite.
-       ========================================================= */
+    
     function setupAddress(prefix, base) {
         const countrySel  = $(prefix + 'Country');
         const countryText = $(prefix + 'CountryText');
@@ -885,6 +865,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Initial population from stored values. A foreign state/district
         // simply won't match, leaving the placeholder selected — it lives in
         // the text inputs instead.
+
         fillStates(stateSel.dataset.current);
         fillDistricts(distSel.dataset.current);
 
@@ -989,18 +970,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         qualMsLbl.textContent = `Replace ${key === 'diploma' ? 'Diploma' : '12th'} Marksheet (leave blank to keep existing)`;
     });
 
-    /* =========================================================
-       Dirty tracking — Save Changes stays disabled until the
-       admin actually changes something. The baseline is taken
-       only after every select above has been populated, so the
-       page's own initialisation never counts as an edit.
-       ========================================================= */
+    /* ================= unsaved changes detection ================= */
     const form = document.getElementById('editStudentForm');
     const saveBtn = $('saveChangesBtn');
     const hint = $('unsavedHint');
 
-    // Serialises the form. Files are represented by name/size, since
-    // FormData hands back File objects that never compare equal.
+    
     function snapshot() {
         const parts = [];
         for (const [key, value] of new FormData(form)) {

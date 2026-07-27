@@ -1,7 +1,3 @@
-// models/addressSchema.js
-// Reusable shape for presentAddress / permanentAddress on Student.
-// Not a standalone model — no mongoose.model() call here — just a
-// Schema to be embedded inside other schemas.
 
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
@@ -17,7 +13,7 @@ const addressSchema = new Schema(
     country: { type: String, trim: true, default: 'India' },
     pincode: { type: String, trim: true },
   },
-  { _id: false } // sub-document doesn't need its own _id
+  { _id: false }
 );
 
 module.exports = addressSchema;

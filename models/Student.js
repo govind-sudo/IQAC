@@ -156,9 +156,6 @@ const studentSchema = new Schema(
   { timestamps: true }
 );
 
-// -------------------------------------------------------------
-// INDEXES FOR HIGH-PERFORMANCE SEARCH & DASHBOARD AGGREGATIONS
-// -------------------------------------------------------------
 
 // Index for default pagination sorting
 studentSchema.index({ createdAt: -1 });

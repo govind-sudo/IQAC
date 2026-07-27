@@ -1,14 +1,3 @@
-// middleware/rateLimiter.js
-//
-// Minimal dependency-free in-memory rate limiter. Protects the two
-// pre-submit AJAX endpoints (/register/validate-file,
-// /register/verify-document) from abuse — each hit can spawn a fresh
-// PaddleOCR process and/or call the Gemini API, so unbounded requests
-// are both a cost risk and a DoS vector against the OCR subprocess pool.
-//
-// Not a substitute for a real store (Redis) in a multi-instance
-// deployment, but sufficient for a single-process Node app and requires
-// zero new dependencies.
 
 function createRateLimiter({ windowMs, max, message }) {
   // ip -> { count, resetAt }

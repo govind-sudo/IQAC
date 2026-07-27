@@ -1,6 +1,4 @@
-// utils/documentVerifier.js
-//
-// Step 7 of the upload pipeline: Document Verifier.
+
 
 const AIService = require('../services/AIService');
 

@@ -13,24 +13,7 @@ const { requireAuth, requireRole } = require("../middleware/auth");
 const { handleAdminUpload } = require("../middleware/uploadMiddleware");
 const { renameStudentDocuments } = require("../services/storageService");
 
-// ---------------------------------------------------------------
-// Enrollment spreadsheet upload size.
-//
-// This is a SEPARATE limit from MAX_UPLOAD_MB (which governs student
-// documents) because a spreadsheet is a different kind of thing: a
-// 50,000-row sheet of UG numbers and enrollment numbers is only a few
-// megabytes, while a scanned Aadhaar card can be larger on its own.
-//
-// Override without touching code via .env:
-//     MAX_EXCEL_UPLOAD_MB=100
-//
-// Deliberately not unlimited. The file is parsed with memoryStorage,
-// so the whole workbook is held in RAM and XLSX.read() expands it
-// several times over while parsing — an unbounded upload is a way to
-// exhaust server memory and take the app down, not just a slow request.
-// 50MB is far beyond any realistic enrollment sheet (that is roughly a
-// million rows) while still leaving the process a floor to stand on.
-// ---------------------------------------------------------------
+
 const MAX_EXCEL_UPLOAD_MB = Number(process.env.MAX_EXCEL_UPLOAD_MB) || 50;
 const MAX_EXCEL_UPLOAD_BYTES = Math.round(MAX_EXCEL_UPLOAD_MB * 1024 * 1024);
 
@@ -50,9 +33,6 @@ const excelUpload = multer({
     },
 });
 
-// ==========================================
-// Base Middlewares
-// ==========================================
 router.use(requireAuth);
 router.use(requireRole("admin", "subadmin"));
 
@@ -130,11 +110,6 @@ router.get("/documents/download", documentBulkController.downloadDocumentsByType
 // ==========================================
 router.get("/students", adminController.getStudentsList);
 
-// Bulk Update Enrollment Numbers from Excel Sheet
-// Multer rejections (too large, wrong type) must come back as JSON:
-// students.js reads this endpoint with fetch() and calls .json() on the
-// response, so an HTML error page would surface as an unhelpful
-// "unexpected error" with the real reason hidden.
 function handleExcelUpload(req, res, next) {
     excelUpload.single("excelFile")(req, res, (err) => {
         if (!err) return next();
@@ -224,22 +199,6 @@ router.post(
 
             // 5. Re-identify the stored documents for every student who
             //    just received an enrollment number.
-            //
-            //    bulkWrite talks straight to MongoDB and never builds a
-            //    Mongoose document, so none of the logic in updateStudent
-            //    runs here — including renameStudentDocuments(). Without
-            //    this step a student whose enrollment number arrived via
-            //    Excel keeps UG-number filenames on disk forever, while a
-            //    student edited by hand gets enrollment-number filenames:
-            //    the same field, two different results, depending only on
-            //    how it was set. Since Excel is the main path, almost
-            //    every student would end up in the wrong state.
-            //
-            //    Done after the bulk write rather than instead of it, so
-            //    the database update stays fast and file renaming (which
-            //    is I/O-bound and can partially fail) is handled
-            //    separately — one stubborn file cannot roll back hundreds
-            //    of valid enrollment numbers.
             const touchedUgNumbers = bulkOps.map((op) => op.updateOne.filter.ugNumber);
             const renameReport = { renamed: 0, failed: [] };
 
