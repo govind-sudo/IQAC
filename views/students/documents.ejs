@@ -43,6 +43,7 @@
                         student.documents?.abcIdProof ||
                         student.documents?.leavingCertificate ||
                         student.documents?.casteProof ||
+                        student.documents?.pwdProof ||
                         student.education?.tenth?.marksheet ||
                         student.education?.twelfth?.marksheet ||
                         student.education?.diploma?.marksheet
@@ -209,7 +210,42 @@
                                     </div>
                                 </div>
                             <% } %>
-                            
+
+                            <!-- PWD Certificate -->
+                            <%# Shown whenever the student is in the PWD category OR a
+                                certificate is already on file. The second condition
+                                matters: if an admin later corrects the category, a
+                                document the student already uploaded must not silently
+                                vanish from their own page. %>
+                            <% if (student.category === 'PWD' || (student.documents && student.documents.pwdProof)) { %>
+                                <div class="document-item-box conditional-required">
+                                    <div class="document-meta-side">
+                                        <div class="doc-icon-wrapper validation">
+                                            <i class="fa-solid fa-wheelchair"></i>
+                                        </div>
+                                        <div class="doc-text-details">
+                                            <span class="doc-label">PWD Certificate</span>
+                                            <% if (student.category === 'PWD') { %>
+                                                <span class="doc-value-status text-danger-light">Mandatory for PWD category</span>
+                                            <% } else { %>
+                                                <span class="doc-value-status">Submitted supporting document</span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <div class="document-file-side">
+                                        <% if (student.documents && student.documents.pwdProof) { %>
+                                            <button type="button" class="file-status-badge uploaded view-doc-trigger" data-doc-title="PWD Certificate" data-doc-url="/students/documents/file?path=<%= encodeURIComponent(student.documents.pwdProof) %>">
+                                                <i class="fa-solid fa-eye"></i> View Document
+                                            </button>
+                                        <% } else { %>
+                                            <span class="file-status-badge missing">
+                                                <i class="fa-solid fa-circle-exclamation"></i> Document Not Uploaded
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% } %>
+
                         </div>
                     <% } %>
                 </div>
