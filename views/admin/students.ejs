@@ -9,39 +9,49 @@
         </div>
     </header>
 
-    <!-- Toolbar: Search Form + Bulk Upload Button -->
-    <div class="table-toolbar" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 12px; flex: 1; max-width: 650px; width: 100%;">
-            <form action="/admin/students" method="GET" class="search-form" id="studentSearchForm" style="display: flex; align-items: center; gap: 8px; flex: 1;">
-                <div class="search-box" style="position: relative; flex: 1;">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input 
-                        type="text" 
-                        name="search" 
-                        id="studentSearchInput" 
-                        value="<%= typeof search !== 'undefined' ? search : '' %>" 
-                        placeholder="Search by student name, enrollment no, or contact..." 
-                        autocomplete="off"
-                    />
-                    <% if (typeof search !== 'undefined' && search) { %>
-                        <a href="/admin/students" class="clear-search-btn" title="Clear Search">
-                            <i class="fa-solid fa-xmark"></i>
-                        </a>
-                    <% } %>
-                </div>
-                <button type="submit" class="btn-search" style="padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #2563eb; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">Search</button>
-            </form>
-
-            <!-- Bulk Upload Trigger Button -->
-            <button type="button" id="openExcelModalBtn" class="btn-excel-upload" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; border: 1px solid #16a34a; background-color: #16a34a; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">
-                <i class="fa-solid fa-file-excel"></i> Update Enrollments
-            </button>
-        </div>
+<!-- Toolbar: Search Form + Bulk Upload Button + Record Counter -->
+<div class="table-toolbar" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+    
+    <!-- Top Row: Search Form + Bulk Update Button -->
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%;">
         
-        <div class="record-counter">
-            Total Students: <strong><%= typeof totalStudents !== 'undefined' ? totalStudents : 0 %></strong>
-        </div>
+        <!-- Search Form -->
+        <form action="/admin/students" method="GET" class="search-form" id="studentSearchForm" style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px;">
+            <div class="search-box" style="position: relative; flex: 1;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input 
+                    type="text" 
+                    name="search" 
+                    id="studentSearchInput" 
+                    value="<%= typeof search !== 'undefined' ? search : '' %>" 
+                    placeholder="Search by student name, enrollment no, or contact..." 
+                    autocomplete="off"
+                    style="width: 100%;"
+                />
+                <% if (typeof search !== 'undefined' && search) { %>
+                    <a href="/admin/students" class="clear-search-btn" title="Clear Search">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                <% } %>
+            </div>
+            <button type="submit" class="btn-search" style="padding: 10px 18px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #2563eb; color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap;">
+                Search
+            </button>
+        </form>
+
+        <!-- Bulk Upload Trigger Button -->
+        <button type="button" id="openExcelModalBtn" class="btn-excel-upload" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border-radius: 8px; border: none; background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.2s ease;">
+            <i class="fa-solid fa-file-excel"></i> Update Enrollments
+        </button>
+
     </div>
+
+    <!-- Bottom Row: Counter -->
+    <div class="record-counter" style="font-size: 0.95rem; color: #475569;">
+        Total Students: <strong><%= typeof totalStudents !== 'undefined' ? totalStudents : 0 %></strong>
+    </div>
+
+</div>
 
     <!-- Students Table Card -->
     <div class="card table-card">
