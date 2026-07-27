@@ -21,13 +21,36 @@
         </div>
     </div>
     
+    <% const adminStats = (metrics && metrics.admins) || { total: 0, active: 0, inactive: 0 }; %>
+    <% const subadminStats = (metrics && metrics.subadmins) || { total: 0, active: 0, inactive: 0 }; %>
+
     <div class="stat-card purple">
         <div class="stat-icon">
             <i class="fa-solid fa-user-shield"></i>
         </div>
         <div class="stat-details">
             <span class="stat-title">Total Admins</span>
-            <h2 class="stat-value"><%= (metrics && metrics.totalAdmins ? metrics.totalAdmins : 0).toLocaleString() %></h2>
+            <h2 class="stat-value"><%= adminStats.total.toLocaleString() %></h2>
+            <span class="stat-breakdown">
+                <span class="dot-active"></span>Active: <%= adminStats.active.toLocaleString() %>
+                <span class="sep">&middot;</span>
+                <span class="dot-inactive"></span>Inactive: <%= adminStats.inactive.toLocaleString() %>
+            </span>
+        </div>
+    </div>
+
+    <div class="stat-card teal">
+        <div class="stat-icon">
+            <i class="fa-solid fa-user-gear"></i>
+        </div>
+        <div class="stat-details">
+            <span class="stat-title">Total Sub-Admins</span>
+            <h2 class="stat-value"><%= subadminStats.total.toLocaleString() %></h2>
+            <span class="stat-breakdown">
+                <span class="dot-active"></span>Active: <%= subadminStats.active.toLocaleString() %>
+                <span class="sep">&middot;</span>
+                <span class="dot-inactive"></span>Inactive: <%= subadminStats.inactive.toLocaleString() %>
+            </span>
         </div>
     </div>
 </section>

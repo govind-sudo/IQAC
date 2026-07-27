@@ -53,6 +53,33 @@
 
 .stat-card.blue .stat-icon { background: #e0e7ff; color: #4338ca; }
 .stat-card.purple .stat-icon { background: #f3e8ff; color: #7e22ce; }
+.stat-card.teal .stat-icon { background: #ccfbf1; color: #0f766e; }
+
+/* Active / inactive breakdown under a stat value */
+.stat-breakdown {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.stat-breakdown .sep { color: #cbd5e1; }
+
+.stat-breakdown .dot-active,
+.stat-breakdown .dot-inactive {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.1rem;
+}
+
+.stat-breakdown .dot-active { background: #16a34a; }
+.stat-breakdown .dot-inactive { background: #cbd5e1; }
 
 .stat-title {
     font-size: 0.85rem;

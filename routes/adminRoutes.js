@@ -16,6 +16,15 @@ const { handleAdminUpload } = require("../middleware/uploadMiddleware");
 router.use(requireAuth);
 router.use(requireRole("admin", "subadmin"));
 
+// One-time flash messages ("Sub-Admin created successfully", etc).
+// Moved from the session onto res.locals and cleared immediately, so a
+// message shows exactly once and never survives a refresh.
+router.use((req, res, next) => {
+    res.locals.flash = req.session.flash || null;
+    if (req.session.flash) delete req.session.flash;
+    next();
+});
+
 router.use(async (req, res, next) => {
     try {
         const loggedInAdmin = await Admin.findById(req.session.userId);
@@ -129,11 +138,20 @@ router.post("/add", requireRole("admin"), adminController.addAdmin);
 
 router.get("/allAdmins", adminController.getAllAdmins);
 
+// Admin management actions. Declared BEFORE the broad "/:id/edit"
+// routes at the bottom of this file so "/admins/..." is never swallowed
+// by the ":id" wildcard.
+router.post("/admins/:id/demote", requireRole("admin"), adminController.demoteAdmin);
+router.post("/admins/:id/status", requireRole("admin"), adminController.toggleAdminStatus);
+router.post("/admins/:id/delete", requireRole("admin"), adminController.deleteAdmin);
+router.delete("/admins/:id", requireRole("admin"), adminController.deleteAdmin);
+
 // Subadmin List & Specific Handlers
 router.get("/subadmins", adminController.getSubAdminsList);
 router.get("/subadmins/new", requireRole("admin"), adminController.renderAddSubAdminForm);
 router.post("/subadmins", requireRole("admin"), adminController.createSubAdmin);
 
+router.post("/subadmins/:id/promote", requireRole("admin"), adminController.promoteSubAdmin);
 router.get("/subadmins/:id/edit", requireRole("admin"), adminController.renderEditSubAdminForm);
 router.put("/subadmins/:id", requireRole("admin"), adminController.updateSubAdmin);
 router.post("/subadmins/:id/update", requireRole("admin"), adminController.updateSubAdmin);

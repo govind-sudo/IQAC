@@ -217,12 +217,30 @@
 
 <div class="edit-profile-container">
     <!-- Header Section -->
+    <%
+        // Falls back to self-editing behaviour if these locals are ever
+        // missing, so the page never breaks on an older render call.
+        const editingSelf = (typeof isSelf === 'undefined') ? true : isSelf;
+        const returnUrl = (typeof backUrl === 'undefined') ? '/admin/profile' : backUrl;
+        const returnLabel = (typeof backLabel === 'undefined') ? 'Back to Profile' : backLabel;
+    %>
+
     <header class="page-header">
-        <a href="/admin/profile" class="back-link">
-            <i class="fa-solid fa-arrow-left"></i> Back to Profile
+        <a href="<%= returnUrl %>" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> <%= returnLabel %>
         </a>
 
-        <p>Modify administrator profile settings and system access details.</p>
+        <% if (editingSelf) { %>
+            <h1>Edit Your Profile</h1>
+            <p>Modify your profile settings and system access details.</p>
+        <% } else { %>
+            <h1>Edit <%= adminToEdit.fullName %></h1>
+            <p>
+                You are editing another
+                <%= adminToEdit.role === 'admin' ? 'administrator' : 'sub-admin' %>&rsquo;s
+                account &mdash; not your own.
+            </p>
+        <% } %>
     </header>
 
     <div class="form-card">
@@ -298,7 +316,7 @@
                         id="phone" 
                         name="phone" 
                         value="<%= adminToEdit.phone || '' %>" 
-                        placeholder="e.g., +91 9876543210" 
+                        placeholder="e.g., 9876543210" 
                         required
                         autocomplete="off"
                     />
@@ -323,7 +341,7 @@
 
             <!-- Action Buttons -->
             <div class="form-actions">
-                <a href="/admin/profile" class="btn-secondary">Cancel</a>
+                <a href="<%= returnUrl %>" class="btn-secondary">Cancel</a>
                 <button type="submit" class="btn-primary" id="saveBtn" disabled>
                     <i class="fa-solid fa-floppy-disk"></i> Save Changes
                 </button>
@@ -376,3 +394,26 @@
         form.addEventListener("change", checkFormStatus);
     });
 </script>
+    <script>
+        // Phone: 10 digits, no country code. Mirrors normalizePhone()
+        // in adminController.js so browser autofill can't slip a "+91 "
+        // in without the admin noticing.
+        (function () {
+            var phoneInput = document.getElementById("phone");
+            if (!phoneInput) return;
+            phoneInput.setAttribute("inputmode", "numeric");
+            phoneInput.setAttribute("maxlength", "10");
+            phoneInput.setAttribute("pattern", "[0-9]{10}");
+            phoneInput.setAttribute("title", "Enter a 10-digit number without the country code");
+            function clean() {
+                var digits = phoneInput.value.replace(/\D/g, "");
+                if (digits.length === 12 && digits.indexOf("91") === 0) digits = digits.slice(2);
+                else if (digits.length === 11 && digits.indexOf("0") === 0) digits = digits.slice(1);
+                if (digits.length > 10) digits = digits.slice(-10);
+                if (phoneInput.value !== digits) phoneInput.value = digits;
+            }
+            phoneInput.addEventListener("input", clean);
+            phoneInput.addEventListener("blur", clean);
+            clean();
+        })();
+    </script>

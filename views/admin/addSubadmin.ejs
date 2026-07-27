@@ -81,7 +81,7 @@
                         id="phone" 
                         name="phone" 
                         value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>"
-                        placeholder="e.g., +91 9876543210" 
+                        placeholder="e.g., 9876543210" 
                         autocomplete="off"
                         required
                     />
@@ -97,3 +97,26 @@
         </form>
     </div>
 </div>
+    <script>
+        // Phone: 10 digits, no country code. Mirrors the server-side
+        // normaliser in adminController.js so browser autofill can't
+        // silently slip a "+91 " in without the user noticing.
+        (function () {
+            var phoneInput = document.getElementById("phone");
+            if (!phoneInput) return;
+            phoneInput.setAttribute("inputmode", "numeric");
+            phoneInput.setAttribute("maxlength", "10");
+            phoneInput.setAttribute("pattern", "[0-9]{10}");
+            phoneInput.setAttribute("title", "Enter a 10-digit number without the country code");
+            function clean() {
+                var digits = phoneInput.value.replace(/\D/g, "");
+                if (digits.length === 12 && digits.indexOf("91") === 0) digits = digits.slice(2);
+                else if (digits.length === 11 && digits.indexOf("0") === 0) digits = digits.slice(1);
+                if (digits.length > 10) digits = digits.slice(-10);
+                if (phoneInput.value !== digits) phoneInput.value = digits;
+            }
+            phoneInput.addEventListener("input", clean);
+            phoneInput.addEventListener("blur", clean);
+            clean();
+        })();
+    </script>

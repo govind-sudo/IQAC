@@ -162,6 +162,13 @@
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
+    .field-hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
     /* Disabled state styling for primary button */
     .btn-primary:disabled {
         opacity: 0.5;
@@ -297,10 +304,15 @@
                         id="phone" 
                         name="phone" 
                         value="<%= typeof formData !== 'undefined' && formData.phone ? formData.phone : '' %>" 
-                        placeholder="e.g., +91 9876543210" 
+                        placeholder="e.g., 9876543210" 
                         autocomplete="off"
+                        inputmode="numeric"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        title="Enter a 10-digit number without the country code"
                         required
                     />
+                    <small class="field-hint">10 digits only &mdash; do not include +91.</small>
                 </div>
             </div>
 
@@ -333,7 +345,7 @@
             <div class="form-actions">
                 <a href="/admin/subadmins" class="btn-secondary">Cancel</a>
                 <button type="submit" class="btn-primary" id="submitBtn" disabled>
-                    <i class="fa-solid fa-user-plus"></i> Add Administrator
+                    <i class="fa-solid fa-user-plus"></i> <span id="submitBtnLabel">Add Administrator</span>
                 </button>
             </div>
         </form>
@@ -369,5 +381,43 @@
         // Listen for user input/change events across all fields
         form.addEventListener("input", checkFormCompletion);
         form.addEventListener("change", checkFormCompletion);
+
+        // ---------- Button label follows the selected role ----------
+        const roleSelect = document.getElementById("role");
+        const submitLabel = document.getElementById("submitBtnLabel");
+        const cancelLink = form.parentElement.querySelector(".btn-secondary");
+
+        const syncRoleLabel = () => {
+            const isAdmin = roleSelect.value === "admin";
+            submitLabel.textContent = isAdmin ? "Add Administrator" : "Add Sub-Admin";
+            // Cancel should return to the list the new account would
+            // appear on, matching where the form redirects on success.
+            if (cancelLink) {
+                cancelLink.setAttribute("href", isAdmin ? "/admin/allAdmins" : "/admin/subadmins");
+            }
+        };
+
+        if (roleSelect && submitLabel) {
+            syncRoleLabel();
+            roleSelect.addEventListener("change", syncRoleLabel);
+        }
+
+        // ---------- Phone: strip country code / non-digits as typed ----------
+        // The server normalises this too (adminController.normalizePhone),
+        // but doing it here stops browser autofill silently dropping a
+        // "+91 " into the field and the user never noticing.
+        const phoneInput = document.getElementById("phone");
+        if (phoneInput) {
+            const cleanPhone = () => {
+                let digits = phoneInput.value.replace(/\D/g, "");
+                if (digits.length === 12 && digits.startsWith("91")) digits = digits.slice(2);
+                else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+                if (digits.length > 10) digits = digits.slice(-10);
+                if (phoneInput.value !== digits) phoneInput.value = digits;
+            };
+            phoneInput.addEventListener("input", cleanPhone);
+            phoneInput.addEventListener("blur", cleanPhone);
+            cleanPhone();
+        }
     });
 </script>

@@ -12,6 +12,8 @@
 %>
 
 <div class="subadmins-page-container">
+    <%- include('../partials/flash') %>
+
     <!-- Header Section -->
     <header class="page-header">
         <div class="header-text">
@@ -91,6 +93,15 @@
                                             <a href="/admin/subadmins/<%= subadmin._id %>/edit" class="btn-action edit" title="Edit Sub-Admin">
                                                 <i class="fa-solid fa-pen-to-square"></i> Edit
                                             </a>
+
+                                            <form method="POST"
+                                                  action="/admin/subadmins/<%= subadmin._id %>/promote"
+                                                  style="display: inline;"
+                                                  onsubmit="return confirm('Promote <%= subadmin.fullName %> to Administrator? They will be able to manage students, sub-admins, and other administrators.');">
+                                                <button type="submit" class="btn-action promote" title="Promote to Administrator">
+                                                    <i class="fa-solid fa-arrow-up"></i> Make Admin
+                                                </button>
+                                            </form>
 
                                             <button 
                                                 type="button" 
@@ -177,3 +188,16 @@
 
 <!-- Page Scripts -->
 <script src="/js/admin/subadmins.js"></script>
+
+<style>
+    .btn-action.promote {
+        background: #dcfce7;
+        color: #15803d;
+        font-family: inherit;
+    }
+
+    .btn-action.promote:hover {
+        background: #16a34a;
+        color: #ffffff;
+    }
+</style>

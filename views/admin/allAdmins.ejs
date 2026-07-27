@@ -165,6 +165,8 @@
 </style>
 
 <div class="admins-page-container">
+    <%- include('../partials/flash') %>
+
     <!-- Header Section -->
     <header class="page-header">
         <h1>All Administrators</h1>
@@ -182,10 +184,15 @@
                             <div class="avatar-circle">
                                 <%= (admin.fullName ? admin.fullName[0] : (admin.name ? admin.name[0] : 'A')).toUpperCase() %>
                             </div>
-                            <span class="role-badge">
-                                <i class="fa-solid fa-shield-halved"></i>
-                                <%= admin.role || 'Admin' %>
-                            </span>
+                            <div class="badge-stack">
+                                <span class="role-badge">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                    <%= admin.role || 'Admin' %>
+                                </span>
+                                <span class="status-chip <%= admin.isActive ? 'is-active' : 'is-inactive' %>">
+                                    <%= admin.isActive ? 'Active' : 'Inactive' %>
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Full Name -->
@@ -195,6 +202,16 @@
 
                         <!-- Contact Info Section -->
                         <div class="info-list">
+                            <!-- MIS Code (the identifier used to sign in) -->
+                            <div class="info-item">
+                                <i class="fa-solid fa-id-badge"></i>
+                                <% if (admin.misCode) { %>
+                                    <span class="mis-badge"><%= admin.misCode %></span>
+                                <% } else { %>
+                                    <span style="color: #94a3b8;">No MIS code</span>
+                                <% } %>
+                            </div>
+
                             <!-- Email -->
                             <div class="info-item">
                                 <i class="fa-solid fa-envelope"></i>
@@ -218,6 +235,58 @@
                             </div>
                         </div>
                     </div>
+
+                    <% if (typeof isRootAdmin !== 'undefined' && isRootAdmin) { %>
+                        <%
+                            const isSelf = String(admin._id) === String(currentAdminId);
+                            // Removing/demoting/deactivating the final active
+                            // admin is refused server-side, so don't offer it.
+                            const isLastActive = admin.isActive && activeAdminCount <= 1;
+                            const locked = isSelf || isLastActive;
+                            const lockReason = isSelf
+                                ? 'Use Edit Profile to change your own account'
+                                : 'This is the only active Administrator';
+                        %>
+
+                        <div class="admin-actions">
+                            <% if (isSelf) { %>
+                                <%# Your own card: editing details is allowed, but the
+                                    status/role/delete actions are not — those go through
+                                    Edit Profile, which explains what they affect first. %>
+                                <p class="action-note"><i class="fa-solid fa-user"></i> This is your account</p>
+                                <a href="/admin/<%= admin._id %>/edit" class="act-btn edit">
+                                    <i class="fa-solid fa-pen"></i> Edit My Details
+                                </a>
+                            <% } else if (isLastActive) { %>
+                                <p class="action-note"><i class="fa-solid fa-lock"></i> <%= lockReason %></p>
+                            <% } else { %>
+                                <%# Another administrator's card. No Edit button: their
+                                    name, MIS code, and email are theirs alone to change,
+                                    since altering the email would unlink their Google
+                                    login and could lock them out silently. %>
+                                <form method="POST" action="/admin/admins/<%= admin._id %>/status">
+                                    <input type="hidden" name="isActive" value="<%= admin.isActive ? 'false' : 'true' %>">
+                                    <button type="submit" class="act-btn <%= admin.isActive ? 'deactivate' : 'activate' %>">
+                                        <i class="fa-solid <%= admin.isActive ? 'fa-user-slash' : 'fa-user-check' %>"></i>
+                                        <%= admin.isActive ? 'Deactivate' : 'Activate' %>
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="/admin/admins/<%= admin._id %>/demote"
+                                      onsubmit="return confirm('Make <%= (admin.fullName || 'this admin').replace(/'/g, "\\'") %> a Sub-Admin? They will lose the ability to manage admins and students.');">
+                                    <button type="submit" class="act-btn demote">
+                                        <i class="fa-solid fa-arrow-down"></i> Make Sub-Admin
+                                    </button>
+                                </form>
+
+                                <button type="button" class="act-btn delete js-delete-admin"
+                                        data-id="<%= admin._id %>"
+                                        data-name="<%= admin.fullName || 'this administrator' %>">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            <% } %>
+                        </div>
+                    <% } %>
                 </div>
             <% }) %>
         <% } else { %>
@@ -229,3 +298,216 @@
         <% } %>
     </div>
 </div>
+
+<!-- ==========================================
+     Delete confirmation
+     ========================================== -->
+<div class="modal-overlay" id="deleteAdminModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="warning-icon-wrapper"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 style="font-size: 1.05rem; color: #0f172a;">Delete administrator?</h3>
+        </div>
+
+        <div class="modal-body">
+            You are about to permanently delete <strong id="deleteAdminName"></strong>.
+            <p class="warning-text">
+                This cannot be undone. The account, its Google link, and its access are removed
+                immediately. To keep the record but block sign-in, use Deactivate instead.
+            </p>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="cancelDeleteAdmin">Cancel</button>
+            <form method="POST" id="deleteAdminForm">
+                <button type="submit" class="btn-danger">Yes, delete permanently</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var modal = document.getElementById("deleteAdminModal");
+        var form = document.getElementById("deleteAdminForm");
+        var nameEl = document.getElementById("deleteAdminName");
+        if (!modal || !form) return;
+
+        function open(id, name) {
+            form.setAttribute("action", "/admin/admins/" + id + "/delete");
+            nameEl.textContent = name;
+            modal.classList.add("active");
+        }
+
+        function close() { modal.classList.remove("active"); }
+
+        document.querySelectorAll(".js-delete-admin").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                open(btn.dataset.id, btn.dataset.name);
+            });
+        });
+
+        document.getElementById("cancelDeleteAdmin").addEventListener("click", close);
+        modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+    });
+</script>
+
+<style>
+    .badge-stack { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+
+    .mis-badge {
+        display: inline-block;
+        background: #eef2ff;
+        color: #3730a3;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+        padding: 0.15rem 0.55rem;
+        border-radius: 6px;
+    }
+
+    .status-chip {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+    }
+
+    .status-chip.is-active { background: #dcfce7; color: #15803d; }
+    .status-chip.is-inactive { background: #f1f5f9; color: #64748b; }
+
+    .admin-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 0.9rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .admin-actions form { margin: 0; }
+
+    .act-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.42rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.18s ease, color 0.18s ease;
+        font-family: inherit;
+    }
+
+    .act-btn.edit { background: #e0e7ff; color: #3730a3; }
+    .act-btn.edit:hover { background: #4338ca; color: #ffffff; }
+
+    .act-btn.deactivate { background: #fef3c7; color: #b45309; }
+    .act-btn.deactivate:hover { background: #f59e0b; color: #ffffff; }
+
+    .act-btn.activate { background: #dcfce7; color: #15803d; }
+    .act-btn.activate:hover { background: #16a34a; color: #ffffff; }
+
+    .act-btn.demote { background: #f1f5f9; color: #475569; }
+    .act-btn.demote:hover { background: #64748b; color: #ffffff; }
+
+    .act-btn.delete { background: #fee2e2; color: #991b1b; }
+    .act-btn.delete:hover { background: #dc2626; color: #ffffff; }
+
+    .act-btn.is-disabled { opacity: 0.45; pointer-events: none; }
+
+    .action-note {
+        width: 100%;
+        font-size: 0.74rem;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin: 0 0 0.15rem;
+    }
+
+    /* ---------- Delete modal ---------- */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 1500;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+
+    .modal-box {
+        background: #ffffff;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 440px;
+        padding: 1.5rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .warning-icon-wrapper {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fee2e2;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .modal-body { font-size: 0.9rem; color: #334155; margin-bottom: 1.5rem; }
+
+    .warning-text {
+        font-size: 0.8rem;
+        color: #ef4444;
+        margin-top: 0.5rem;
+        line-height: 1.45;
+    }
+
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.75rem; }
+    .modal-footer form { margin: 0; }
+
+    .btn-secondary,
+    .btn-danger {
+        border: none;
+        padding: 0.6rem 1.1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #dc2626; color: #ffffff; }
+    .btn-danger:hover { background: #b91c1c; }
+
+    @media (max-width: 480px) {
+        .act-btn { flex: 1; justify-content: center; }
+    }
+</style>

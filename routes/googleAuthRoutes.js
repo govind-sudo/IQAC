@@ -162,7 +162,7 @@ router.get(
           req,
           res,
           { userId: admin._id, role: admin.role },
-          "/admin/students"
+          "/admin/dashboard"
         );
       }
 

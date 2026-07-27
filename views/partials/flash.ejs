@@ -1,0 +1,253 @@
+<%#
+    views/partials/flash.ejs
+
+    One-time success/error confirmation, shown as a centered card over a
+    dimmed backdrop. Animates in, holds briefly, animates out, then
+    removes itself so the page underneath is fully usable again.
+
+    Populated by the flash middleware in routes/adminRoutes.js and
+    cleared the moment it is read, so it appears exactly once and never
+    comes back on refresh.
+
+    Include once per page (or once in the admin layout) with an EJS
+    include of this partial.
+
+    Respects prefers-reduced-motion: the card still appears and clears,
+    just without the scale/slide movement.
+%>
+<% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+    <div class="flash-overlay" id="flashOverlay" role="alertdialog" aria-live="assertive">
+        <div class="flash-card flash-<%= flash.type || 'success' %>">
+            <div class="flash-icon-wrap">
+                <% if ((flash.type || 'success') === 'success') { %>
+                    <svg class="flash-tick" viewBox="0 0 52 52" width="56" height="56" aria-hidden="true">
+                        <circle class="flash-tick-circle" cx="26" cy="26" r="23" fill="none" stroke-width="3"/>
+                        <path class="flash-tick-check" fill="none" stroke-width="4" stroke-linecap="round"
+                              stroke-linejoin="round" d="M14 27l8.5 8.5L38 19"/>
+                    </svg>
+                <% } else { %>
+                    <svg class="flash-tick" viewBox="0 0 52 52" width="56" height="56" aria-hidden="true">
+                        <circle class="flash-tick-circle" cx="26" cy="26" r="23" fill="none" stroke-width="3"/>
+                        <path class="flash-tick-check" fill="none" stroke-width="4" stroke-linecap="round"
+                              d="M26 15v16M26 37h.01"/>
+                    </svg>
+                <% } %>
+            </div>
+
+            <h3 class="flash-title">
+                <%= (flash.type || 'success') === 'success' ? 'Success' : 'Something went wrong' %>
+            </h3>
+            <p class="flash-message"><%= flash.message %></p>
+
+            <button type="button" class="flash-dismiss" id="flashDismiss">Dismiss</button>
+
+            <div class="flash-progress"><span></span></div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var overlay = document.getElementById("flashOverlay");
+            if (!overlay) return;
+
+            var HOLD_MS = 2600;
+            var EXIT_MS = 320;
+            var timer;
+
+            function close() {
+                if (!overlay || overlay.classList.contains("is-leaving")) return;
+                clearTimeout(timer);
+                overlay.classList.add("is-leaving");
+                setTimeout(function () {
+                    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                }, EXIT_MS);
+            }
+
+            // Enter on the next frame so the CSS transition actually runs
+            // (an element inserted and shown in the same frame just snaps).
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    overlay.classList.add("is-visible");
+                });
+            });
+
+            timer = setTimeout(close, HOLD_MS);
+
+            document.getElementById("flashDismiss").addEventListener("click", close);
+            overlay.addEventListener("click", function (e) {
+                if (e.target === overlay) close();
+            });
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape") close();
+            });
+        })();
+    </script>
+
+    <style>
+        .flash-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0);
+            backdrop-filter: blur(0px);
+            transition: background 0.28s ease, backdrop-filter 0.28s ease;
+        }
+
+        .flash-overlay.is-visible {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(3px);
+        }
+
+        .flash-overlay.is-leaving {
+            background: rgba(15, 23, 42, 0);
+            backdrop-filter: blur(0px);
+        }
+
+        .flash-card {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 2rem 1.75rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.28);
+            overflow: hidden;
+
+            opacity: 0;
+            transform: translateY(14px) scale(0.94);
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .flash-overlay.is-visible .flash-card {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .flash-overlay.is-leaving .flash-card {
+            opacity: 0;
+            transform: translateY(-10px) scale(0.96);
+            transition-duration: 0.3s;
+        }
+
+        .flash-icon-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.9rem;
+        }
+
+        /* Circle draws itself, then the tick strokes on */
+        .flash-tick-circle,
+        .flash-tick-check {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+        }
+
+        .flash-overlay.is-visible .flash-tick-circle {
+            animation: flashDraw 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .flash-overlay.is-visible .flash-tick-check {
+            animation: flashDraw 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.32s forwards;
+        }
+
+        @keyframes flashDraw {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .flash-success .flash-tick-circle { stroke: #86efac; }
+        .flash-success .flash-tick-check  { stroke: #16a34a; }
+        .flash-error   .flash-tick-circle { stroke: #fca5a5; }
+        .flash-error   .flash-tick-check  { stroke: #dc2626; }
+
+        .flash-title {
+            font-size: 1.15rem;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
+        }
+
+        .flash-message {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+            overflow-wrap: anywhere;
+        }
+
+        .flash-dismiss {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.55rem 1.4rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f1f5f9;
+            color: #475569;
+            transition: background-color 0.2s ease;
+        }
+
+        .flash-dismiss:hover { background: #e2e8f0; }
+
+        .flash-success .flash-dismiss { background: #dcfce7; color: #15803d; }
+        .flash-success .flash-dismiss:hover { background: #bbf7d0; }
+        .flash-error .flash-dismiss { background: #fee2e2; color: #b91c1c; }
+        .flash-error .flash-dismiss:hover { background: #fecaca; }
+
+        /* Thin bar showing how long until it closes on its own */
+        .flash-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background: #f1f5f9;
+        }
+
+        .flash-progress span {
+            display: block;
+            height: 100%;
+            width: 100%;
+            transform-origin: left center;
+            transform: scaleX(0);
+        }
+
+        .flash-overlay.is-visible .flash-progress span {
+            animation: flashCountdown 2.6s linear forwards;
+        }
+
+        .flash-success .flash-progress span { background: #22c55e; }
+        .flash-error .flash-progress span { background: #ef4444; }
+
+        @keyframes flashCountdown {
+            from { transform: scaleX(1); }
+            to   { transform: scaleX(0); }
+        }
+
+        @media (max-width: 480px) {
+            .flash-card { padding: 1.6rem 1.25rem 1.25rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .flash-overlay,
+            .flash-card { transition-duration: 0.01ms; }
+
+            .flash-overlay.is-visible .flash-tick-circle,
+            .flash-overlay.is-visible .flash-tick-check {
+                animation: none;
+                stroke-dashoffset: 0;
+            }
+
+            .flash-overlay.is-visible .flash-progress span {
+                animation-duration: 2.6s;
+            }
+        }
+    </style>
+<% } %>
