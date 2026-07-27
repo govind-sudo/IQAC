@@ -45,8 +45,28 @@ function buildNameToken(firstName, lastName) {
 // no date. That is what lets a later re-upload land in the SAME folder
 // instead of creating a new one — the name can simply be rebuilt from
 // the student's own details rather than remembered.
+//
+// THROWS when the identifier is missing. This is not defensive padding:
+// sanitizeForPath('') returns '', so a blank UG number used to produce
+// the folder name "_" — and every student with a blank identifier then
+// shared that single directory, mixing different students' documents
+// together. Failing loudly here means a bad call is caught at the point
+// of the mistake instead of quietly corrupting storage.
 function buildStudentFolderName(identifier, firstName, lastName) {
-  return `${sanitizeForPath(identifier)}_${buildNameToken(firstName, lastName)}`;
+  const safeIdentifier = sanitizeForPath(identifier);
+
+  if (!safeIdentifier) {
+    throw new Error(
+      'Cannot build a storage folder: the student has no usable UG number or enrollment number.'
+    );
+  }
+
+  const nameToken = buildNameToken(firstName, lastName);
+
+  // A missing name is survivable — the identifier alone is unique, so
+  // the folder stays this student's own. Only the identifier is
+  // mandatory.
+  return nameToken ? `${safeIdentifier}_${nameToken}` : safeIdentifier;
 }
 
 /**
@@ -196,6 +216,16 @@ async function storeUploadedFiles(files, studentInfo) {
 
   const { ugNumber, firstName, lastName, enrollmentNo, existingFolder } = studentInfo || {};
   const identifier = enrollmentNo || ugNumber;
+
+  // Validate BEFORE touching the filesystem. Writing first and
+  // discovering the problem later would leave files in the wrong place
+  // with no easy way to tell whose they are.
+  if (!sanitizeForPath(identifier)) {
+    throw new Error(
+      'Cannot store uploaded files: no UG number or enrollment number was provided for this student.'
+    );
+  }
+
   const nameToken = buildNameToken(firstName, lastName);
 
   // Reuse the folder the student's files are already in when the caller
@@ -219,7 +249,9 @@ async function storeUploadedFiles(files, studentInfo) {
     // file orphaned alongside the new one.
     await removePreviousVersions(studentDir, docType);
 
-    const diskName = `${sanitizeForPath(identifier)}_${nameToken}_${docType}${ext}`;
+    const diskName = nameToken
+      ? `${sanitizeForPath(identifier)}_${nameToken}_${docType}${ext}`
+      : `${sanitizeForPath(identifier)}_${docType}${ext}`;
     const diskPath = path.join(studentDir, diskName);
 
     await fs.writeFile(diskPath, file.buffer);
@@ -335,7 +367,7 @@ async function renameStudentDocuments(student, newIdentifier) {
   // Target name carries no date suffix. Folders created under the older
   // "{id}_{Name}_{YYYYMMDD}" convention are therefore normalised to
   // "{id}_{Name}" the first time their student is re-identified.
-  const newFolderName = `${identifier}_${nameToken}`;
+  const newFolderName = nameToken ? `${identifier}_${nameToken}` : identifier;
 
   // Already renamed — nothing to do.
   if (oldFolderName === newFolderName) {
@@ -381,7 +413,9 @@ async function renameStudentDocuments(student, newIdentifier) {
     for (const { docType, dottedPath, relativePath } of owned) {
       const oldBase = path.posix.basename(relativePath.replace(/\\/g, '/'));
       const ext = path.extname(oldBase).toLowerCase();
-      const newBase = `${identifier}_${nameToken}_${docType}${ext}`;
+      const newBase = nameToken
+        ? `${identifier}_${nameToken}_${docType}${ext}`
+        : `${identifier}_${docType}${ext}`;
 
       if (oldBase !== newBase) {
         await fs.rename(
