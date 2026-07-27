@@ -356,10 +356,74 @@ async function renameStudentDocuments(student, newIdentifier) {
   return { renamed: owned.length, folder: newFolderName };
 }
 
+/**
+ * Delete every stored document belonging to one student, then remove
+ * their (now empty) folder.
+ *
+ * Called when a student record is deleted. Without this, deleting a
+ * student leaves their Aadhaar card, passport, and marksheets sitting
+ * on disk permanently, referenced by nothing and invisible to the app.
+ *
+ * Best-effort by design: a file already missing is not an error, and a
+ * single failure does not stop the rest. Returns a report so the caller
+ * can log what actually happened rather than assuming success.
+ *
+ * @param {Object} student - a Student document (lean or hydrated)
+ * @returns {Promise<{ deleted: number, failed: string[], folderRemoved: boolean }>}
+ */
+async function deleteStudentDocuments(student) {
+  const report = { deleted: 0, failed: [], folderRemoved: false };
+  if (!student) return report;
+
+  const paths = [];
+  for (const dottedPath of Object.values(DOC_TYPE_TO_STUDENT_PATH)) {
+    const value = getByPath(student, dottedPath);
+    if (typeof value === 'string' && value.trim().startsWith(`${DB_PATH_PREFIX}/`)) {
+      paths.push(value.trim());
+    }
+  }
+
+  if (!paths.length) return report;
+
+  for (const relativePath of paths) {
+    const diskPath = path.join(__dirname, '..', relativePath);
+    try {
+      await fs.unlink(diskPath);
+      report.deleted += 1;
+    } catch (err) {
+      // Already gone is a success as far as the caller is concerned.
+      if (err.code !== 'ENOENT') report.failed.push(`${relativePath}: ${err.message}`);
+    }
+  }
+
+  // Remove the student's folder, but only if it is genuinely empty —
+  // never recursively, so an unexpected leftover file is preserved for
+  // inspection rather than silently destroyed.
+  const folderRel = path.posix.dirname(paths[0].replace(/\\/g, '/'));
+  const folderAbs = path.join(__dirname, '..', folderRel);
+
+  try {
+    const remaining = await fs.readdir(folderAbs);
+    if (remaining.length === 0) {
+      await fs.rmdir(folderAbs);
+      report.folderRemoved = true;
+    } else {
+      report.failed.push(
+        `${folderRel}: folder not empty after cleanup (${remaining.length} unexpected file(s) left)`
+      );
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') report.failed.push(`${folderRel}: ${err.message}`);
+  }
+
+  return report;
+}
+
 module.exports = {
   storeUploadedFiles,
   applyStoredFilePaths,
   deleteStoredFiles,
+  deleteStudentDocuments,
   renameStudentDocuments,
   UPLOAD_DIR,
   DB_PATH_PREFIX,

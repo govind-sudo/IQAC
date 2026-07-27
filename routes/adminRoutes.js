@@ -11,11 +11,33 @@ const Student = require("../models/Student");
 
 const { requireAuth, requireRole } = require("../middleware/auth");
 const { handleAdminUpload } = require("../middleware/uploadMiddleware");
+const { renameStudentDocuments } = require("../services/storageService");
+
+// ---------------------------------------------------------------
+// Enrollment spreadsheet upload size.
+//
+// This is a SEPARATE limit from MAX_UPLOAD_MB (which governs student
+// documents) because a spreadsheet is a different kind of thing: a
+// 50,000-row sheet of UG numbers and enrollment numbers is only a few
+// megabytes, while a scanned Aadhaar card can be larger on its own.
+//
+// Override without touching code via .env:
+//     MAX_EXCEL_UPLOAD_MB=100
+//
+// Deliberately not unlimited. The file is parsed with memoryStorage,
+// so the whole workbook is held in RAM and XLSX.read() expands it
+// several times over while parsing — an unbounded upload is a way to
+// exhaust server memory and take the app down, not just a slow request.
+// 50MB is far beyond any realistic enrollment sheet (that is roughly a
+// million rows) while still leaving the process a floor to stand on.
+// ---------------------------------------------------------------
+const MAX_EXCEL_UPLOAD_MB = Number(process.env.MAX_EXCEL_UPLOAD_MB) || 50;
+const MAX_EXCEL_UPLOAD_BYTES = Math.round(MAX_EXCEL_UPLOAD_MB * 1024 * 1024);
 
 // Configure Multer for Excel file upload (In-Memory)
 const excelUpload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB Max
+    limits: { fileSize: MAX_EXCEL_UPLOAD_BYTES },
     fileFilter: (req, file, cb) => {
         if (
             file.mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
@@ -109,9 +131,26 @@ router.get("/documents/download", documentBulkController.downloadDocumentsByType
 router.get("/students", adminController.getStudentsList);
 
 // Bulk Update Enrollment Numbers from Excel Sheet
+// Multer rejections (too large, wrong type) must come back as JSON:
+// students.js reads this endpoint with fetch() and calls .json() on the
+// response, so an HTML error page would surface as an unhelpful
+// "unexpected error" with the real reason hidden.
+function handleExcelUpload(req, res, next) {
+    excelUpload.single("excelFile")(req, res, (err) => {
+        if (!err) return next();
+
+        const message =
+            err.code === "LIMIT_FILE_SIZE"
+                ? `Spreadsheet exceeds the maximum allowed size of ${MAX_EXCEL_UPLOAD_MB}MB.`
+                : err.message || "Upload failed.";
+
+        return res.status(400).json({ error: message });
+    });
+}
+
 router.post(
     "/students/upload-enrollments",
-    excelUpload.single("excelFile"),
+    handleExcelUpload,
     async (req, res) => {
         try {
             if (!req.file) {
@@ -183,6 +222,59 @@ router.post(
             // 4. Execute high-speed bulk update
             const result = await Student.bulkWrite(bulkOps, { ordered: false });
 
+            // 5. Re-identify the stored documents for every student who
+            //    just received an enrollment number.
+            //
+            //    bulkWrite talks straight to MongoDB and never builds a
+            //    Mongoose document, so none of the logic in updateStudent
+            //    runs here — including renameStudentDocuments(). Without
+            //    this step a student whose enrollment number arrived via
+            //    Excel keeps UG-number filenames on disk forever, while a
+            //    student edited by hand gets enrollment-number filenames:
+            //    the same field, two different results, depending only on
+            //    how it was set. Since Excel is the main path, almost
+            //    every student would end up in the wrong state.
+            //
+            //    Done after the bulk write rather than instead of it, so
+            //    the database update stays fast and file renaming (which
+            //    is I/O-bound and can partially fail) is handled
+            //    separately — one stubborn file cannot roll back hundreds
+            //    of valid enrollment numbers.
+            const touchedUgNumbers = bulkOps.map((op) => op.updateOne.filter.ugNumber);
+            const renameReport = { renamed: 0, failed: [] };
+
+            const studentsToRename = await Student.find({
+                ugNumber: { $in: touchedUgNumbers },
+                enrollmentNo: { $exists: true, $nin: [null, ""] },
+            });
+
+            for (const student of studentsToRename) {
+                try {
+                    const outcome = await renameStudentDocuments(student, student.enrollmentNo);
+                    if (outcome.renamed > 0) {
+                        await student.save();
+                        renameReport.renamed += 1;
+                    }
+                } catch (renameErr) {
+                    console.error(
+                        `Enrollment upload: failed to rename documents for ${student.ugNumber}:`,
+                        renameErr.message
+                    );
+                    renameReport.failed.push({
+                        ugNumber: student.ugNumber,
+                        reason: renameErr.message,
+                    });
+                }
+            }
+
+            if (renameReport.failed.length) {
+                console.warn(
+                    `Enrollment upload: ${renameReport.failed.length} student(s) had their ` +
+                        `enrollment number saved but their document files could not be renamed. ` +
+                        `Re-saving those students individually will retry the rename.`
+                );
+            }
+
             return res.json({
                 success: true,
                 message: "Enrollment numbers updated successfully.",
@@ -191,8 +283,11 @@ router.post(
                     matchedStudents: result.matchedCount,
                     updatedStudents: result.modifiedCount,
                     skippedRowsCount: skippedRows.length,
+                    documentsRenamedFor: renameReport.renamed,
+                    documentRenameFailures: renameReport.failed.length,
                 },
                 skippedRows,
+                renameFailures: renameReport.failed,
             });
         } catch (err) {
             console.error("Bulk enrollment upload error:", err);

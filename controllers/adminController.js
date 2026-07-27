@@ -569,6 +569,7 @@ const {
     storeUploadedFiles,
     applyStoredFilePaths,
     deleteStoredFiles,
+    deleteStudentDocuments,
     renameStudentDocuments,
 } = require("../services/storageService");
 
@@ -795,11 +796,50 @@ exports.updateStudent = async (req, res) => {
 // DELETE /admin/students/:id
 exports.deleteStudent = async (req, res) => {
     try {
+        // findByIdAndDelete returns the document it removed, which still
+        // holds the file paths — so the uploaded documents can be cleaned
+        // up afterwards. Previously only the database row was deleted,
+        // leaving that student's Aadhaar card, passport, and marksheets
+        // on disk permanently, referenced by nothing and invisible to
+        // the app.
         const deleted = await Student.findByIdAndDelete(req.params.id);
+
         if (!deleted) {
             console.error(`Student with ID ${req.params.id} not found.`);
+            setFlash(req, "error", "That student record no longer exists.");
+            return res.redirect("/admin/students");
         }
-        res.redirect("/admin/students");
+
+        // File cleanup runs after the record is gone and never blocks the
+        // delete: the admin asked for the student to be removed, and a
+        // stubborn file (locked on Windows, already moved) should not
+        // resurrect the record or throw a 500. Failures are logged with
+        // enough detail to clear them up by hand.
+        const cleanup = await deleteStudentDocuments(deleted);
+
+        if (cleanup.failed.length) {
+            console.error(
+                `Deleted student ${deleted.ugNumber || deleted._id}, but ` +
+                    `${cleanup.failed.length} file(s) could not be removed:\n  ` +
+                    cleanup.failed.join("\n  ")
+            );
+        }
+
+        const name =
+            deleted.fullName ||
+            `${deleted.firstName || ""} ${deleted.lastName || ""}`.trim() ||
+            deleted.ugNumber;
+
+        setFlash(
+            req,
+            cleanup.failed.length ? "error" : "success",
+            cleanup.failed.length
+                ? `Student "${name}" was deleted, but ${cleanup.failed.length} document file(s) ` +
+                  `could not be removed from storage. Check the server log.`
+                : `Student "${name}" and ${cleanup.deleted} document file(s) were deleted.`
+        );
+
+        return res.redirect("/admin/students");
     } catch (err) {
         console.error("Error deleting student:", err);
         res.status(500).render("errors/500");
