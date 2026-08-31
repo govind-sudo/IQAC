@@ -31,46 +31,49 @@ const createAuthenticatedSession = (req, res, sessionData, redirectUrl) => {
 // ==========================================================
 router.post("/auth/enrollment-check", async (req, res) => {
   try {
-    console.log("🔥 ENROLLMENT CHECK HIT");
+    console.log("========== ENROLLMENT CHECK ==========");
     console.log("BODY:", req.body);
 
     const { enrollmentNo } = req.body;
 
     if (!enrollmentNo || typeof enrollmentNo !== "string") {
-      console.log("❌ No enrollment number");
+      console.log("❌ Invalid enrollment number");
       return res.redirect("/login?error=Please enter a valid UG Number");
     }
 
     const cleanEnrollment = enrollmentNo.trim();
 
-    console.log("🔍 Searching:", cleanEnrollment);
+    console.log("🔍 Searching enrollmentNo:", cleanEnrollment);
 
     const student = await Student.findOne({
       enrollmentNo: cleanEnrollment
     });
 
-    console.log(
-      "👨‍🎓 Student:",
-      student ? student.email : "NOT FOUND"
-    );
+    console.log("🔍 Query completed");
+    console.log("Student found:", !!student);
 
     if (!student) {
-      console.log("❌ Student not found");
+      console.log("❌ Student NOT FOUND");
       return res.redirect("/login?error=Invalid UG Number");
     }
 
-    req.session.pendingEnrollmentNo = cleanEnrollment;
+    console.log("✅ Student:", student.email);
 
+    req.session.pendingEnrollmentNo = cleanEnrollment;
     delete req.session.pendingAdminId;
     delete req.session.loginType;
 
-    console.log("✅ Student found");
-    console.log("➡️ Redirecting to Google");
+    console.log("✅ Session updated");
+    console.log("Session:", req.session);
+
+    console.log("➡️ Redirecting to /auth/google");
 
     return res.redirect("/auth/google");
 
   } catch (err) {
-    console.error("💥 Enrollment check error:", err);
+    console.error("🔥🔥 ENROLLMENT CHECK ERROR 🔥🔥");
+    console.error(err);
+    console.error(err.stack);
 
     return res.redirect("/login?error=Server error");
   }
