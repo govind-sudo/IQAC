@@ -64,7 +64,7 @@
           <h2 class="login-title">Login to Your Account</h2>
           <p class="login-subtext">Access your IQAC portal account</p>
 
-          <form id="loginForm" autocomplete="off">
+          <form id="loginForm" action="/login" method="POST" autocomplete="off">
             <div class="role-select" role="radiogroup" aria-label="Login as">
               <label class="role-option">
                 <input type="radio" name="role" value="admin" />
@@ -93,10 +93,10 @@
 
               <!-- Google sign-in section -->
               <div id="googleSection" class="google-section">
-                <button type="submit" id="googleSignInBtn" class="google-btn">
-    <i class="fa-solid fa-arrow-right"></i>
-    <span>Continue</span>
-</button>
+                <button type="button" id="googleSignInBtn" class="google-btn">
+                  <i class="fa-solid fa-arrow-right"></i>
+                  <span>Continue</span>
+                </button>
               </div>
             </div>
 
