@@ -31,27 +31,48 @@ const createAuthenticatedSession = (req, res, sessionData, redirectUrl) => {
 // ==========================================================
 router.post("/auth/enrollment-check", async (req, res) => {
   try {
+    console.log("🔥 ENROLLMENT CHECK HIT");
+    console.log("BODY:", req.body);
+
     const { enrollmentNo } = req.body;
 
     if (!enrollmentNo || typeof enrollmentNo !== "string") {
+      console.log("❌ No enrollment number");
       return res.redirect("/login?error=Please enter a valid UG Number");
     }
 
     const cleanEnrollment = enrollmentNo.trim();
-    const student = await Student.findOne({ enrollmentNo: cleanEnrollment });
+
+    console.log("🔍 Searching:", cleanEnrollment);
+
+    const student = await Student.findOne({
+      enrollmentNo: cleanEnrollment
+    });
+
+    console.log(
+      "👨‍🎓 Student:",
+      student ? student.email : "NOT FOUND"
+    );
 
     if (!student) {
+      console.log("❌ Student not found");
       return res.redirect("/login?error=Invalid UG Number");
     }
 
     req.session.pendingEnrollmentNo = cleanEnrollment;
+
     delete req.session.pendingAdminId;
     delete req.session.loginType;
 
+    console.log("✅ Student found");
+    console.log("➡️ Redirecting to Google");
+
     return res.redirect("/auth/google");
+
   } catch (err) {
-    console.error("Enrollment check error:", err);
-    return res.redirect("/login");
+    console.error("💥 Enrollment check error:", err);
+
+    return res.redirect("/login?error=Server error");
   }
 });
 
