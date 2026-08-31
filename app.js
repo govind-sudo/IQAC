@@ -50,13 +50,20 @@ app.use(passport.initialize());
 // Mongo Connection
 const MONGO_URL = process.env.MONGO_URL;
 
-main()
-  .then(() => console.log("connected to db"))
-  .catch((err) => console.log(err));
-
-async function main() {
-  await mongoose.connect(MONGO_URL);
+if (!MONGO_URL) {
+  throw new Error("❌ MONGO_URL is missing");
 }
+
+mongoose
+  .connect(MONGO_URL)
+  .then(() => {
+    console.log("✅ MONGODB CONNECTED");
+    console.log("Database:", mongoose.connection.name);
+  })
+  .catch((err) => {
+    console.error("❌ MONGODB CONNECTION FAILED");
+    console.error(err);
+  });
 
 // ---------------- Auth routes ----------------
 app.use(require("./routes/authRoutes"));
