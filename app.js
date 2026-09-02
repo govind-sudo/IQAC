@@ -90,11 +90,17 @@ app.use((req, res, next) => {
 
 // ---------------- Central error handler ----------------
 app.use((err, req, res, next) => {
+  console.error("🔥🔥🔥 GLOBAL ERROR 🔥🔥🔥");
   console.error(err);
-  if (res.headersSent) return next(err);
-  res.status(err.status || 500).send("Something went wrong.");
-});
+  console.error(err.stack);
 
+  if (res.headersSent) return next(err);
+
+  res.status(err.status || 500).send(`
+    <h1>Server Error</h1>
+    <pre>${err.stack || err.message}</pre>
+  `);
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`server is listening on ${PORT}`);
